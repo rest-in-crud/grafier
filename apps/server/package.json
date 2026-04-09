@@ -7,18 +7,20 @@
     "dev": "nest start --watch",
     "start": "node dist/main",
     "lint": "eslint src",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.0",
     "@nestjs/config": "^4.0.0",
     "@nestjs/core": "^11.0.0",
     "@nestjs/platform-express": "^11.0.0",
-    "@nestjs/typeorm": "^11.0.0",
+    "drizzle-orm": "^0.45.2",
     "pg": "^8.11.0",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.1",
-    "typeorm": "^0.3.0"
+    "rxjs": "^7.8.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
@@ -28,6 +30,7 @@
     "@types/express": "^5.0.0",
     "@types/node": "^22.0.0",
     "@types/pg": "^8.11.0",
+    "drizzle-kit": "^0.31.10",
     "eslint": "^9.0.0",
     "globals": "^15.0.0",
     "rimraf": "^6.0.0",
