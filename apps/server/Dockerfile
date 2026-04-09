@@ -2,7 +2,7 @@ FROM node:20-alpine AS base
 WORKDIR /app
 COPY package.json package-lock.json ./
 COPY apps/server/package.json ./apps/server/
-RUN npm install
+RUN npm ci
 
 FROM base AS dev
 COPY apps/server ./apps/server
@@ -18,7 +18,7 @@ FROM node:20-alpine AS prod
 WORKDIR /app
 COPY package.json package-lock.json ./
 COPY apps/server/package.json ./apps/server/
-RUN npm install --omit=dev
+RUN npm ci --omit=dev
 COPY --from=builder /app/apps/server/dist ./apps/server/dist
 WORKDIR /app/apps/server
 EXPOSE 3000
