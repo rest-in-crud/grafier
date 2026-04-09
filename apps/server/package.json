@@ -6,7 +6,7 @@
     "build": "nest build",
     "dev": "nest start --watch",
     "start": "node dist/main",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "lint": "eslint src",
     "clean": "rimraf dist"
   },
   "dependencies": {
@@ -21,16 +21,17 @@
     "typeorm": "^0.3.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.0.0",
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.0",
     "@types/express": "^5.0.0",
     "@types/node": "^22.0.0",
     "@types/pg": "^8.11.0",
-    "@typescript-eslint/eslint-plugin": "^8.0.0",
-    "@typescript-eslint/parser": "^8.0.0",
     "eslint": "^9.0.0",
+    "globals": "^15.0.0",
     "rimraf": "^6.0.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.0.0"
   }
 }
