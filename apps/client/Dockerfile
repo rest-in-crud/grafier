@@ -1,4 +1,4 @@
-FROM node:20-alpine AS base
+FROM node:25-slim AS base
 WORKDIR /app
 COPY package.json package-lock.json ./
 COPY apps/client/package.json ./apps/client/

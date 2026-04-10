@@ -1,6 +1,6 @@
 FROM node:20-alpine AS base
 WORKDIR /app
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json turbo.json ./
 COPY apps/server/package.json ./apps/server/
 RUN npm ci
 
@@ -16,7 +16,7 @@ RUN npm run build
 
 FROM node:20-alpine AS prod
 WORKDIR /app
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json turbo.json ./
 COPY apps/server/package.json ./apps/server/
 RUN npm ci --omit=dev
 COPY --from=builder /app/apps/server/dist ./apps/server/dist
