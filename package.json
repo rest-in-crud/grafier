@@ -16,8 +16,5 @@
   },
   "engines": {
     "node": ">=18"
-  },
-  "dependencies": {
-    "@nestjs/platform-express": "^11.1.18"
   }
 }

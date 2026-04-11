@@ -26,8 +26,9 @@ services:
     environment:
       DB_HOST: postgres
     volumes:
-      - ./apps/server/src:/app/apps/server/src
-      - server_node_modules:/app/node_modules
+      - ./apps/server:/app/apps/server
+      - /app/node_modules
+      - /app/apps/server/node_modules
     depends_on:
       postgres:
         condition: service_healthy
@@ -41,13 +42,11 @@ services:
       - "5173:5173"
     env_file: .env
     volumes:
-      - ./apps/client/src:/app/apps/client/src
-      - ./apps/client/index.html:/app/apps/client/index.html
-      - client_node_modules:/app/node_modules
+      - ./apps/client:/app/apps/client
+      - /app/node_modules
+      - /app/apps/client/node_modules
     depends_on:
       - server
 
 volumes:
   postgres_data:
-  server_node_modules:
-  client_node_modules:

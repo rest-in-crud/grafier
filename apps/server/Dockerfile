@@ -1,4 +1,4 @@
-FROM node:20-alpine AS base
+FROM node:24.14.1-bookworm-slim AS base
 WORKDIR /app
 COPY package.json package-lock.json turbo.json ./
 COPY apps/server/package.json ./apps/server/
@@ -14,7 +14,7 @@ COPY apps/server ./apps/server
 WORKDIR /app/apps/server
 RUN npm run build
 
-FROM node:20-alpine AS prod
+FROM node:24.14.1-bookworm-slim AS prod
 WORKDIR /app
 COPY package.json package-lock.json turbo.json ./
 COPY apps/server/package.json ./apps/server/
