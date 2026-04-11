@@ -1,4 +1,4 @@
-import './App.css'
+import './App.css';
 
 function App() {
   return (
@@ -6,7 +6,7 @@ function App() {
       <h1>Grafier</h1>
       <p>Client is running mayhaps</p>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
