@@ -7,6 +7,10 @@
     "build": "tsc -b && vite build",
     "dev": "vite",
     "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "typecheck": "tsc -b",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "preview": "vite preview",
     "clean": "rimraf dist"
   },
