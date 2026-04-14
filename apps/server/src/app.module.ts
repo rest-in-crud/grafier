@@ -5,14 +5,14 @@ import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      envFilePath: '../../.env',
-      isGlobal: true,
-    }),
-    DatabaseModule,
-  ],
-  controllers: [AppController],
-  providers: [AppService],
+    imports: [
+        ConfigModule.forRoot({
+            envFilePath: '../../.env',
+            isGlobal: true,
+        }),
+        DatabaseModule,
+    ],
+    controllers: [AppController],
+    providers: [AppService],
 })
 export class AppModule {}
