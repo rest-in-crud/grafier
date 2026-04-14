@@ -106,6 +106,19 @@ export class AuthService {
         return res.json({ message: 'Logged out' });
     }
 
+    async googleCallback(oauthUser: Express.User, res: Response) {
+        const user = oauthUser as { id: string; email: string; password?: string };
+        const accessToken = await this.generateAccessToken(user.id, user.email);
+        await this.issueRefreshCookie(user.id, res);
+
+        if (this.config.get('NODE_ENV') !== 'production') {
+            return res.json({ accessToken, user: { id: user.id, email: user.email } });
+        }
+
+        const frontendUrl = this.config.getOrThrow('URL_FRONTEND');
+        return res.redirect(`${frontendUrl}/auth/callback?token=${accessToken}`);
+    }
+
     private generateAccessToken(userId: string, email: string) {
         return this.jwtService.signAsync(
             { sub: userId, email },

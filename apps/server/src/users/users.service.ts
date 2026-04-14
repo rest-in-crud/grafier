@@ -4,7 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { DRIZZLE } from '../database/database.module';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { users } from '../database/schema/users';
-import { eq } from 'drizzle-orm';
+import {and, eq} from 'drizzle-orm';
 
 @Injectable()
 export class UsersService {
@@ -40,6 +40,27 @@ export class UsersService {
             .returning();
 
         return updatedUser;
+    }
+
+    async findByProviderId(provider: string, providerId: string) {
+        const [user] = await this.db
+            .select()
+            .from(users)
+            .where(
+                and(
+                    eq(users.provider, provider),
+                    eq(users.providerId, providerId)
+                )
+            );
+        return user ?? null;
+    }
+
+    async createOAuthUser(email: string, name: string, provider: string, providerId: string) {
+        const [user] = await this.db
+            .insert(users)
+            .values({ email, name, provider, providerId })
+            .returning();
+        return user;
     }
 
     remove(id: string) {

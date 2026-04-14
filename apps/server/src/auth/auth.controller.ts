@@ -1,8 +1,9 @@
-import { Body, Controller, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from '@/auth/dto/login.dto';
+import { GoogleGuard } from '@/auth/guards/google.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -26,5 +27,15 @@ export class AuthController {
     @Post('logout')
     logout(@Req() req: Request, @Res() res: Response) {
         return this.authService.logout(req, res);
+    }
+
+    @UseGuards(GoogleGuard)
+    @Get('google')
+    googleRedirect() {}
+
+    @UseGuards(GoogleGuard)
+    @Get('google/callback')
+    googleCallback(@Req() req: Request, @Res() res: Response) {
+        return this.authService.googleCallback(req.user as Express.User, res);
     }
 }
