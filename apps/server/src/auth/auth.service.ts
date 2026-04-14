@@ -40,7 +40,7 @@ export class AuthService {
 
         return res.json({
             accessToken,
-            user: userData
+            user: userData,
         });
     }
 

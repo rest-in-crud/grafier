@@ -4,7 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { DRIZZLE } from '../database/database.module';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { users } from '../database/schema/users';
-import {and, eq} from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 
 @Injectable()
 export class UsersService {
@@ -46,12 +46,7 @@ export class UsersService {
         const [user] = await this.db
             .select()
             .from(users)
-            .where(
-                and(
-                    eq(users.provider, provider),
-                    eq(users.providerId, providerId)
-                )
-            );
+            .where(and(eq(users.provider, provider), eq(users.providerId, providerId)));
         return user ?? null;
     }
 
