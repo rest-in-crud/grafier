@@ -15,6 +15,24 @@ services:
       timeout: 5s
       retries: 5
 
+  migrate:
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
+      target: dev
+    env_file: .env
+    environment:
+      DB_HOST: postgres
+    command: ["npm", "run", "db:migrate"]
+    volumes:
+      - ./apps/server:/app/apps/server
+      - /app/node_modules
+      - /app/apps/server/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
   server:
     build:
       context: .
@@ -32,6 +50,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
 
   client:
     build:
