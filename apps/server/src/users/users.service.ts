@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateLocalUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { DRIZZLE } from '../database/database.module';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
@@ -10,10 +10,23 @@ import { and, eq } from 'drizzle-orm';
 export class UsersService {
     constructor(@Inject(DRIZZLE) private db: NodePgDatabase<{ users: typeof users }>) {}
 
-    async create(createUserDto: CreateUserDto) {
+    async createLocalUser(dto: CreateLocalUserDto) {
         const [user] = await this.db
             .insert(users)
-            .values(createUserDto as typeof users.$inferInsert)
+            .values({
+                email: dto.email,
+                name: dto.name,
+                password: dto.password,
+                provider: 'local',
+            })
+            .returning();
+        return user;
+    }
+
+    async createOAuthUser(email: string, name: string, provider: string, providerId: string) {
+        const [user] = await this.db
+            .insert(users)
+            .values({ email, name, provider, providerId })
             .returning();
         return user;
     }
@@ -48,14 +61,6 @@ export class UsersService {
             .from(users)
             .where(and(eq(users.provider, provider), eq(users.providerId, providerId)));
         return user ?? null;
-    }
-
-    async createOAuthUser(email: string, name: string, provider: string, providerId: string) {
-        const [user] = await this.db
-            .insert(users)
-            .values({ email, name, provider, providerId })
-            .returning();
-        return user;
     }
 
     remove(id: string) {

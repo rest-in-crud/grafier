@@ -1,6 +1,5 @@
-export class CreateUserDto {
+export class CreateLocalUserDto {
     email!: string;
     name!: string;
-    provider?: string;
-    password?: string;
+    password!: string;
 }

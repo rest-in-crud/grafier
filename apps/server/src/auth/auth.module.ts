@@ -5,10 +5,13 @@ import { UsersModule } from '../users/users.module';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { GoogleStrategy } from '@/auth/strategies/google.strategy';
+import { LocalStrategy } from '@/auth/strategies/local.strategy';
+import { JwtStrategy } from '@/auth/strategies/jwt.strategy';
+import { LocalGuard } from '@/auth/guards/local.guard';
 
 @Module({
     imports: [UsersModule, JwtModule.register({}), PassportModule],
-    providers: [AuthService, GoogleStrategy],
+    providers: [AuthService, GoogleStrategy, LocalStrategy, JwtStrategy, LocalGuard],
     controllers: [AuthController],
 })
 export class AuthModule {}

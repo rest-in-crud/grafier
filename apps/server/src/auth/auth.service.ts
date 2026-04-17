@@ -1,7 +1,7 @@
 import { ConflictException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { Request, Response } from 'express';
+import { CookieOptions, Request, Response } from 'express';
 import * as bcrypt from 'bcrypt';
 import { eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
@@ -9,7 +9,7 @@ import { DRIZZLE } from '../database/database.module';
 import { sessions } from '../database/schema/sessions';
 import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from '@/auth/dto/login.dto';
+import { isOAuthUser } from '@/types/auth.types';
 
 const REFRESH_COOKIE = 'refresh_token';
 
@@ -27,7 +27,7 @@ export class AuthService {
         if (existing) throw new ConflictException('Email already in use');
 
         const hashed = await bcrypt.hash(registerDto.password, 10);
-        const user = await this.usersService.create({
+        const user = await this.usersService.createLocalUser({
             email: registerDto.email,
             name: registerDto.name,
             password: hashed,
@@ -38,25 +38,22 @@ export class AuthService {
 
         const { password, ...userData } = user;
 
-        return res.json({
-            accessToken,
-            user: userData,
-        });
+        return res.json({ accessToken, user: userData });
     }
 
-    async login(loginDto: LoginDto, res: Response) {
-        const user = await this.usersService.findByEmail(loginDto.email);
-        if (!user) throw new UnauthorizedException('Invalid credentials');
+    async validateUser(email: string, password: string) {
+        const user = await this.usersService.findByEmail(email);
+        if (!user?.password) return null;
+        const match = await bcrypt.compare(password, user.password);
+        return match ? user : null;
+    }
 
-        if (!user.password) throw new UnauthorizedException('Invalid credentials');
-        const match = await bcrypt.compare(loginDto.password, user.password);
-        if (!match) throw new UnauthorizedException('Invalid credentials');
+    async login(user: Express.User, res: Response) {
+        const { id, email } = user as { id: string; email: string };
+        const accessToken = await this.generateAccessToken(id, email);
+        await this.issueRefreshCookie(id, res);
 
-        const accessToken = await this.generateAccessToken(user.id, user.email);
-        await this.issueRefreshCookie(user.id, res);
-
-        const { password, ...userData } = user;
-
+        const { password, ...userData } = user as { password?: string; [key: string]: unknown };
         return res.json({ accessToken, user: userData });
     }
 
@@ -107,16 +104,17 @@ export class AuthService {
     }
 
     async googleCallback(oauthUser: Express.User, res: Response) {
-        const user = oauthUser as { id: string; email: string; password?: string };
-        const accessToken = await this.generateAccessToken(user.id, user.email);
-        await this.issueRefreshCookie(user.id, res);
-
-        if (this.config.get('NODE_ENV') !== 'production') {
-            return res.json({ accessToken, user: { id: user.id, email: user.email } });
+        if (!isOAuthUser(oauthUser)) {
+            throw new UnauthorizedException('Invalid OAuth user payload');
         }
 
+        const accessToken = await this.generateAccessToken(oauthUser.id, oauthUser.email);
+        await this.issueRefreshCookie(oauthUser.id, res);
+
+        res.cookie('access_token', accessToken, this.accessTokenCookieOptions());
+
         const frontendUrl = this.config.getOrThrow('URL_FRONTEND');
-        return res.redirect(`${frontendUrl}/auth/callback?token=${accessToken}`);
+        return res.redirect(`${frontendUrl}/auth/callback`);
     }
 
     private generateAccessToken(userId: string, email: string) {
@@ -152,5 +150,15 @@ export class AuthService {
             sameSite: 'strict',
             maxAge: ttlMs,
         });
+    }
+
+    private accessTokenCookieOptions(): CookieOptions {
+        const maxAge = Number(this.config.getOrThrow('JWT_ACCESS_TTL_MS'));
+        return {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'lax',
+            maxAge,
+        };
     }
 }
