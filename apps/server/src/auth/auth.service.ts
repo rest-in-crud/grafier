@@ -9,7 +9,7 @@ import { DRIZZLE } from '../database/database.module';
 import { sessions } from '../database/schema/sessions';
 import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
-import { isAuthUser } from '@/types/auth.types';
+import { AuthUser } from '@/types/auth.types';
 
 const REFRESH_COOKIE = 'refresh_token';
 
@@ -48,10 +48,7 @@ export class AuthService {
         return match ? user : null;
     }
 
-    async login(user: Express.User, res: Response) {
-        if (!isAuthUser(user)) {
-            throw new UnauthorizedException('Invalid user payload');
-        }
+    async login(user: AuthUser, res: Response) {
         const { id, email } = user;
         const accessToken = await this.generateAccessToken(id, email);
         await this.issueRefreshCookie(id, res);
@@ -106,11 +103,7 @@ export class AuthService {
         return res.json({ message: 'Logged out' });
     }
 
-    async googleCallback(oauthUser: Express.User, res: Response) {
-        if (!isAuthUser(oauthUser)) {
-            throw new UnauthorizedException('Invalid OAuth user payload');
-        }
-
+    async googleCallback(oauthUser: AuthUser, res: Response) {
         const accessToken = await this.generateAccessToken(oauthUser.id, oauthUser.email);
         await this.issueRefreshCookie(oauthUser.id, res);
 
