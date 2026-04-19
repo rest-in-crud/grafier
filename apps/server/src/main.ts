@@ -1,8 +1,7 @@
-import { ClassSerializerInterceptor } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
-import { NestFactory, Reflector } from '@nestjs/core';
-import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
@@ -11,7 +10,6 @@ async function bootstrap() {
     const host = config.getOrThrow<string>('URL_BACKEND');
     const port = config.getOrThrow<number>('SERVER_PORT');
 
-    app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
     app.use(cookieParser());
     app.enableCors({
         origin: config.getOrThrow<string>('URL_FRONTEND'),
