@@ -1,27 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateLocalUserDto } from './dto/create-user.dto';
+import { UserResponseDto } from './dto/user-response.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
+import { JwtAuthGuard } from '@/auth/guards/jwtAuth.guard';
 import { IsAccountOwnerGuard } from './guards/isAccountOwner.guard';
 
 @Controller('users')
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
-    @Post()
-    create(@Body() createUserDto: CreateLocalUserDto) {
-        return this.usersService.createLocalUser(createUserDto);
-    }
-
-    @Get()
-    findAll() {
-        return this.usersService.findAll();
-    }
-
     @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.usersService.findOne(id);
+    async findOne(@Param('id') id: string) {
+        const user = await this.usersService.findOne(id);
+        return user ? new UserResponseDto(user) : null;
     }
 
     @UseGuards(JwtAuthGuard, IsAccountOwnerGuard)

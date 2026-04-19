@@ -25,6 +25,7 @@ export class AuthController {
         return this.authService.login(user, res);
     }
 
+    @Throttle({ default: { ttl: 60_000, limit: 5 } })
     @Post('refresh')
     refresh(@Req() req: Request, @Res() res: Response) {
         return this.authService.refresh(req, res);

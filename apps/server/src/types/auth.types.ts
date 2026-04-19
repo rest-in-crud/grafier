@@ -1,8 +1,6 @@
 export interface AuthUser {
     id: string;
     email: string;
-    name: string;
-    password?: string;
 }
 
 export function isAuthUser(user: unknown): user is AuthUser {
