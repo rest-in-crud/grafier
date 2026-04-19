@@ -1,10 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
+import { and, eq } from 'drizzle-orm';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { DRIZZLE } from '../database/database.module';
+import { users } from '../database/schema/users';
 import { CreateLocalUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { DRIZZLE } from '../database/database.module';
-import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { users } from '../database/schema/users';
-import { and, eq } from 'drizzle-orm';
 
 @Injectable()
 export class UsersService {
@@ -42,9 +43,14 @@ export class UsersService {
     }
 
     async update(id: string, updateUserDto: UpdateUserDto) {
+        const data = { ...updateUserDto };
+        if (data.password) {
+            data.password = await bcrypt.hash(data.password, 10);
+        }
+
         const [updatedUser] = await this.db
             .update(users)
-            .set(updateUserDto)
+            .set(data)
             .where(eq(users.id, id))
             .returning();
 
