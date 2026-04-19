@@ -7,10 +7,6 @@ export interface AuthUser {
 
 export function isAuthUser(user: unknown): user is AuthUser {
     if (typeof user !== 'object' || user === null) return false;
-    if (!('id' in user) || !('email' in user))
-        return false;
-    return (
-        typeof user.id === 'string' &&
-        typeof user.email === 'string'
-    );
+    if (!('id' in user) || !('email' in user)) return false;
+    return typeof user.id === 'string' && typeof user.email === 'string';
 }
