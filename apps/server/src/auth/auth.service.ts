@@ -37,9 +37,7 @@ export class AuthService {
         const accessToken = await this.generateAccessToken(user.id, user.email);
         await this.issueRefreshCookie(user.id, res);
 
-        const { password, ...userData } = user;
-
-        return res.json({ accessToken, user: userData });
+        return { accessToken, user: new UserResponseDto(user) };
     }
 
     async validateUser(email: string, password: string) {
@@ -84,7 +82,7 @@ export class AuthService {
         const accessToken = await this.generateAccessToken(user.id, user.email);
         await this.issueRefreshCookie(user.id, res);
 
-        return res.json({ accessToken });
+        return { accessToken };
     }
 
     async logout(req: Request, res: Response) {
@@ -102,7 +100,7 @@ export class AuthService {
         }
 
         res.clearCookie(REFRESH_COOKIE);
-        return res.json({ message: 'Logged out' });
+        return { message: 'Logged out' };
     }
 
     async googleCallback(oauthUser: AuthUser, res: Response) {
@@ -112,7 +110,7 @@ export class AuthService {
         res.cookie('access_token', accessToken, this.accessTokenCookieOptions());
 
         const frontendUrl = this.config.getOrThrow('URL_FRONTEND');
-        return res.redirect(`${frontendUrl}/auth/callback`);
+        res.redirect(`${frontendUrl}/auth/callback`);
     }
 
     private generateAccessToken(userId: string, email: string) {

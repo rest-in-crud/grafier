@@ -14,7 +14,7 @@ export class AuthController {
 
     @Throttle({ default: { ttl: 60_000, limit: 5 } })
     @Post('register')
-    register(@Body() dto: RegisterDto, @Res() res: Response) {
+    register(@Body() dto: RegisterDto, @Res({ passthrough: true }) res: Response) {
         return this.authService.register(dto, res);
     }
 
@@ -27,12 +27,12 @@ export class AuthController {
 
     @Throttle({ default: { ttl: 60_000, limit: 5 } })
     @Post('refresh')
-    refresh(@Req() req: Request, @Res() res: Response) {
+    refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
         return this.authService.refresh(req, res);
     }
 
     @Post('logout')
-    logout(@Req() req: Request, @Res() res: Response) {
+    logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
         return this.authService.logout(req, res);
     }
 
@@ -42,7 +42,7 @@ export class AuthController {
 
     @UseGuards(GoogleGuard)
     @Get('google/callback')
-    googleCallback(@CurrentUser() user: AuthUser, @Res() res: Response) {
-        return this.authService.googleCallback(user, res);
+    async googleCallback(@CurrentUser() user: AuthUser, @Res() res: Response) {
+        await this.authService.googleCallback(user, res);
     }
 }

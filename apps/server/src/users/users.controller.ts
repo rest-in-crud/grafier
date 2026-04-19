@@ -9,6 +9,7 @@ import { IsAccountOwnerGuard } from './guards/isAccountOwner.guard';
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
+    @UseGuards(JwtAuthGuard)
     @Get(':id')
     async findOne(@Param('id') id: string) {
         const user = await this.usersService.findOne(id);
