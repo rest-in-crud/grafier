@@ -21,7 +21,7 @@ export class AuthController {
     @Throttle({ default: { ttl: 60_000, limit: 5 } })
     @UseGuards(LocalGuard)
     @Post('login')
-    login(@CurrentUser() user: AuthUser, @Res() res: Response) {
+    login(@CurrentUser() user: AuthUser, @Res({ passthrough: true }) res: Response) {
         return this.authService.login(user, res);
     }
 

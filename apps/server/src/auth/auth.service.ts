@@ -10,6 +10,7 @@ import { sessions } from '../database/schema/sessions';
 import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { AuthUser } from '@/types/auth.types';
+import { UserResponseDto } from '@/users/dto/user-response.dto';
 
 const REFRESH_COOKIE = 'refresh_token';
 
@@ -49,12 +50,13 @@ export class AuthService {
     }
 
     async login(user: AuthUser, res: Response) {
-        const { id, email } = user;
-        const accessToken = await this.generateAccessToken(id, email);
-        await this.issueRefreshCookie(id, res);
+        const accessToken = await this.generateAccessToken(user.id, user.email);
+        await this.issueRefreshCookie(user.id, res);
 
-        const { password, ...userData } = user;
-        return res.json({ accessToken, user: userData });
+        return {
+            accessToken,
+            user: new UserResponseDto(user),
+        };
     }
 
     async refresh(req: Request, res: Response) {
