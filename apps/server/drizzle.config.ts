@@ -5,7 +5,7 @@ import { resolve } from 'path';
 config({ path: resolve(__dirname, '../../.env') });
 
 export default defineConfig({
-  schema: './src/database/schema.ts',
+  schema: './src/database/schema/**/*.ts',
   out: './drizzle',
   dialect: 'postgresql',
   dbCredentials: {
@@ -14,5 +14,6 @@ export default defineConfig({
     user: process.env.DB_USER!,
     password: process.env.DB_PASSWORD!,
     database: process.env.DB_NAME!,
+    ssl: false,
   },
 });

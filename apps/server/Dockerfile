@@ -20,6 +20,7 @@ COPY package.json package-lock.json turbo.json ./
 COPY apps/server/package.json ./apps/server/
 RUN npm ci --omit=dev
 COPY --from=builder /app/apps/server/dist ./apps/server/dist
+COPY apps/server/drizzle ./apps/server/drizzle
 WORKDIR /app/apps/server
 EXPOSE 3000
 CMD ["node", "dist/main.js"]
