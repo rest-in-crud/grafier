@@ -29,7 +29,11 @@ export class CanvasEngine {
   private setTool(toolName: string) {
     this.activeTool?.deactivate(this.canvas);
     this.activeTool = ToolRegistry.get(toolName);
-    this.activeTool?.activate(this.canvas);
+    if (this.activeTool) {
+      const storeStyles = useCanvasStore.getState().toolStyles[toolName] ?? {};
+      const styles = { ...this.activeTool.defaultStyles, ...storeStyles };
+      this.activeTool.activate(this.canvas, styles);
+    }
   }
 
   public async destroy() {
