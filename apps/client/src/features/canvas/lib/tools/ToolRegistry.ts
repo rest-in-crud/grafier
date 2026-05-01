@@ -8,8 +8,10 @@ export class ToolRegistry {
   static init() {
     if (this.initialized) return
 
-    const modules = import.meta.glob(['./*Tool.ts', '!./BaseTool.ts', '!./ToolRegistry.ts'],
-      { eager: true, import: 'default' })
+    const modules = import.meta.glob(
+      './*/*Tool.ts',
+      { eager: true, import: 'default' }
+    )
 
     for (const mod of Object.values(modules)) {
       if (isToolRegistration(mod)) {

@@ -3,6 +3,16 @@ import { Canvas } from 'fabric';
 export interface FieldSchema {
   type: string;
   label: string;
+  group?: string;
+  visibleWhen?: { field: string; value: unknown };
+  // range / number
+  min?: number;
+  max?: number;
+  unit?: string;
+  // select / segmented
+  options?: string[];
+  // preset-picker
+  presets?: { id: string; label: string }[];
   [key: string]: unknown;
 }
 
