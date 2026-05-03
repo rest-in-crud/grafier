@@ -119,6 +119,11 @@
   --radius-2xl: 0;
   --radius-3xl: 0;
   --radius-4xl: 0;
+
+  --text-2xs: 0.625rem;
+  --text-2xs--line-height: 1;
+  --tracking-mono: 0.18em;
+  --tracking-hint: 0.05em;
 }
 
 @layer base {
