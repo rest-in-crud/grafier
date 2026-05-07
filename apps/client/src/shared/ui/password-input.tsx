@@ -12,6 +12,7 @@ const PasswordInput = ({ className, ...props }: ComponentProps<typeof Input>) =>
       <button
         type="button"
         aria-label={show ? 'Hide password' : 'Show password'}
+        aria-pressed={show}
         onClick={() => setShow((s) => !s)}
         className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
       >
