@@ -10,10 +10,26 @@ type FieldProps = {
   children: ReactNode;
 };
 
+type ChildProps = {
+  id?: string;
+  'aria-invalid'?: boolean;
+  'aria-describedby'?: string;
+};
+
 const Field = ({ label, error, hint, hintAction, children }: FieldProps) => {
   const id = useId();
-  const childWithId = isValidElement<{ id?: string }>(children)
-    ? cloneElement(children, { id })
+  const errorId = useId();
+  const hintId = useId();
+
+  const describedBy =
+    [hint ? hintId : null, error ? errorId : null].filter(Boolean).join(' ') || undefined;
+
+  const childWithProps = isValidElement<ChildProps>(children)
+    ? cloneElement(children, {
+        id,
+        'aria-invalid': !!error,
+        'aria-describedby': describedBy,
+      })
     : children;
 
   return (
@@ -23,14 +39,22 @@ const Field = ({ label, error, hint, hintAction, children }: FieldProps) => {
         {hintAction ? (
           <span className="normal-case tracking-hint">{hintAction}</span>
         ) : (
-          hint && <span className="normal-case tracking-hint">{hint}</span>
+          hint && (
+            <span id={hintId} className="normal-case tracking-hint">
+              {hint}
+            </span>
+          )
         )}
       </Label>
 
-      {childWithId}
+      {childWithProps}
 
       {error && (
-        <div role="alert" className="font-mono text-2xs uppercase tracking-mono text-destructive">
+        <div
+          id={errorId}
+          role="alert"
+          className="font-mono text-2xs uppercase tracking-mono text-destructive"
+        >
           {error}
         </div>
       )}
