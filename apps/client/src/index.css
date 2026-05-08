@@ -134,3 +134,32 @@
     @apply bg-background text-foreground font-sans antialiased;
   }
 }
+
+@layer utilities {
+  .bg-shell-glow {
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 40%, rgba(255, 255, 255, 0.03), transparent 60%),
+      radial-gradient(ellipse 100% 80% at 50% 100%, rgba(255, 255, 255, 0.02), transparent 70%);
+  }
+
+  .bg-shell-grid {
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(ellipse 90% 70% at 50% 50%, #000 40%, transparent 90%);
+    -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 50%, #000 40%, transparent 90%);
+  }
+
+  .bg-shell-vignette {
+    background: radial-gradient(
+      ellipse 70% 50% at 50% 50%,
+      transparent 30%,
+      rgba(0, 0, 0, 0.55) 100%
+    );
+  }
+
+  .bg-card-art-fade {
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.015), transparent 40%);
+  }
+}
