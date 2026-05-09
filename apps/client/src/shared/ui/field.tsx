@@ -17,7 +17,7 @@ type ChildProps = {
 };
 
 const Field = ({ label, error, hint, hintAction, children }: FieldProps) => {
-  const id = useId();
+  const inputId = useId();
   const errorId = useId();
   const hintId = useId();
 
@@ -26,15 +26,15 @@ const Field = ({ label, error, hint, hintAction, children }: FieldProps) => {
 
   const childWithProps = isValidElement<ChildProps>(children)
     ? cloneElement(children, {
-        id,
-        'aria-invalid': !!error,
+        id: inputId,
+        'aria-invalid': error ? true : undefined,
         'aria-describedby': describedBy,
       })
     : children;
 
   return (
-    <div className="mb-4 flex flex-col gap-2">
-      <Label htmlFor={id}>
+    <div className="flex flex-col gap-2">
+      <Label htmlFor={inputId}>
         <span>{label}</span>
         {hintAction ? (
           <span className="normal-case tracking-hint">{hintAction}</span>
