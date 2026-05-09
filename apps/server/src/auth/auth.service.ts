@@ -85,6 +85,15 @@ export class AuthService {
         return { accessToken };
     }
 
+    async me(user: AuthUser) {
+        const me = await this.usersService.findOne(user.id);
+        if (!me) throw new UnauthorizedException('User not found');
+
+        return {
+            user: new UserResponseDto(me),
+        };
+    }
+
     async logout(req: Request, res: Response) {
         const token = req.cookies?.[REFRESH_COOKIE];
         if (token) {

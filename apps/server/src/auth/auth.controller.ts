@@ -7,6 +7,7 @@ import { GoogleGuard } from '@/auth/guards/google.guard';
 import { LocalGuard } from '@/auth/guards/local.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { AuthUser } from '@/types/auth.types';
+import { JwtAuthGuard } from './guards/jwtAuth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -29,6 +30,13 @@ export class AuthController {
     @Post('refresh')
     refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
         return this.authService.refresh(req, res);
+    }
+
+    @Throttle({ default: { ttl: 60_000, limit: 5 } })
+    @UseGuards(JwtAuthGuard)
+    @Get('me')
+    me(@CurrentUser() user: AuthUser) {
+        return this.authService.me(user);
     }
 
     @Post('logout')
