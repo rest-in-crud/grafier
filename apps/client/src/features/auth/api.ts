@@ -12,7 +12,7 @@ import { clearAuth } from '@/features/auth/lib';
 import { createApiClient } from '@/shared/lib/api-client';
 
 const apiClient = createApiClient({
-  baseUrl: import.meta.env.VITE_API_URL ?? '/api',
+  baseUrl: import.meta.env.VITE_URL_BACKEND ?? '/api',
   getToken: getAccessToken,
   onRefresh: async () => {
     const { accessToken } = await api.refresh();
