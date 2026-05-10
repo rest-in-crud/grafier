@@ -22,7 +22,7 @@ services:
       target: dev
     env_file: .env
     environment:
-      DB_HOST: postgres
+      DATABASE_URI: postgresql://postgres:postgres@postgres:5432/grafier
     command: ["npm", "run", "db:migrate"]
     volumes:
       - ./apps/server:/app/apps/server
@@ -42,7 +42,7 @@ services:
       - "3000:3000"
     env_file: .env
     environment:
-      DB_HOST: postgres
+      DATABASE_URI: postgresql://postgres:postgres@postgres:5432/grafier
     volumes:
       - ./apps/server:/app/apps/server
       - /app/node_modules

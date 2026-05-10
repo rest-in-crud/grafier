@@ -21,7 +21,7 @@ services:
       target: prod
     env_file: .env
     environment:
-      DB_HOST: postgres
+      DATABASE_URI: postgresql://postgres:postgres@postgres:5432/grafier
     command: ["node", "dist/migrate.js"]
     depends_on:
       postgres:
@@ -37,7 +37,7 @@ services:
       - "3000:3000"
     env_file: .env
     environment:
-      DB_HOST: postgres
+      DATABASE_URI: postgresql://postgres:postgres@postgres:5432/grafier
     restart: unless-stopped
     depends_on:
       postgres:

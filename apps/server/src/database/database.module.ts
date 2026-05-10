@@ -14,11 +14,7 @@ export const DRIZZLE = Symbol('DRIZZLE');
             inject: [ConfigService],
             useFactory: (config: ConfigService) => {
                 const pool = new Pool({
-                    host: config.getOrThrow('DB_HOST'),
-                    port: config.getOrThrow<number>('DB_PORT'),
-                    user: config.getOrThrow('DB_USER'),
-                    password: config.getOrThrow('DB_PASSWORD'),
-                    database: config.getOrThrow('DB_NAME'),
+                    connectionString: config.getOrThrow('DATABASE_URI'),
                 });
                 return drizzle(pool, { schema });
             },
