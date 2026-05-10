@@ -39,10 +39,7 @@ const SignInForm = () => {
       className="flex flex-col gap-4"
     >
       {formState.errors.root?.serverError && (
-        <div
-          role="alert"
-          className="font-mono text-2xs uppercase tracking-mono text-destructive"
-        >
+        <div role="alert" className="font-mono text-2xs uppercase tracking-mono text-destructive">
           {formState.errors.root.serverError.message}
         </div>
       )}
