@@ -13,6 +13,7 @@
   },
   "packageManager": "npm@11.11.0",
   "devDependencies": {
+    "depcheck": "^1.4.7",
     "drizzle-kit": "^0.31.10",
     "turbo": "^2.3.3"
   },
