@@ -111,6 +111,8 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-hairline: var(--hairline);
+  --color-hairline-strong: var(--hairline-strong);
 
   --radius-sm: 0;
   --radius-md: 0;
@@ -122,6 +124,10 @@
 
   --text-2xs: 0.625rem;
   --text-2xs--line-height: 1;
+  --text-body: 0.8125rem;
+  --text-body--line-height: 1.55;
+  --text-display: 2.125rem;
+  --text-display--line-height: 1.05;
   --tracking-mono: 0.18em;
   --tracking-hint: 0.05em;
 }

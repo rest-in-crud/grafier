@@ -17,7 +17,7 @@ const TwoColumnCard = ({ className, children }: RootProps) => {
   return (
     <div
       className={cn(
-        'relative grid w-full max-w-245 grid-cols-1 border border-(--hairline) bg-black/55 backdrop-blur-md md:grid-cols-[1.05fr_1fr]',
+        'relative grid w-full max-w-245 grid-cols-1 border border-hairline bg-black/55 backdrop-blur-md md:grid-cols-[1.05fr_1fr]',
         className,
       )}
     >
@@ -44,7 +44,7 @@ const TwoColumnCardArt = ({ className, children }: SideProps) => {
   return (
     <div
       className={cn(
-        'bg-card-art-fade relative hidden min-h-135 overflow-hidden border-(--hairline) md:block md:border-l',
+        'bg-card-art-fade relative hidden min-h-135 overflow-hidden border-hairline md:block md:border-l',
         className,
       )}
     >
