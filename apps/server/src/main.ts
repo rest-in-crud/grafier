@@ -8,7 +8,6 @@ async function bootstrap() {
     const app = await NestFactory.create(AppModule);
 
     const config = app.get(ConfigService);
-    const host = config.getOrThrow<string>('URL_BACKEND');
     const port = config.getOrThrow<number>('SERVER_PORT');
 
     app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
@@ -20,7 +19,7 @@ async function bootstrap() {
 
     await app.listen(port);
 
-    console.log(`Server running on ${host}`);
+    console.log(`Server running on port ${port}`);
 }
 
 bootstrap();

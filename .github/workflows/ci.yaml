@@ -85,11 +85,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     env:
-      DB_HOST: localhost
-      DB_PORT: 5432
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      DB_NAME: grafier
+      DATABASE_URI: postgresql://postgres:postgres@localhost:5432/grafier
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
