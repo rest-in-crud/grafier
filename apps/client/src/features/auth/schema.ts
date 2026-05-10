@@ -1,10 +1,5 @@
 import { z } from 'zod';
 
-const signInSchema = z.object({
-  email: z.string().trim().toLowerCase().email('Invalid email'),
-  password: z.string().min(1, 'Password is required'),
-});
-
 const userSchema = z.object({
   id: z.string(),
   email: z.string().email(),
@@ -12,8 +7,24 @@ const userSchema = z.object({
   provider: z.string().nullable(),
 });
 
-type SignInValues = z.infer<typeof signInSchema>;
-type User = z.infer<typeof userSchema>;
+const signInSchema = z.object({
+  email: z.string().trim().toLowerCase().email('Invalid email'),
+  password: z.string().min(1, 'Password is required'),
+});
 
-export { signInSchema, userSchema };
-export type { SignInValues, User };
+const signInResponseSchema = z.object({
+  accessToken: z.string(),
+  user: userSchema,
+});
+
+const refreshResponseSchema = z.object({
+  accessToken: z.string(),
+});
+
+type User = z.infer<typeof userSchema>;
+type SignInValues = z.infer<typeof signInSchema>;
+type SignInResponse = z.infer<typeof signInResponseSchema>;
+type RefreshResponse = z.infer<typeof refreshResponseSchema>;
+
+export { userSchema, signInSchema, signInResponseSchema, refreshResponseSchema };
+export type { User, SignInValues, SignInResponse, RefreshResponse };
