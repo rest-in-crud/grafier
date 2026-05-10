@@ -1,5 +1,5 @@
 import { BaseTool } from '@/features/canvas/lib/tools/BaseTool.ts';
-import {isToolRegistration } from '@/features/canvas/lib/tools/types.ts';
+import { isToolRegistration } from '@/features/canvas/lib/tools/types.ts';
 
 export class ToolRegistry {
   private static tools = new Map<string, BaseTool>();
