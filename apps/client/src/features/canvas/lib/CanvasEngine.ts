@@ -39,7 +39,7 @@ export class CanvasEngine {
   }
 
   public resize(width: number, height: number) {
-    this.canvas.setDimensions({ width, height })
+    this.canvas.setDimensions({ width, height });
     this.canvas.requestRenderAll();
   }
 }

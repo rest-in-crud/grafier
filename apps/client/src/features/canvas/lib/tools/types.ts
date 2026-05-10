@@ -1,8 +1,8 @@
-import { BaseTool } from './BaseTool'
+import { BaseTool } from './BaseTool';
 
 export interface ToolRegistration {
-  id: string
-  tool: BaseTool
+  id: string;
+  tool: BaseTool;
 }
 
 export function isToolRegistration(mod: unknown): mod is ToolRegistration {
@@ -12,5 +12,5 @@ export function isToolRegistration(mod: unknown): mod is ToolRegistration {
     'id' in mod &&
     'tool' in mod &&
     typeof (mod as Record<string, unknown>).id === 'string'
-  )
+  );
 }
