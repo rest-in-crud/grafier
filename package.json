@@ -13,9 +13,13 @@
   },
   "packageManager": "npm@11.11.0",
   "devDependencies": {
+    "drizzle-kit": "^0.31.10",
     "turbo": "^2.3.3"
   },
   "engines": {
     "node": ">=18"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.2"
   }
 }
