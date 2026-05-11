@@ -28,3 +28,10 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
       - run: vercel build --yes --target production --token ${{ secrets.VERCEL_TOKEN }}
       - run: vercel deploy --yes --target production --prebuilt --token ${{ secrets.VERCEL_TOKEN }}
+
+  server:
+    name: Deploy (backend)
+    runs-on: ubuntu-latest
+    environment: ${{ (github.ref == 'refs/heads/main' && 'production') || 'dev' }}
+    steps:
+      - run: curl --request POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
