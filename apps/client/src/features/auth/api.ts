@@ -1,6 +1,7 @@
 import {
   type User,
   type SignInValues,
+  type SignUpValues,
   type RefreshResponse,
   type AuthResponse,
   userSchema,
@@ -24,6 +25,12 @@ const apiClient = createApiClient({
 const api = {
   signIn: async (credentials: SignInValues): Promise<AuthResponse> => {
     const data = await apiClient.post('/auth/login', credentials, {
+      skipAuthRefresh: true,
+    });
+    return authResponseSchema.parse(data);
+  },
+  signUp: async (credentials: SignUpValues): Promise<AuthResponse> => {
+    const data = await apiClient.post('/auth/register', credentials, {
       skipAuthRefresh: true,
     });
     return authResponseSchema.parse(data);
