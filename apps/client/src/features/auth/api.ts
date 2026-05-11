@@ -34,8 +34,8 @@ const api = {
     });
     return refreshResponseSchema.parse(data);
   },
-  me: async (): Promise<User> => {
-    const data = await apiClient.get('/auth/me');
+  me: async (options?: { skipAuthRefresh?: boolean }): Promise<User> => {
+    const data = await apiClient.get('/auth/me', options);
     return userSchema.parse(data);
   },
   logout: async (): Promise<void> => {
