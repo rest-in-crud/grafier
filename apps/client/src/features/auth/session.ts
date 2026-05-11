@@ -1,11 +1,18 @@
 import { api } from '@/features/auth/api';
 import { setAccessToken } from '@/features/auth/token';
 import { useAuthStore } from '@/features/auth/store';
-import type { SignInResponse, SignInValues } from '@/features/auth/schema';
+import type { AuthResponse, SignInValues, SignUpValues } from '@/features/auth/schema';
 import { clearAuth } from '@/features/auth/lib';
 
-const performSignIn = async (values: SignInValues): Promise<SignInResponse> => {
+const performSignIn = async (values: SignInValues): Promise<AuthResponse> => {
   const result = await api.signIn(values);
+  setAccessToken(result.accessToken);
+  useAuthStore.getState().setUser(result.user);
+  return result;
+};
+
+const performSignUp = async (values: SignUpValues): Promise<AuthResponse> => {
+  const result = await api.signUp(values);
   setAccessToken(result.accessToken);
   useAuthStore.getState().setUser(result.user);
   return result;
@@ -24,4 +31,4 @@ const performRestoreSession = async (): Promise<null> => {
   return null;
 };
 
-export { performSignIn, performRestoreSession };
+export { performSignIn, performSignUp, performRestoreSession };
