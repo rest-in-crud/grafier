@@ -1,11 +1,11 @@
 import {
   type User,
   type SignInValues,
-  type SignInResponse,
   type RefreshResponse,
+  type AuthResponse,
   userSchema,
   refreshResponseSchema,
-  signInResponseSchema,
+  authResponseSchema,
 } from '@/features/auth/schema';
 import { getAccessToken, setAccessToken } from '@/features/auth/token';
 import { clearAuth } from '@/features/auth/lib';
@@ -22,11 +22,11 @@ const apiClient = createApiClient({
 });
 
 const api = {
-  signIn: async (credentials: SignInValues): Promise<SignInResponse> => {
+  signIn: async (credentials: SignInValues): Promise<AuthResponse> => {
     const data = await apiClient.post('/auth/login', credentials, {
       skipAuthRefresh: true,
     });
-    return signInResponseSchema.parse(data);
+    return authResponseSchema.parse(data);
   },
   refresh: async (): Promise<RefreshResponse> => {
     const data = await apiClient.post('/auth/refresh', undefined, {

@@ -12,7 +12,7 @@ const signInSchema = z.object({
   password: z.string().min(1, 'Password is required'),
 });
 
-const signInResponseSchema = z.object({
+const authResponseSchema = z.object({
   accessToken: z.string(),
   user: userSchema,
 });
@@ -23,8 +23,8 @@ const refreshResponseSchema = z.object({
 
 type User = z.infer<typeof userSchema>;
 type SignInValues = z.infer<typeof signInSchema>;
-type SignInResponse = z.infer<typeof signInResponseSchema>;
+type AuthResponse = z.infer<typeof authResponseSchema>;
 type RefreshResponse = z.infer<typeof refreshResponseSchema>;
 
-export { userSchema, signInSchema, signInResponseSchema, refreshResponseSchema };
-export type { User, SignInValues, SignInResponse, RefreshResponse };
+export { userSchema, signInSchema, authResponseSchema, refreshResponseSchema };
+export type { User, SignInValues, AuthResponse, RefreshResponse };
