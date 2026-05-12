@@ -1,3 +1,4 @@
+import { Link } from 'react-router';
 import { TwoColumnCard, TwoColumnCardArt, TwoColumnCardForm } from '@/shared/ui/two-column-card';
 import { SignInForm } from '@/features/auth/ui/sign-in-form';
 
@@ -12,8 +13,15 @@ const SignInPage = () => {
         </div>
 
         <h1 className="mb-3 text-display font-medium tracking-tight">Welcome back.</h1>
-        <p className="mb-7 max-w-[36ch] text-body text-muted-foreground">
+        <p className="mb-2 max-w-[36ch] text-body text-muted-foreground">
           Sign in to pick up where you left off.
+        </p>
+        <p className="mb-7 max-w-[36ch] text-body text-muted-foreground">
+          New here?{' '}
+          <Link to="/signup" className="text-foreground underline-offset-2 hover:underline">
+            Create an account
+          </Link>
+          .
         </p>
 
         <SignInForm />
