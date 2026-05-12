@@ -17,6 +17,7 @@ jobs:
     environment: ${{ (github.ref == 'refs/heads/main' && 'production') || 'dev' }}
     steps:
       - uses: actions/checkout@v4
+      - run: rm -rf ./.git
       - uses: actions/setup-node@v4
         with:
           node-version: 20
