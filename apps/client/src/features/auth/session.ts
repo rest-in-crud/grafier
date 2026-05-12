@@ -31,4 +31,9 @@ const performRestoreSession = async (): Promise<null> => {
   return null;
 };
 
-export { performSignIn, performSignUp, performRestoreSession };
+const performLogout = async (): Promise<void> => {
+  clearAuth();
+  api.logout().catch(() => {});
+};
+
+export { performSignIn, performSignUp, performRestoreSession, performLogout };
