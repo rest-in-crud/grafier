@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router';
+import type { RouteObject } from 'react-router';
 import { AuthShell } from '@/widgets/auth-shell';
 import { EditorPage } from '@/pages/editor';
 import { SignInPage } from '@/pages/sign-in';
@@ -8,7 +8,7 @@ import { NotFoundPage } from '@/pages/not-found';
 import { CallbackPage } from '@/pages/callback';
 import { requireAuth, requireAnon } from '@/features/auth/session';
 
-const router = createBrowserRouter([
+const routes: RouteObject[] = [
   { path: '/', loader: requireAuth, Component: EditorPage },
   {
     loader: requireAnon,
@@ -21,6 +21,6 @@ const router = createBrowserRouter([
     ],
   },
   { path: '*', Component: NotFoundPage },
-]);
+];
 
-export { router };
+export { routes };
