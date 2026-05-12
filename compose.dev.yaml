@@ -1,0 +1,72 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-grafier}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  migrate:
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
+      target: dev
+    env_file: .env
+    environment:
+      DATABASE_URI: postgresql://postgres:postgres@postgres:5432/grafier
+    command: ["npm", "run", "db:migrate"]
+    volumes:
+      - ./apps/server:/app/apps/server
+      - /app/node_modules
+      - /app/apps/server/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  server:
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
+      target: dev
+    ports:
+      - "3000:3000"
+    env_file: .env
+    environment:
+      DATABASE_URI: postgresql://postgres:postgres@postgres:5432/grafier
+    volumes:
+      - ./apps/server:/app/apps/server
+      - /app/node_modules
+      - /app/apps/server/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  client:
+    build:
+      context: .
+      dockerfile: apps/client/Dockerfile
+      target: dev
+    ports:
+      - "5173:5173"
+    env_file: .env
+    volumes:
+      - ./apps/client:/app/apps/client
+      - /app/node_modules
+      - /app/apps/client/node_modules
+    depends_on:
+      - server
+
+volumes:
+  postgres_data:
