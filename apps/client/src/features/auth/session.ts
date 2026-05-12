@@ -3,6 +3,7 @@ import { setAccessToken } from '@/features/auth/token';
 import { useAuthStore } from '@/features/auth/store';
 import type { AuthResponse, SignInValues, SignUpValues } from '@/features/auth/schema';
 import { clearAuth } from '@/features/auth/lib';
+import { redirect } from 'react-router';
 
 const performSignIn = async (values: SignInValues): Promise<AuthResponse> => {
   const result = await api.signIn(values);
@@ -31,4 +32,28 @@ const performRestoreSession = async (): Promise<null> => {
   return null;
 };
 
-export { performSignIn, performSignUp, performRestoreSession };
+const performLogout = async (): Promise<void> => {
+  clearAuth();
+  api.logout().catch(() => {});
+};
+
+const requireAuth = () => {
+  const user = useAuthStore.getState().user;
+  if (!user) throw redirect('/signin');
+  return null;
+};
+
+const requireAnon = () => {
+  const user = useAuthStore.getState().user;
+  if (user) throw redirect('/');
+  return null;
+};
+
+export {
+  performSignIn,
+  performSignUp,
+  performRestoreSession,
+  performLogout,
+  requireAuth,
+  requireAnon,
+};

@@ -4,9 +4,9 @@ import {
   type SignUpValues,
   type RefreshResponse,
   type AuthResponse,
-  userSchema,
   refreshResponseSchema,
   authResponseSchema,
+  meResponseSchema,
 } from '@/features/auth/schema';
 import { getAccessToken, setAccessToken } from '@/features/auth/token';
 import { clearAuth } from '@/features/auth/lib';
@@ -43,7 +43,7 @@ const api = {
   },
   me: async (options?: { skipAuthRefresh?: boolean }): Promise<User> => {
     const data = await apiClient.get('/auth/me', options);
-    return userSchema.parse(data);
+    return meResponseSchema.parse(data).user;
   },
   logout: async (): Promise<void> => {
     await apiClient.post('/auth/logout', undefined, {

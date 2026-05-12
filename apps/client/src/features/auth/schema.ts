@@ -27,11 +27,21 @@ const refreshResponseSchema = z.object({
   accessToken: z.string(),
 });
 
+const meResponseSchema = z.object({ user: userSchema });
+
 type User = z.infer<typeof userSchema>;
 type SignInValues = z.infer<typeof signInSchema>;
 type SignUpValues = z.infer<typeof signUpSchema>;
 type AuthResponse = z.infer<typeof authResponseSchema>;
 type RefreshResponse = z.infer<typeof refreshResponseSchema>;
+type MeResponse = z.infer<typeof meResponseSchema>;
 
-export { userSchema, signInSchema, signUpSchema, authResponseSchema, refreshResponseSchema };
-export type { User, SignInValues, SignUpValues, AuthResponse, RefreshResponse };
+export {
+  userSchema,
+  signInSchema,
+  signUpSchema,
+  authResponseSchema,
+  refreshResponseSchema,
+  meResponseSchema,
+};
+export type { User, SignInValues, SignUpValues, AuthResponse, RefreshResponse, MeResponse };
