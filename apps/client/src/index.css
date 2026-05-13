@@ -130,6 +130,8 @@
   --text-display--line-height: 1.05;
   --tracking-mono: 0.18em;
   --tracking-hint: 0.05em;
+
+  --shadow-glow-destructive: 0 0 10px var(--destructive);
 }
 
 @layer base {
