@@ -57,7 +57,6 @@ const CallbackPage = () => {
 
       <div
         role="status"
-        aria-live="polite"
         className="w-full self-stretch border border-hairline bg-background/55 px-4 py-3.5 text-left font-mono text-[11px] text-muted-foreground"
       >
         {STEPS.map((step, i) => {
