@@ -65,7 +65,7 @@ export class UsersService {
         return user ?? null;
     }
 
-    remove(id: string) {
-        return this.db.delete(users).where(eq(users.id, id));
+    async remove(id: string) {
+        await this.db.delete(users).where(eq(users.id, id));
     }
 }
