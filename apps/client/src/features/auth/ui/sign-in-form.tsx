@@ -25,6 +25,8 @@ const SignInForm = () => {
     } catch (error) {
       if (error instanceof HttpError && error.status === 401) {
         setError('root.serverError', { message: 'Invalid credentials' });
+        setError('email', { type: 'manual' });
+        setError('password', { type: 'manual' });
       } else {
         setError('root.serverError', { message: 'Something went wrong. Try again.' });
       }
@@ -44,7 +46,11 @@ const SignInForm = () => {
         </div>
       )}
 
-      <Field label="EMAIL" error={formState.errors.email?.message}>
+      <Field
+        label="EMAIL"
+        error={formState.errors.email?.message}
+        invalid={!!formState.errors.email}
+      >
         <Input
           {...register('email')}
           type="email"
@@ -53,7 +59,11 @@ const SignInForm = () => {
         />
       </Field>
 
-      <Field label="PASSWORD" error={formState.errors.password?.message}>
+      <Field
+        label="PASSWORD"
+        error={formState.errors.password?.message}
+        invalid={!!formState.errors.password}
+      >
         <PasswordInput
           {...register('password')}
           autoComplete="current-password"
