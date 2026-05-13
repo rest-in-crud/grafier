@@ -9,7 +9,7 @@ export class ToolRegistry {
   static init() {
     if (this.initialized) return;
 
-    const modules = import.meta.glob(['./*Tool.ts', '!./BaseTool.ts'], {
+    const modules = import.meta.glob('./*/*Tool.ts', {
       eager: true,
       import: 'default',
     });
