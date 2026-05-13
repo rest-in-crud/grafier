@@ -1,4 +1,4 @@
-import {Shadow} from "fabric";
+import { Shadow } from 'fabric';
 
 export const hexToRgba = (hex: string, opacity: number): string => {
   if (!hex.startsWith('#') || hex.length !== 7) return hex;
@@ -8,7 +8,17 @@ export const hexToRgba = (hex: string, opacity: number): string => {
   return `rgba(${r}, ${g}, ${b}, ${opacity / 100})`;
 };
 
-export const buildShadow = (s: { shadowBlur: number; shadowColor: string; shadowOffsetX: number; shadowOffsetY: number }): Shadow | null => {
+export const buildShadow = (s: {
+  shadowBlur: number;
+  shadowColor: string;
+  shadowOffsetX: number;
+  shadowOffsetY: number;
+}): Shadow | null => {
   if (s.shadowBlur === 0 && s.shadowOffsetX === 0 && s.shadowOffsetY === 0) return null;
-  return new Shadow({ color: s.shadowColor, blur: s.shadowBlur, offsetX: s.shadowOffsetX, offsetY: s.shadowOffsetY });
+  return new Shadow({
+    color: s.shadowColor,
+    blur: s.shadowBlur,
+    offsetX: s.shadowOffsetX,
+    offsetY: s.shadowOffsetY,
+  });
 };

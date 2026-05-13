@@ -75,18 +75,18 @@ export const PEN_STYLE_SCHEMA: Record<string, FieldSchema> = {
     label: 'Dash',
     group: 'Line',
     presets: [
-      { id: 'solid',     label: '——'    },
-      { id: 'dashed',    label: '– –'   },
-      { id: 'dotted',    label: '···'   },
+      { id: 'solid', label: '——' },
+      { id: 'dashed', label: '– –' },
+      { id: 'dotted', label: '···' },
       { id: 'long-dash', label: '—— ——' },
-      { id: 'dash-dot',  label: '—·—'  },
+      { id: 'dash-dot', label: '—·—' },
     ],
     visibleWhen: { field: 'brushType', value: 'pencil' },
   },
 
   // ── Shadow ───────────────────────────────────────────────────────────────
-  shadowColor:   { type: 'color',  label: 'Color',    group: 'Shadow' },
-  shadowBlur:    { type: 'range',  label: 'Blur',     group: 'Shadow', min: 0, max: 50 },
+  shadowColor: { type: 'color', label: 'Color', group: 'Shadow' },
+  shadowBlur: { type: 'range', label: 'Blur', group: 'Shadow', min: 0, max: 50 },
   shadowOffsetX: { type: 'number', label: 'Offset X', group: 'Shadow', min: -100, max: 100 },
   shadowOffsetY: { type: 'number', label: 'Offset Y', group: 'Shadow', min: -100, max: 100 },
 

@@ -1,4 +1,4 @@
-import {BaseTool, ToolRegistration} from '@/features/canvas/lib/tools/BaseTool.ts';
+import { BaseTool, ToolRegistration } from '@/features/canvas/lib/tools/BaseTool.ts';
 import { Canvas } from 'fabric';
 export class SelectTool implements BaseTool {
   activate(canvas: Canvas, _styles?: Record<string, unknown>) {
