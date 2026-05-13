@@ -7,6 +7,7 @@ type FieldProps = {
   error?: string;
   hint?: string;
   hintAction?: ReactNode;
+  invalid?: boolean;
   children: ReactNode;
 };
 
@@ -16,10 +17,11 @@ type ChildProps = {
   'aria-describedby'?: string;
 };
 
-const Field = ({ label, error, hint, hintAction, children }: FieldProps) => {
+const Field = ({ label, error, hint, hintAction, invalid, children }: FieldProps) => {
   const inputId = useId();
   const errorId = useId();
   const hintId = useId();
+  const isInvalid = !!error || !!invalid;
 
   const describedBy =
     [hint ? hintId : null, error ? errorId : null].filter(Boolean).join(' ') || undefined;
@@ -27,7 +29,7 @@ const Field = ({ label, error, hint, hintAction, children }: FieldProps) => {
   const childWithProps = isValidElement<ChildProps>(children)
     ? cloneElement(children, {
         id: inputId,
-        'aria-invalid': error ? true : undefined,
+        'aria-invalid': isInvalid ? true : undefined,
         'aria-describedby': describedBy,
       })
     : children;
