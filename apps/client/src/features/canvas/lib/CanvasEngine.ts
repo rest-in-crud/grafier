@@ -22,6 +22,7 @@ export class CanvasEngine {
       selection: true,
     });
     ToolRegistry.init();
+    this.canvas.on('object:added', (e) => { e.target.erasable = true; });
     this.setTool(useCanvasStore.getState().activeTool);
     this.unsubscribe = useCanvasStore.subscribe((state) => this.setTool(state.activeTool));
   }
