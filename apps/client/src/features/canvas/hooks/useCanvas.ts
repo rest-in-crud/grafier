@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { CanvasEngine } from '@/features/canvas/lib/CanvasEngine.ts';
+import { useCanvasStore } from '@/features/canvas/store/canvas.store.ts';
 
 export const useCanvas = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -12,6 +13,7 @@ export const useCanvas = () => {
     const { width, height } = containerRef.current.getBoundingClientRect();
 
     engineRef.current = new CanvasEngine(canvasRef.current, { width, height });
+    useCanvasStore.getState().setEngineRef(engineRef);
 
     const observer = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect;

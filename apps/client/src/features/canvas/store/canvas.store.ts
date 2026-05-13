@@ -1,15 +1,20 @@
 import { create } from 'zustand';
 import type { ShapeType } from '@/features/canvas/lib/shapes/shape.config.ts';
+import {CanvasEngine} from "@/features/canvas/lib/CanvasEngine.ts";
 
 interface CanvasState {
-  activeTool: string
-  setActiveTool: (tool: string) => void
+  activeTool: string;
+  setActiveTool: (tool: string) => void;
 
   activeShape: ShapeType | null
   setActiveShape: (shape: ShapeType | null) => void
 
   toolStyles: Record<string, Record<string, unknown>>
   setToolStyle: (toolId: string, patch: Record<string, unknown>) => void
+  toolStyles: Record<string, Record<string, unknown>>;
+  setToolStyle: (toolId: string, patch: Record<string, unknown>) => void;
+  engineRef: { current: CanvasEngine | null};
+  setEngineRef: (ref: { current: CanvasEngine | null}) => void;
 }
 
 export const useCanvasStore = create<CanvasState>((set) => ({
@@ -20,10 +25,13 @@ export const useCanvasStore = create<CanvasState>((set) => ({
   setActiveShape: (shape) => set({ activeShape: shape }),
 
   toolStyles: {},
-  setToolStyle: (toolId, patch) => set((state) => ({
-    toolStyles: {
-      ...state.toolStyles,
-      [toolId]: { ...state.toolStyles[toolId], ...patch },
-    }
-  })),
-}))
+  setToolStyle: (toolId, patch) =>
+    set((state) => ({
+      toolStyles: {
+        ...state.toolStyles,
+        [toolId]: { ...state.toolStyles[toolId], ...patch },
+      },
+    })),
+    engineRef: { current: null },
+    setEngineRef: (ref) => set({ engineRef: ref }),
+}));

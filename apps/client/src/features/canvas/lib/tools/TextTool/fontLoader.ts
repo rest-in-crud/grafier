@@ -1,5 +1,4 @@
-import { injectGoogleFontsLink } from './googleFonts';
-import { DEFAULT_TEXT_FONT_FAMILY, DEFAULT_TEXT_FONT_WEIGHT } from './fontOptions';
+import { injectGoogleFontsLink, GOOGLE_TEXT_FONTS, GOOGLE_TEXT_FONT_WEIGHTS } from './googleFonts.ts';
 
 const FONT_LOAD_TIMEOUT_MS = 3000;
 const FONT_LOAD_SIZE_PX = 20;
@@ -13,7 +12,7 @@ function waitForTimeout(timeoutMs: number) {
 function normalizeFontFamily(fontFamily: unknown) {
   return typeof fontFamily === 'string' && fontFamily.trim().length > 0
     ? fontFamily
-    : DEFAULT_TEXT_FONT_FAMILY;
+    : GOOGLE_TEXT_FONTS[0];
 }
 
 function normalizeFontWeight(fontWeight: unknown) {
@@ -23,7 +22,7 @@ function normalizeFontWeight(fontWeight: unknown) {
 
   return typeof fontWeight === 'string' && fontWeight.trim().length > 0
     ? fontWeight
-    : DEFAULT_TEXT_FONT_WEIGHT;
+    : GOOGLE_TEXT_FONT_WEIGHTS[0];
 }
 
 export async function loadTextFont(fontFamily: unknown, fontWeight: unknown) {

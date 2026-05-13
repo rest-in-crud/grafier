@@ -37,7 +37,7 @@ export class EraserTool implements BaseTool {
     const bounds = obj.getBoundingRect();
     const scale = 0.25;
 
-    tmpCanvas.width  = Math.ceil(bounds.width * scale);
+    tmpCanvas.width = Math.ceil(bounds.width * scale);
     tmpCanvas.height = Math.ceil(bounds.height * scale);
 
     const ctx = tmpCanvas.getContext('2d');
