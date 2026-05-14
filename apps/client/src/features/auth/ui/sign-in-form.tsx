@@ -1,6 +1,7 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import { ArrowRightIcon } from '@phosphor-icons/react';
 import { signInSchema, type SignInValues } from '@/features/auth/schema';
 import { performSignIn, startGoogleOAuth } from '@/features/auth/session';
@@ -13,10 +14,20 @@ import { PasswordInput } from '@/shared/ui/password-input';
 
 const SignInForm = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const { register, handleSubmit, setError, clearErrors, formState } = useForm<SignInValues>({
     resolver: zodResolver(signInSchema),
   });
+
+  useEffect(() => {
+    if (searchParams.get('error') === 'oauth') {
+      setError('root.serverError', {
+        message: 'Google sign-in failed. Please try again.',
+      });
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setError, setSearchParams]);
 
   const onSubmit = async (values: SignInValues) => {
     clearErrors('root.serverError');

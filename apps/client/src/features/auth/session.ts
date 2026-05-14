@@ -33,13 +33,14 @@ const performRestoreSession = async (): Promise<null> => {
 };
 
 const startGoogleOAuth = () => {
-  window.location.href = `${import.meta.env.VITE_URL_BACKEND ?? '/api'}/auth/google`;
+  const base = (import.meta.env.VITE_URL_BACKEND ?? '/api').replace(/\/$/, '');
+  window.location.href = `${base}/auth/google`;
 };
 
 const completeOAuth = async () => {
   await performRestoreSession();
   const user = useAuthStore.getState().user;
-  throw redirect(user ? '/' : '/signin');
+  throw redirect(user ? '/' : '/signin?error=oauth');
 };
 
 const performLogout = async (): Promise<void> => {
