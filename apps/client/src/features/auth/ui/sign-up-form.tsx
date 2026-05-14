@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router';
 import { ArrowRightIcon } from '@phosphor-icons/react';
 import { signUpSchema, type SignUpValues } from '@/features/auth/schema';
-import { performSignUp } from '@/features/auth/session';
+import { performSignUp, startGoogleOAuth } from '@/features/auth/session';
 import { HttpError } from '@/shared/lib/api-client';
 import { Button } from '@/shared/ui/button';
 import { Field } from '@/shared/ui/field';
@@ -98,7 +98,12 @@ const SignUpForm = () => {
         <span className="h-px flex-1 bg-hairline" />
       </div>
 
-      <Button type="button" variant="ghost" className="w-full justify-center gap-2">
+      <Button
+        type="button"
+        variant="ghost"
+        onClick={startGoogleOAuth}
+        className="w-full justify-center gap-2"
+      >
         <GoogleIcon />
         Continue with Google
       </Button>
