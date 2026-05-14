@@ -11,12 +11,11 @@ import { requireAuth, requireAnon } from '@/features/auth/session';
 const routes: RouteObject[] = [
   { path: '/', loader: requireAuth, Component: EditorPage },
   {
-    loader: requireAnon,
     Component: AuthShell,
     children: [
-      { path: '/signin', Component: SignInPage },
-      { path: '/signup', Component: SignUpPage },
-      { path: '/forgot', Component: ForgotPage },
+      { path: '/signin', loader: requireAnon, Component: SignInPage },
+      { path: '/signup', loader: requireAnon, Component: SignUpPage },
+      { path: '/forgot', loader: requireAnon, Component: ForgotPage },
       { path: '/callback', Component: CallbackPage },
     ],
   },
