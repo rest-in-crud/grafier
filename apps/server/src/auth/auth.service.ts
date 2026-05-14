@@ -119,7 +119,7 @@ export class AuthService {
         res.cookie('access_token', accessToken, this.accessTokenCookieOptions());
 
         const frontendUrl = this.config.getOrThrow('URL_FRONTEND');
-        res.redirect(`${frontendUrl}/auth/callback`);
+        res.redirect(`${frontendUrl}/callback`);
     }
 
     private generateAccessToken(userId: string, email: string) {
