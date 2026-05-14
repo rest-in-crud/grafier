@@ -43,7 +43,7 @@ const completeOAuth = async () => {
   throw redirect(user ? '/' : '/signin?error=oauth');
 };
 
-const performLogout = async (): Promise<void> => {
+const performLogout = () => {
   clearAuth();
   api.logout().catch(() => {});
 };
