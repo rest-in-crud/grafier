@@ -3,10 +3,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router';
 import { ArrowRightIcon } from '@phosphor-icons/react';
 import { signUpSchema, type SignUpValues } from '@/features/auth/schema';
-import { performSignUp } from '@/features/auth/session';
+import { performSignUp, startGoogleOAuth } from '@/features/auth/session';
 import { HttpError } from '@/shared/lib/api-client';
 import { Button } from '@/shared/ui/button';
 import { Field } from '@/shared/ui/field';
+import { GoogleIcon } from '@/shared/ui/google-icon';
 import { Input } from '@/shared/ui/input';
 import { PasswordInput } from '@/shared/ui/password-input';
 
@@ -25,6 +26,7 @@ const SignUpForm = () => {
     } catch (error) {
       if (error instanceof HttpError && error.status === 409) {
         setError('root.serverError', { message: 'Email is already taken.' });
+        setError('email', { type: 'manual' });
       } else {
         setError('root.serverError', { message: 'Something went wrong. Try again.' });
       }
@@ -54,7 +56,11 @@ const SignUpForm = () => {
         />
       </Field>
 
-      <Field label="EMAIL" error={formState.errors.email?.message}>
+      <Field
+        label="EMAIL"
+        error={formState.errors.email?.message}
+        invalid={!!formState.errors.email}
+      >
         <Input
           {...register('email')}
           type="email"
@@ -84,6 +90,22 @@ const SignUpForm = () => {
             <ArrowRightIcon weight="bold" aria-hidden="true" />
           </>
         )}
+      </Button>
+
+      <div className="flex items-center gap-3 font-mono text-2xs uppercase tracking-mono text-muted-foreground">
+        <span className="h-px flex-1 bg-hairline" />
+        <span>or</span>
+        <span className="h-px flex-1 bg-hairline" />
+      </div>
+
+      <Button
+        type="button"
+        variant="ghost"
+        onClick={startGoogleOAuth}
+        className="w-full justify-center gap-2"
+      >
+        <GoogleIcon />
+        Continue with Google
       </Button>
     </form>
   );

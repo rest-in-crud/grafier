@@ -13,17 +13,3 @@ updates:
         patterns:
           - "typescript-eslint"
           - "@typescript-eslint/*"
-
-  - package-ecosystem: npm
-    directory: /
-    schedule:
-      interval: daily
-    target-branch: main
-    groups:
-      nestjs:
-        patterns:
-          - "@nestjs/*"
-      typescript-eslint:
-        patterns:
-          - "typescript-eslint"
-          - "@typescript-eslint/*"

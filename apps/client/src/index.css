@@ -130,6 +130,16 @@
   --text-display--line-height: 1.05;
   --tracking-mono: 0.18em;
   --tracking-hint: 0.05em;
+
+  --shadow-glow-destructive: 0 0 10px var(--destructive);
+
+  --animate-blink: blink 1s steps(2) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
 }
 
 @layer base {
