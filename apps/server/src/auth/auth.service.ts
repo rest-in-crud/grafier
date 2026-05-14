@@ -1,7 +1,7 @@
 import { ConflictException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { CookieOptions, Request, Response } from 'express';
+import { Request, Response } from 'express';
 import * as bcrypt from 'bcrypt';
 import { eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
@@ -113,12 +113,9 @@ export class AuthService {
     }
 
     async googleCallback(oauthUser: AuthUser, res: Response) {
-        const accessToken = await this.generateAccessToken(oauthUser.id, oauthUser.email);
         await this.issueRefreshCookie(oauthUser.id, res);
 
-        res.cookie('access_token', accessToken, this.accessTokenCookieOptions());
-
-        const frontendUrl = this.config.getOrThrow('URL_FRONTEND');
+        const frontendUrl = this.config.getOrThrow<string>('URL_FRONTEND').replace(/\/$/, '');
         res.redirect(`${frontendUrl}/callback`);
     }
 
@@ -157,13 +154,4 @@ export class AuthService {
         });
     }
 
-    private accessTokenCookieOptions(): CookieOptions {
-        const maxAge = Number(this.config.getOrThrow('JWT_ACCESS_TTL_MS'));
-        return {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'lax',
-            maxAge,
-        };
-    }
 }
