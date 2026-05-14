@@ -37,6 +37,10 @@ const performLogout = async (): Promise<void> => {
   api.logout().catch(() => {});
 };
 
+const startGoogleOAuth = () => {
+  window.location.href = `${import.meta.env.VITE_URL_BACKEND ?? '/api'}/auth/google`;
+};
+
 const requireAuth = () => {
   const user = useAuthStore.getState().user;
   if (!user) throw redirect('/signin');
@@ -54,6 +58,7 @@ export {
   performSignUp,
   performRestoreSession,
   performLogout,
+  startGoogleOAuth,
   requireAuth,
   requireAnon,
 };
