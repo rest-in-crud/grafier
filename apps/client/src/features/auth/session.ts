@@ -32,13 +32,19 @@ const performRestoreSession = async (): Promise<null> => {
   return null;
 };
 
+const startGoogleOAuth = () => {
+  window.location.href = `${import.meta.env.VITE_URL_BACKEND ?? '/api'}/auth/google`;
+};
+
+const completeOAuth = async () => {
+  await performRestoreSession();
+  const user = useAuthStore.getState().user;
+  throw redirect(user ? '/' : '/signin');
+};
+
 const performLogout = async (): Promise<void> => {
   clearAuth();
   api.logout().catch(() => {});
-};
-
-const startGoogleOAuth = () => {
-  window.location.href = `${import.meta.env.VITE_URL_BACKEND ?? '/api'}/auth/google`;
 };
 
 const requireAuth = () => {
@@ -57,8 +63,9 @@ export {
   performSignIn,
   performSignUp,
   performRestoreSession,
-  performLogout,
   startGoogleOAuth,
+  completeOAuth,
+  performLogout,
   requireAuth,
   requireAnon,
 };
