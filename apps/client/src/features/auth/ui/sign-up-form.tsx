@@ -25,6 +25,7 @@ const SignUpForm = () => {
     } catch (error) {
       if (error instanceof HttpError && error.status === 409) {
         setError('root.serverError', { message: 'Email is already taken.' });
+        setError('email', { type: 'manual' });
       } else {
         setError('root.serverError', { message: 'Something went wrong. Try again.' });
       }
@@ -54,7 +55,11 @@ const SignUpForm = () => {
         />
       </Field>
 
-      <Field label="EMAIL" error={formState.errors.email?.message}>
+      <Field
+        label="EMAIL"
+        error={formState.errors.email?.message}
+        invalid={!!formState.errors.email}
+      >
         <Input
           {...register('email')}
           type="email"
