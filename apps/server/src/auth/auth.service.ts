@@ -152,7 +152,7 @@ export class AuthService {
         res.cookie(REFRESH_COOKIE, jwt, {
             httpOnly: true,
             secure: this.config.get('NODE_ENV') === 'production',
-            sameSite: 'strict',
+            sameSite: 'lax',
             maxAge: ttlMs,
         });
     }
