@@ -32,6 +32,17 @@ const performRestoreSession = async (): Promise<null> => {
   return null;
 };
 
+const startGoogleOAuth = () => {
+  const base = (import.meta.env.VITE_URL_BACKEND ?? '/api').replace(/\/$/, '');
+  window.location.href = `${base}/auth/google`;
+};
+
+const completeOAuth = async () => {
+  await performRestoreSession();
+  const user = useAuthStore.getState().user;
+  throw redirect(user ? '/' : '/signin?error=oauth');
+};
+
 const performLogout = async (): Promise<void> => {
   clearAuth();
   api.logout().catch(() => {});
@@ -53,6 +64,8 @@ export {
   performSignIn,
   performSignUp,
   performRestoreSession,
+  startGoogleOAuth,
+  completeOAuth,
   performLogout,
   requireAuth,
   requireAnon,

@@ -6,18 +6,17 @@ import { SignUpPage } from '@/pages/sign-up';
 import { ForgotPage } from '@/pages/forgot';
 import { NotFoundPage } from '@/pages/not-found';
 import { CallbackPage } from '@/pages/callback';
-import { requireAuth, requireAnon } from '@/features/auth/session';
+import { requireAuth, requireAnon, completeOAuth } from '@/features/auth/session';
 
 const routes: RouteObject[] = [
   { path: '/', loader: requireAuth, Component: EditorPage },
   {
-    loader: requireAnon,
     Component: AuthShell,
     children: [
-      { path: '/signin', Component: SignInPage },
-      { path: '/signup', Component: SignUpPage },
-      { path: '/forgot', Component: ForgotPage },
-      { path: '/callback', Component: CallbackPage },
+      { path: '/signin', loader: requireAnon, Component: SignInPage },
+      { path: '/signup', loader: requireAnon, Component: SignUpPage },
+      { path: '/forgot', loader: requireAnon, Component: ForgotPage },
+      { path: '/callback', loader: completeOAuth, Component: CallbackPage },
     ],
   },
   { path: '*', Component: NotFoundPage },
