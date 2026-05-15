@@ -1,9 +1,4 @@
-import {
-    ConflictException,
-    Inject,
-    Injectable,
-    UnauthorizedException,
-} from '@nestjs/common';
+import { ConflictException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response } from 'express';
@@ -173,13 +168,17 @@ export class AuthService {
 
     async sendVerification(dto: VerifyEmailDto) {
         const user = await this.usersService.findByEmail(dto.email);
-        const genericMessage = { message: 'Mayhaps the email verification link was sent, who knows' };
+        const genericMessage = {
+            message: 'Mayhaps the email verification link was sent, who knows',
+        };
 
         if (!user || user.provider !== 'local' || user.isVerified) {
             return genericMessage;
         }
 
-        await this.db.delete(emailVerificationTokens).where(eq(emailVerificationTokens.userID, user.id));
+        await this.db
+            .delete(emailVerificationTokens)
+            .where(eq(emailVerificationTokens.userID, user.id));
 
         const ttlMs = Number(this.config.getOrThrow('JWT_VERIFICATION_TTL_MS'));
         const expiresAt = new Date(Date.now() + ttlMs);

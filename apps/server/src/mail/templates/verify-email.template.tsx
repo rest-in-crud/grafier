@@ -6,10 +6,7 @@ interface VerifyEmailTemplateProps {
     verifyLink: string;
 }
 
-export const VerifyEmailTemplate: React.FC<VerifyEmailTemplateProps> = ({
-    name,
-    verifyLink,
-}) => (
+export const VerifyEmailTemplate: React.FC<VerifyEmailTemplateProps> = ({ name, verifyLink }) => (
     <Html>
         <Body>
             <Container>
@@ -17,9 +14,7 @@ export const VerifyEmailTemplate: React.FC<VerifyEmailTemplateProps> = ({
                 <Text>
                     Welcome to Grafier! Please click the link below to verify your email address:
                 </Text>
-                <Link href={verifyLink}>
-                    {verifyLink}
-                </Link>
+                <Link href={verifyLink}>{verifyLink}</Link>
             </Container>
         </Body>
     </Html>
