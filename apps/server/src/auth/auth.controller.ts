@@ -8,6 +8,9 @@ import { LocalGuard } from '@/auth/guards/local.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { AuthUser } from '@/types/auth.types';
 import { JwtAuthGuard } from './guards/jwtAuth.guard';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ResetPasswordGuard } from './guards/reset-password.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -52,5 +55,21 @@ export class AuthController {
     @Get('google/callback')
     async googleCallback(@CurrentUser() user: AuthUser, @Res() res: Response) {
         await this.authService.googleCallback(user, res);
+    }
+
+    @Throttle({ default: { ttl: 60_000, limit: 5 } })
+    @Post('forgot-password')
+    forgotPassword(@Body() dto: ForgotPasswordDto) {
+        return this.authService.forgotPassword(dto);
+    }
+
+    @Throttle({ default: { ttl: 60_000, limit: 5 } })
+    @UseGuards(ResetPasswordGuard)
+    @Post('reset-password')
+    resetPassword(
+        @CurrentUser() payload: { id: string; jti: string },
+        @Body() dto: ResetPasswordDto,
+    ) {
+        return this.authService.resetPassword(payload.id, payload.jti, dto);
     }
 }
