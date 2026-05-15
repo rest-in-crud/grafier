@@ -11,6 +11,8 @@ import { JwtAuthGuard } from './guards/jwtAuth.guard';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ResetPasswordGuard } from './guards/reset-password.guard';
+import { VerifyEmailDto } from './dto/verify-email.dto';
+import { EmailVerificationGuard } from './guards/email-verification.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -18,8 +20,8 @@ export class AuthController {
 
     @Throttle({ default: { ttl: 60_000, limit: 5 } })
     @Post('register')
-    register(@Body() dto: RegisterDto, @Res({ passthrough: true }) res: Response) {
-        return this.authService.register(dto, res);
+    register(@Body() dto: RegisterDto) {
+        return this.authService.register(dto);
     }
 
     @Throttle({ default: { ttl: 60_000, limit: 5 } })
@@ -35,7 +37,7 @@ export class AuthController {
         return this.authService.refresh(req, res);
     }
 
-    @Throttle({ default: { ttl: 60_000, limit: 5 } })
+    @Throttle({ default: { ttl: 60_000, limit: 30 } })
     @UseGuards(JwtAuthGuard)
     @Get('me')
     me(@CurrentUser() user: AuthUser) {
@@ -71,5 +73,18 @@ export class AuthController {
         @Body() dto: ResetPasswordDto,
     ) {
         return this.authService.resetPassword(payload.id, payload.jti, dto);
+    }
+
+    @Throttle({ default: { ttl: 60_000, limit: 5 } })
+    @Post('verify-email')
+    verifyEmail(@Body() dto: VerifyEmailDto) {
+        return this.authService.sendVerification(dto);
+    }
+
+    @Throttle({ default: { ttl: 60_000, limit: 5 } })
+    @UseGuards(EmailVerificationGuard)
+    @Post('confirm-email')
+    confirmEmail(@CurrentUser() payload: { id: string; jti: string }) {
+        return this.authService.confirmEmail(payload.id, payload.jti);
     }
 }

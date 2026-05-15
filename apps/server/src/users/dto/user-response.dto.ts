@@ -5,6 +5,7 @@ export class UserResponseDto {
     email!: string;
     name!: string;
     provider!: string | null;
+    isVerified!: boolean;
 
     @Exclude()
     password?: string | null;

@@ -3,6 +3,7 @@ export interface AuthUser {
     email: string;
     name: string;
     provider: string | null;
+    isVerified: boolean;
 }
 
 export function isAuthUser(user: unknown): user is AuthUser {

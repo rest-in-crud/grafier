@@ -27,7 +27,7 @@ export class UsersService {
     async createOAuthUser(email: string, name: string, provider: string, providerId: string) {
         const [user] = await this.db
             .insert(users)
-            .values({ email, name, provider, providerId })
+            .values({ email, name, provider, providerId, isVerified: true })
             .returning();
         return user;
     }
@@ -42,8 +42,8 @@ export class UsersService {
         return user ?? null;
     }
 
-    async update(id: string, updateUserDto: UpdateUserDto) {
-        const data = { ...updateUserDto };
+    async update(id: string, updateUserDto: UpdateUserDto & { isVerified?: boolean }) {
+        const data: Partial<typeof users.$inferInsert> = { ...updateUserDto };
         if (data.password) {
             data.password = await bcrypt.hash(data.password, 10);
         }
