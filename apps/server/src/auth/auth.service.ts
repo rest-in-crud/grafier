@@ -7,10 +7,14 @@ import { eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DRIZZLE } from '../database/database.module';
 import { sessions } from '../database/schema/sessions';
+import { passwordResetTokens } from '../database/schema/password-reset-tokens';
 import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { AuthUser } from '@/types/auth.types';
 import { UserResponseDto } from '@/users/dto/user-response.dto';
+import { MailService } from '../mail/mail.service';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 const REFRESH_COOKIE = 'refresh_token';
 
@@ -20,6 +24,7 @@ export class AuthService {
         private usersService: UsersService,
         private jwtService: JwtService,
         private config: ConfigService,
+        private mailService: MailService,
         @Inject(DRIZZLE) private db: NodePgDatabase,
     ) {}
 
@@ -117,6 +122,42 @@ export class AuthService {
 
         const frontendUrl = this.config.getOrThrow<string>('URL_FRONTEND').replace(/\/$/, '');
         res.redirect(`${frontendUrl}/callback`);
+    }
+
+    async forgotPassword(dto: ForgotPasswordDto) {
+        const user = await this.usersService.findByEmail(dto.email);
+        if (!user || user.provider !== 'local') {
+            return { message: 'Mayhaps the password reset link was sent, who knows' };
+        }
+
+        await this.db.delete(passwordResetTokens).where(eq(passwordResetTokens.userID, user.id));
+
+        const ttlMs = Number(this.config.getOrThrow('JWT_RESET_TTL_MS'));
+        const expiresAt = new Date(Date.now() + ttlMs);
+
+        const [tokenId] = await this.db
+            .insert(passwordResetTokens)
+            .values({ userID: user.id, expiresAt })
+            .returning({ id: passwordResetTokens.id });
+
+        const token = await this.jwtService.signAsync(
+            { sub: user.id, jti: tokenId.id },
+            {
+                secret: this.config.getOrThrow('JWT_RESET_SECRET'),
+                expiresIn: this.config.getOrThrow('JWT_RESET_EXPIRES_IN'),
+            },
+        );
+
+        await this.mailService.sendForgotPasswordEmail(user.email, user.name, token);
+
+        return { message: 'Mayhaps the password reset link was sent, who knows' };
+    }
+
+    async resetPassword(userId: string, jti: string, dto: ResetPasswordDto) {
+        await this.db.delete(passwordResetTokens).where(eq(passwordResetTokens.id, jti));
+        await this.usersService.update(userId, { password: dto.password });
+
+        return { message: 'Password reset successful' };
     }
 
     private generateAccessToken(userId: string, email: string) {

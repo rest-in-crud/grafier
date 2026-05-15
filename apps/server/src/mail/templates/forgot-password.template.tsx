@@ -14,12 +14,8 @@ export const ForgotPasswordTemplate: React.FC<ForgotPasswordTemplateProps> = ({
         <Body>
             <Container>
                 <Text>Hello {name},</Text>
-                <Text>
-                    Click the link below to reset your password:
-                </Text>
-                <Link href={resetLink}>
-                    {resetLink}
-                </Link>
+                <Text>Click the link below to reset your password:</Text>
+                <Link href={resetLink}>{resetLink}</Link>
             </Container>
         </Body>
     </Html>
