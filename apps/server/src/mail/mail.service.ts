@@ -15,7 +15,7 @@ export class MailService {
 
     async sendForgotPasswordEmail(email: string, name: string, token: string) {
         const frontendUrl = this.config.getOrThrow<string>('URL_FRONTEND').replace(/\/$/, '');
-        const resetLink = `${frontendUrl}/reset/${token}`;
+        const resetLink = `${frontendUrl}/reset?token=${token}`;
 
         const html = await render(
             React.createElement(ForgotPasswordTemplate, {
@@ -33,7 +33,7 @@ export class MailService {
 
     async sendVerificationEmail(email: string, name: string, token: string) {
         const frontendUrl = this.config.getOrThrow<string>('URL_FRONTEND').replace(/\/$/, '');
-        const verifyLink = `${frontendUrl}/verify/${token}`;
+        const verifyLink = `${frontendUrl}/verify?token=${token}`;
 
         const html = await render(
             React.createElement(VerifyEmailTemplate, {
