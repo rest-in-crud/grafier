@@ -30,7 +30,7 @@ export class AuthService {
         @Inject(DRIZZLE) private db: NodePgDatabase,
     ) {}
 
-    async register(registerDto: RegisterDto, res: Response) {
+    async register(registerDto: RegisterDto) {
         const existing = await this.usersService.findByEmail(registerDto.email);
         if (existing) throw new ConflictException('Email already in use');
 
