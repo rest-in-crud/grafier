@@ -1,9 +1,7 @@
 import {
-    BadRequestException,
     ConflictException,
     Inject,
     Injectable,
-    NotFoundException,
     UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
