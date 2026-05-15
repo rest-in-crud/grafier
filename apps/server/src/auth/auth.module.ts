@@ -10,6 +10,8 @@ import { JwtStrategy } from '@/auth/strategies/jwt.strategy';
 import { LocalGuard } from '@/auth/guards/local.guard';
 import { ResetPasswordStrategy } from './strategies/reset-password.strategy';
 import { ResetPasswordGuard } from './guards/reset-password.guard';
+import { EmailVerificationStrategy } from './strategies/email-verification.strategy';
+import { EmailVerificationGuard } from './guards/email-verification.guard';
 
 @Module({
     imports: [UsersModule, JwtModule.register({}), PassportModule],
@@ -19,8 +21,10 @@ import { ResetPasswordGuard } from './guards/reset-password.guard';
         LocalStrategy,
         JwtStrategy,
         ResetPasswordStrategy,
+        EmailVerificationStrategy,
         LocalGuard,
         ResetPasswordGuard,
+        EmailVerificationGuard,
     ],
     controllers: [AuthController],
 })
