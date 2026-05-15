@@ -48,10 +48,7 @@ export class AuthService {
 
         await this.sendVerification({ email: user.email });
 
-        const accessToken = await this.generateAccessToken(user.id, user.email);
-        await this.issueRefreshCookie(user.id, res);
-
-        return { accessToken, user: new UserResponseDto(user) };
+        return { user: new UserResponseDto(user) };
     }
 
     async validateUser(email: string, password: string) {
