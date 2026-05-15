@@ -37,7 +37,7 @@ export class AuthController {
         return this.authService.refresh(req, res);
     }
 
-    @Throttle({ default: { ttl: 60_000, limit: 5 } })
+    @Throttle({ default: { ttl: 60_000, limit: 30 } })
     @UseGuards(JwtAuthGuard)
     @Get('me')
     me(@CurrentUser() user: AuthUser) {
