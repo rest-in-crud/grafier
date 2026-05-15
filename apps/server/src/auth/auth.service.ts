@@ -133,10 +133,8 @@ export class AuthService {
 
     async forgotPassword(dto: ForgotPasswordDto) {
         const user = await this.usersService.findByEmail(dto.email);
-        if (!user) throw new NotFoundException('User not found');
-
-        if (user.provider !== 'local') {
-            throw new BadRequestException('Only local users can reset their password');
+        if (!user || user.provider !== 'local') {
+            return { message: 'Mayhaps the password reset link was sent, who knows' };
         }
 
         await this.db.delete(passwordResetTokens).where(eq(passwordResetTokens.userID, user.id));
@@ -159,7 +157,7 @@ export class AuthService {
 
         await this.mailService.sendForgotPasswordEmail(user.email, user.name, token);
 
-        return { message: 'Password reset link sent to your email' };
+        return { message: 'Mayhaps the password reset link was sent, who knows' };
     }
 
     async resetPassword(userId: string, jti: string, dto: ResetPasswordDto) {
