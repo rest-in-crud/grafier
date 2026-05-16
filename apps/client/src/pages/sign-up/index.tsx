@@ -1,5 +1,6 @@
 import { Link } from 'react-router';
 import { TwoColumnCard, TwoColumnCardArt, TwoColumnCardForm } from '@/shared/ui/two-column-card';
+import { AsciiArt } from '@/shared/ui/ascii-art';
 import { SignUpForm } from '@/features/auth/ui/sign-up-form';
 
 const SignUpPage = () => {
@@ -27,9 +28,7 @@ const SignUpPage = () => {
         <SignUpForm />
       </TwoColumnCardForm>
       <TwoColumnCardArt>
-        <div className="grid h-full place-items-center font-mono text-2xs uppercase tracking-mono text-muted-foreground">
-          [ art slot ]
-        </div>
+        <AsciiArt piece="polygon" />
       </TwoColumnCardArt>
     </TwoColumnCard>
   );
