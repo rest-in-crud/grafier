@@ -7,6 +7,7 @@ import {
   refreshResponseSchema,
   authResponseSchema,
   meResponseSchema,
+  type ForgotPasswordValues,
 } from '@/features/auth/schema';
 import { getAccessToken, setAccessToken } from '@/features/auth/token';
 import { clearAuth } from '@/features/auth/lib';
@@ -40,6 +41,12 @@ const api = {
       skipAuthRefresh: true,
     });
     return refreshResponseSchema.parse(data);
+  },
+  forgotPassword: async (values: ForgotPasswordValues): Promise<void> => {
+    await apiClient.post('/auth/forgot-password', values, { skipAuthRefresh: true });
+  },
+  resetPassword: async (token: string, password: string): Promise<void> => {
+    await apiClient.post('/auth/reset-password', { password }, { skipAuthRefresh: true, token });
   },
   me: async (options?: { skipAuthRefresh?: boolean }): Promise<User> => {
     const data = await apiClient.get('/auth/me', options);
