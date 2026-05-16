@@ -1,10 +1,11 @@
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate } from 'react-router';
 import { ArrowRightIcon } from '@phosphor-icons/react';
 import { signUpSchema, type SignUpValues } from '@/features/auth/schema';
 import { performSignUp, startGoogleOAuth } from '@/features/auth/session';
 import { HttpError } from '@/shared/lib/api-client';
+import { ResendVerification } from '@/features/auth/ui/resend-verification';
 import { Button } from '@/shared/ui/button';
 import { Field } from '@/shared/ui/field';
 import { GoogleIcon } from '@/shared/ui/google-icon';
@@ -12,7 +13,7 @@ import { Input } from '@/shared/ui/input';
 import { PasswordInput } from '@/shared/ui/password-input';
 
 const SignUpForm = () => {
-  const navigate = useNavigate();
+  const [sentEmail, setSentEmail] = useState<string | null>(null);
 
   const { register, handleSubmit, setError, clearErrors, formState } = useForm<SignUpValues>({
     resolver: zodResolver(signUpSchema),
@@ -22,7 +23,7 @@ const SignUpForm = () => {
     clearErrors('root.serverError');
     try {
       await performSignUp(values);
-      navigate('/');
+      setSentEmail(values.email);
     } catch (error) {
       if (error instanceof HttpError && error.status === 409) {
         setError('root.serverError', { message: 'Email is already taken.' });
@@ -32,6 +33,18 @@ const SignUpForm = () => {
       }
     }
   };
+
+  if (sentEmail) {
+    return (
+      <div className="flex max-w-[36ch] flex-col gap-4">
+        <p role="status" className="text-body text-muted-foreground">
+          Check your email, we sent a verification link to {sentEmail}.
+        </p>
+
+        <ResendVerification email={sentEmail} />
+      </div>
+    );
+  }
 
   return (
     <form
