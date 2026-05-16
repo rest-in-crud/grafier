@@ -78,10 +78,6 @@ function bezierPathFrame(t: number, cols = 56, rows = 30): string {
   placeAnchor(p3, '◦');
   placeAnchor(p1, '□');
   placeAnchor(p2, '□');
-  const label = '[ BEZIER.PATH ]';
-  for (let i = 0; i < label.length; i++) {
-    if (label[i] !== ' ') grid[rows - 1][2 + i] = label[i];
-  }
   return grid.map((r) => r.join('')).join('\n');
 }
 
@@ -154,12 +150,30 @@ const AsciiArt = ({ piece }: { piece: Piece }) => {
   }, [piece]);
 
   return (
-    <div className="grid h-full place-items-center">
-      <pre
-        ref={preRef}
-        aria-hidden
-        className="select-none font-mono text-[10px] leading-[1.05] text-muted-foreground/70"
-      />
+    <div className="h-full">
+      <div className="bg-art-stage-fade relative grid h-full place-items-center overflow-hidden border border-hairline">
+        <span
+          aria-hidden
+          className="absolute left-1.5 top-1.5 size-2.5 border-l border-t border-muted-foreground"
+        />
+        <span
+          aria-hidden
+          className="absolute right-1.5 top-1.5 size-2.5 border-r border-t border-muted-foreground"
+        />
+        <span
+          aria-hidden
+          className="absolute bottom-1.5 left-1.5 size-2.5 border-b border-l border-muted-foreground"
+        />
+        <span
+          aria-hidden
+          className="absolute bottom-1.5 right-1.5 size-2.5 border-b border-r border-muted-foreground"
+        />
+        <pre
+          ref={preRef}
+          aria-hidden
+          className="text-glow-soft select-none whitespace-pre font-mono text-[9px] leading-[1.05] tracking-normal text-foreground"
+        />
+      </div>
     </div>
   );
 };
