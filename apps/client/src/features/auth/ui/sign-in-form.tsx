@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate, useSearchParams } from 'react-router';
+import { Link, useNavigate, useSearchParams } from 'react-router';
 import { ArrowRightIcon } from '@phosphor-icons/react';
 import { signInSchema, type SignInValues } from '@/features/auth/schema';
 import { performSignIn, startGoogleOAuth } from '@/features/auth/session';
@@ -15,6 +15,7 @@ import { PasswordInput } from '@/shared/ui/password-input';
 const SignInForm = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [resetSuccess] = useState(() => searchParams.get('reset') === 'success');
 
   const { register, handleSubmit, setError, clearErrors, formState } = useForm<SignInValues>({
     resolver: zodResolver(signInSchema),
@@ -28,6 +29,12 @@ const SignInForm = () => {
       setSearchParams({}, { replace: true });
     }
   }, [searchParams, setError, setSearchParams]);
+
+  useEffect(() => {
+    if (resetSuccess) {
+      setSearchParams({}, { replace: true });
+    }
+  }, [resetSuccess, setSearchParams]);
 
   const onSubmit = async (values: SignInValues) => {
     clearErrors('root.serverError');
@@ -52,6 +59,15 @@ const SignInForm = () => {
       aria-busy={formState.isSubmitting}
       className="flex flex-col gap-4"
     >
+      {resetSuccess && (
+        <div
+          role="status"
+          className="font-mono text-2xs uppercase tracking-mono text-muted-foreground"
+        >
+          Password updated. Sign in with your new password.
+        </div>
+      )}
+
       {formState.errors.root?.serverError && (
         <div role="alert" className="font-mono text-2xs uppercase tracking-mono text-destructive">
           {formState.errors.root.serverError.message}
@@ -73,6 +89,14 @@ const SignInForm = () => {
 
       <Field
         label="PASSWORD"
+        hintAction={
+          <Link
+            to="/forgot"
+            className="text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+          >
+            Forgot?
+          </Link>
+        }
         error={formState.errors.password?.message}
         invalid={!!formState.errors.password}
       >
