@@ -1,5 +1,6 @@
 import { Link } from 'react-router';
 import { TwoColumnCard, TwoColumnCardArt, TwoColumnCardForm } from '@/shared/ui/two-column-card';
+import { AsciiArt } from '@/shared/ui/ascii-art';
 import { ForgotForm } from '@/features/auth/ui/forgot-form';
 
 const ForgotPage = () => {
@@ -27,9 +28,7 @@ const ForgotPage = () => {
         <ForgotForm />
       </TwoColumnCardForm>
       <TwoColumnCardArt>
-        <div className="grid h-full place-items-center font-mono text-2xs uppercase tracking-mono text-muted-foreground">
-          [ art slot ]
-        </div>
+        <AsciiArt piece="path" />
       </TwoColumnCardArt>
     </TwoColumnCard>
   );

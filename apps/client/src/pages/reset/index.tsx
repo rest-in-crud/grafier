@@ -1,5 +1,6 @@
 import { Link } from 'react-router';
 import { TwoColumnCard, TwoColumnCardArt, TwoColumnCardForm } from '@/shared/ui/two-column-card';
+import { AsciiArt } from '@/shared/ui/ascii-art';
 import { ResetForm } from '@/features/auth/ui/reset-form';
 
 const ResetPage = () => {
@@ -26,9 +27,7 @@ const ResetPage = () => {
         </p>
       </TwoColumnCardForm>
       <TwoColumnCardArt>
-        <div className="grid h-full place-items-center font-mono text-2xs uppercase tracking-mono text-muted-foreground">
-          [ art slot ]
-        </div>
+        <AsciiArt piece="path" />
       </TwoColumnCardArt>
     </TwoColumnCard>
   );

@@ -1,5 +1,6 @@
 import { Link } from 'react-router';
 import { TwoColumnCard, TwoColumnCardArt, TwoColumnCardForm } from '@/shared/ui/two-column-card';
+import { AsciiArt } from '@/shared/ui/ascii-art';
 import { VerifyForm } from '@/features/auth/ui/verify-form';
 
 const VerifyPage = () => {
@@ -23,9 +24,7 @@ const VerifyPage = () => {
         </p>
       </TwoColumnCardForm>
       <TwoColumnCardArt>
-        <div className="grid h-full place-items-center font-mono text-2xs uppercase tracking-mono text-muted-foreground">
-          [ art slot ]
-        </div>
+        <AsciiArt piece="sphere" />
       </TwoColumnCardArt>
     </TwoColumnCard>
   );
