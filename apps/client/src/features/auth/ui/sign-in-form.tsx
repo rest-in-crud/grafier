@@ -1,24 +1,31 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate, useSearchParams } from 'react-router';
+import { z } from 'zod';
+import { Link, useNavigate, useSearchParams } from 'react-router';
 import { ArrowRightIcon } from '@phosphor-icons/react';
 import { signInSchema, type SignInValues } from '@/features/auth/schema';
 import { performSignIn, startGoogleOAuth } from '@/features/auth/session';
 import { HttpError } from '@/shared/lib/api-client';
+import { ResendVerification } from '@/features/auth/ui/resend-verification';
 import { Button } from '@/shared/ui/button';
 import { Field } from '@/shared/ui/field';
 import { GoogleIcon } from '@/shared/ui/google-icon';
 import { Input } from '@/shared/ui/input';
 import { PasswordInput } from '@/shared/ui/password-input';
 
+const errorMessageSchema = z.object({ message: z.string() });
+
 const SignInForm = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [resetSuccess] = useState(() => searchParams.get('reset') === 'success');
+  const [needsVerify, setNeedsVerify] = useState(false);
 
-  const { register, handleSubmit, setError, clearErrors, formState } = useForm<SignInValues>({
-    resolver: zodResolver(signInSchema),
-  });
+  const { register, handleSubmit, setError, clearErrors, formState, getValues } =
+    useForm<SignInValues>({
+      resolver: zodResolver(signInSchema),
+    });
 
   useEffect(() => {
     if (searchParams.get('error') === 'oauth') {
@@ -29,16 +36,32 @@ const SignInForm = () => {
     }
   }, [searchParams, setError, setSearchParams]);
 
+  useEffect(() => {
+    if (resetSuccess) {
+      setSearchParams({}, { replace: true });
+    }
+  }, [resetSuccess, setSearchParams]);
+
   const onSubmit = async (values: SignInValues) => {
     clearErrors('root.serverError');
+    setNeedsVerify(false);
     try {
       await performSignIn(values);
       navigate('/');
     } catch (error) {
       if (error instanceof HttpError && error.status === 401) {
-        setError('root.serverError', { message: 'Invalid credentials' });
-        setError('email', { type: 'manual' });
-        setError('password', { type: 'manual' });
+        const parsed = errorMessageSchema.safeParse(error.body);
+        const message = parsed.success ? parsed.data.message : '';
+        if (message.toLowerCase().includes('verify')) {
+          setNeedsVerify(true);
+          setError('root.serverError', {
+            message: 'Please verify your email before signing in.',
+          });
+        } else {
+          setError('root.serverError', { message: 'Invalid credentials' });
+          setError('email', { type: 'manual' });
+          setError('password', { type: 'manual' });
+        }
       } else {
         setError('root.serverError', { message: 'Something went wrong. Try again.' });
       }
@@ -52,11 +75,22 @@ const SignInForm = () => {
       aria-busy={formState.isSubmitting}
       className="flex flex-col gap-4"
     >
+      {resetSuccess && (
+        <div
+          role="status"
+          className="font-mono text-2xs uppercase tracking-mono text-muted-foreground"
+        >
+          Password updated. Sign in with your new password.
+        </div>
+      )}
+
       {formState.errors.root?.serverError && (
         <div role="alert" className="font-mono text-2xs uppercase tracking-mono text-destructive">
           {formState.errors.root.serverError.message}
         </div>
       )}
+
+      {needsVerify && <ResendVerification email={getValues('email')} />}
 
       <Field
         label="EMAIL"
@@ -73,6 +107,14 @@ const SignInForm = () => {
 
       <Field
         label="PASSWORD"
+        hintAction={
+          <Link
+            to="/forgot"
+            className="text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
+          >
+            Forgot?
+          </Link>
+        }
         error={formState.errors.password?.message}
         invalid={!!formState.errors.password}
       >

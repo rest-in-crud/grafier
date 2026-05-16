@@ -14,6 +14,7 @@
   --hairline-strong: rgba(255, 255, 255, 0.16);
   --field-bg: rgba(255, 255, 255, 0.02);
   --field-bg-hover: rgba(255, 255, 255, 0.04);
+  --field-bg-focus: rgba(255, 255, 255, 0.03);
   --danger: #ff6a6a;
   --sans: 'Inter Variable', -apple-system, BlinkMacSystemFont, sans-serif;
   --mono: 'JetBrains Mono Variable', ui-monospace, 'SF Mono', Menlo, monospace;
@@ -113,6 +114,14 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --color-hairline: var(--hairline);
   --color-hairline-strong: var(--hairline-strong);
+  --color-raised: var(--bg-raised);
+  --color-fg-dim: var(--fg-dim);
+  --color-fg-dimmer: var(--fg-dimmer);
+  --color-field: var(--field-bg);
+  --color-field-hover: var(--field-bg-hover);
+  --color-field-focus: var(--field-bg-focus);
+
+  --blur-card: 8px;
 
   --radius-sm: 0;
   --radius-md: 0;
@@ -177,5 +186,13 @@
 
   .bg-card-art-fade {
     background: linear-gradient(to bottom, rgba(255, 255, 255, 0.015), transparent 40%);
+  }
+
+  .bg-art-stage-fade {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent);
+  }
+
+  .text-glow-soft {
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.12);
   }
 }

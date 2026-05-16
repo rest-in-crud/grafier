@@ -8,8 +8,8 @@ const EditorPage = () => {
   const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
 
-  const onLogout = async () => {
-    await performLogout();
+  const onLogout = () => {
+    performLogout();
     navigate('/signin');
   };
 

@@ -8,7 +8,10 @@ type Renderer = (
 const useAnimatedCanvas = (renderer: Renderer) => {
   const ref = useRef<HTMLCanvasElement>(null);
   const rendererRef = useRef(renderer);
-  rendererRef.current = renderer;
+
+  useEffect(() => {
+    rendererRef.current = renderer;
+  });
 
   useEffect(() => {
     const canvas = ref.current;

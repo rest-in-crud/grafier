@@ -16,6 +16,7 @@ type CreateApiClientOptions = {
 
 type RequestOptions = {
   skipAuthRefresh?: boolean;
+  token?: string;
 };
 
 const createApiClient = (options: CreateApiClientOptions) => {
@@ -27,7 +28,7 @@ const createApiClient = (options: CreateApiClientOptions) => {
     body?: unknown,
     requestOptions?: RequestOptions,
   ) => {
-    const token = options.getToken();
+    const token = requestOptions?.token ?? options.getToken();
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',

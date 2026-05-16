@@ -15,6 +15,20 @@
       "when": 1776178389820,
       "tag": "0001_quick_vengeance",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778863839379,
+      "tag": "0002_ambitious_cloak",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1778880303142,
+      "tag": "0003_outgoing_sinister_six",
+      "breakpoints": true
     }
   ]
 }

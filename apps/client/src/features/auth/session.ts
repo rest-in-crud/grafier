@@ -1,7 +1,14 @@
 import { api } from '@/features/auth/api';
 import { setAccessToken } from '@/features/auth/token';
 import { useAuthStore } from '@/features/auth/store';
-import type { AuthResponse, SignInValues, SignUpValues } from '@/features/auth/schema';
+import type {
+  AuthResponse,
+  ForgotPasswordValues,
+  ResetPasswordValues,
+  SignInValues,
+  SignUpValues,
+  VerifyEmailValues,
+} from '@/features/auth/schema';
 import { clearAuth } from '@/features/auth/lib';
 import { redirect } from 'react-router';
 
@@ -12,11 +19,8 @@ const performSignIn = async (values: SignInValues): Promise<AuthResponse> => {
   return result;
 };
 
-const performSignUp = async (values: SignUpValues): Promise<AuthResponse> => {
-  const result = await api.signUp(values);
-  setAccessToken(result.accessToken);
-  useAuthStore.getState().setUser(result.user);
-  return result;
+const performSignUp = async (values: SignUpValues): Promise<void> => {
+  await api.signUp(values);
 };
 
 const performRestoreSession = async (): Promise<null> => {
@@ -43,9 +47,25 @@ const completeOAuth = async () => {
   throw redirect(user ? '/' : '/signin?error=oauth');
 };
 
-const performLogout = async (): Promise<void> => {
+const performLogout = () => {
   clearAuth();
   api.logout().catch(() => {});
+};
+
+const performForgotPassword = async (values: ForgotPasswordValues): Promise<void> => {
+  await api.forgotPassword(values);
+};
+
+const performResetPassword = async (token: string, values: ResetPasswordValues): Promise<void> => {
+  await api.resetPassword(token, values.password);
+};
+
+const performResendVerification = async (values: VerifyEmailValues): Promise<void> => {
+  await api.resendVerification(values);
+};
+
+const performConfirmEmail = async (token: string): Promise<void> => {
+  await api.confirmEmail(token);
 };
 
 const requireAuth = () => {
@@ -67,6 +87,10 @@ export {
   startGoogleOAuth,
   completeOAuth,
   performLogout,
+  performForgotPassword,
+  performResetPassword,
+  performResendVerification,
+  performConfirmEmail,
   requireAuth,
   requireAnon,
 };
