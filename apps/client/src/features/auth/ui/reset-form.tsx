@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate, useSearchParams } from 'react-router';
@@ -11,10 +11,14 @@ import { PasswordInput } from '@/shared/ui/password-input';
 
 const ResetForm = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [token] = useState(() => searchParams.get('token'));
 
   const [linkInvalid, setLinkInvalid] = useState(false);
+
+  useEffect(() => {
+    if (token) setSearchParams({}, { replace: true });
+  }, [token, setSearchParams]);
 
   const { register, handleSubmit, setError, clearErrors, formState } = useForm<ResetPasswordValues>(
     {
