@@ -141,6 +141,7 @@
   --text-display--line-height: 1.05;
   --tracking-mono: 0.18em;
   --tracking-hint: 0.05em;
+  --tracking-panel: 0.2em;
 
   --shadow-glow-destructive: 0 0 10px var(--destructive);
 
@@ -240,7 +241,7 @@
     left: 50%;
     bottom: -32px;
     transform: translateX(-50%);
-    font-family: var(--mono);
+    font-family: var(--mono), serif;
     font-size: 10px;
     letter-spacing: 0.18em;
     color: var(--fg);
