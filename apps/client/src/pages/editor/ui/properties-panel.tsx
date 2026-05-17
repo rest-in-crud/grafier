@@ -1,13 +1,10 @@
-import { Slider } from './primitives/slider';
+import { Slider, Panel, PanelHeader, PanelBody } from './primitives';
 
 export function PropertiesPanel({ className }: { className?: string } = {}) {
   return (
-    <div className={['flex flex-col overflow-hidden', className].filter(Boolean).join(' ')}>
-      <div className="font-mono flex items-center justify-between border-b border-hairline bg-background px-3 py-2 text-[10px] tracking-[0.2em] text-muted-foreground uppercase">
-        <span className="text-foreground">PROPERTIES</span>
-        <span>RECT · L1</span>
-      </div>
-      <div className="flex-1 overflow-y-auto py-1.5">
+    <Panel className={className}>
+      <PanelHeader title="PROPERTIES" right={<span>RECT · L1</span>} />
+      <PanelBody>
         <div className="grid gap-3.5 p-3">
           <div className="grid gap-2">
             <div className="font-mono text-[9px] tracking-[0.2em] text-fg-dim uppercase">
@@ -125,7 +122,7 @@ export function PropertiesPanel({ className }: { className?: string } = {}) {
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </PanelBody>
+    </Panel>
   );
 }
