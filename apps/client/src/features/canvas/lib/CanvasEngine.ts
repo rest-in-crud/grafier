@@ -33,7 +33,6 @@ export class CanvasEngine {
       const obj = e.target;
       obj.erasable = true;
 
-      // Skip objects that already carry an id (re-adds, internal library objects)
       if (obj.data?.id) return;
 
       const id = crypto.randomUUID();
@@ -46,7 +45,8 @@ export class CanvasEngine {
     });
 
     this._canvas.on('object:removed', (e) => {
-      const id: string | undefined = e.target?.data?.id;
+      const rawId: unknown = e.target?.data?.id;
+      const id = typeof rawId === 'string' ? rawId : undefined;
       if (!id) return;
 
       const { layers, removeObjectFromLayer } = useLayersStore.getState();
@@ -57,7 +57,11 @@ export class CanvasEngine {
     });
 
     this.setTool(useCanvasStore.getState().activeTool);
-    this.unsubscribe = useCanvasStore.subscribe((state) => this.setTool(state.activeTool));
+    this.unsubscribe = useCanvasStore.subscribe((state, prev) => {
+      const toolChanged   = state.activeTool !== prev.activeTool;
+      const stylesChanged = state.toolStyles[state.activeTool] !== prev.toolStyles[state.activeTool];
+      if (toolChanged || stylesChanged) this.setTool(state.activeTool);
+    });
   }
 
   private setTool(toolName: string) {

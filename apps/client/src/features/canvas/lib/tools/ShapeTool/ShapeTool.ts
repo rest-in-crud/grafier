@@ -1,25 +1,38 @@
 import { Canvas } from 'fabric';
-import { BaseTool, ToolRegistration } from '@/features/canvas/lib/tools/BaseTool.ts';
+import { BaseTool, FieldSchema, ToolRegistration } from '@/features/canvas/lib/tools/BaseTool.ts';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store.ts';
 import {
   CLOSED_SHAPE_STYLE,
   createShapeObject,
   DEFAULT_SHAPE_TYPE,
   LINE_SHAPE_STYLE,
+  ShapeStyle,
 } from '@/features/canvas/lib/shapes/shape.config.ts';
 
-export class ShapeTool implements BaseTool {
-  defaultStyles = {
-    ...CLOSED_SHAPE_STYLE,
-    lineFill: LINE_SHAPE_STYLE.fill,
-    lineStroke: LINE_SHAPE_STYLE.stroke,
-    lineStrokeWidth: LINE_SHAPE_STYLE.strokeWidth,
-    lineOpacity: LINE_SHAPE_STYLE.opacity,
+const SHAPE_STYLE_SCHEMA: Record<string, FieldSchema> = {
+  fill: { type: 'color', label: 'Fill' },
+  stroke: { type: 'color', label: 'Stroke' },
+  strokeWidth: { type: 'range', label: 'Width', min: 1, max: 50, unit: 'px' },
+  opacity: { type: 'range', label: 'Opacity', min: 0, max: 1 },
+};
+
+function resolveShapeStyle(styles: Record<string, unknown>, isLine: boolean): ShapeStyle {
+  const defaults = isLine ? LINE_SHAPE_STYLE : CLOSED_SHAPE_STYLE;
+  return {
+    fill: typeof styles.fill === 'string' ? styles.fill : defaults.fill,
+    stroke: typeof styles.stroke === 'string' ? styles.stroke : defaults.stroke,
+    strokeWidth: typeof styles.strokeWidth === 'number' ? styles.strokeWidth : defaults.strokeWidth,
+    opacity: typeof styles.opacity === 'number' ? styles.opacity : defaults.opacity,
   };
+}
+
+export class ShapeTool implements BaseTool {
+  defaultStyles = { ...CLOSED_SHAPE_STYLE };
+  styleSchema = SHAPE_STYLE_SCHEMA;
 
   private handler: ((e: { scenePoint: { x: number; y: number } }) => void) | null = null;
 
-  activate(canvas: Canvas) {
+  activate(canvas: Canvas, styles: Record<string, unknown> = this.defaultStyles) {
     canvas.isDrawingMode = false;
     canvas.selection = false;
 
@@ -33,7 +46,9 @@ export class ShapeTool implements BaseTool {
       if (activeTool !== 'shape') return;
 
       const shapeType = activeShape ?? DEFAULT_SHAPE_TYPE;
-      const shape = createShapeObject(shapeType, scenePoint);
+      const isLine = shapeType === 'line' || shapeType === 'arrow';
+      const shapeStyle = resolveShapeStyle(styles, isLine);
+      const shape = createShapeObject(shapeType, scenePoint, shapeStyle);
 
       canvas.add(shape);
       canvas.setActiveObject(shape);

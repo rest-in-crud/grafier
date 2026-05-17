@@ -13,7 +13,6 @@ export interface FieldSchema {
   options?: string[];
   // preset-picker
   presets?: { id: string; label: string }[];
-  [key: string]: unknown;
 }
 
 export interface BaseTool {
