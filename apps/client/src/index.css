@@ -7,6 +7,7 @@
 :root {
   --bg: #050505;
   --bg-raised: #0a0a0a;
+  --bg-chrome: #070707;
   --fg: #f2f2f2;
   --fg-dim: #8a8a8a;
   --fg-dimmer: #555;
@@ -115,6 +116,7 @@
   --color-hairline: var(--hairline);
   --color-hairline-strong: var(--hairline-strong);
   --color-raised: var(--bg-raised);
+  --color-chrome: var(--bg-chrome);
   --color-fg-dim: var(--fg-dim);
   --color-fg-dimmer: var(--fg-dimmer);
   --color-field: var(--field-bg);
