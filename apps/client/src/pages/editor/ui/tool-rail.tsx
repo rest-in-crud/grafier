@@ -60,7 +60,7 @@ export function ToolRail({
   const [hover, setHover] = useState<TooltipState>(null);
 
   return (
-    <div className="flex flex-col items-center gap-0.5 overflow-x-hidden overflow-y-auto border-r border-hairline bg-[#070707] py-2">
+    <div className="flex flex-col items-center gap-0.5 overflow-x-hidden overflow-y-auto border-r border-hairline bg-chrome py-2">
       {TOOLS.map((t, i) =>
         '_div' in t ? (
           <div key={i} className="my-1 h-px w-6 bg-hairline" />
@@ -70,7 +70,7 @@ export function ToolRail({
             className={`relative flex h-10 w-10 cursor-pointer items-center justify-center border ${
               active === t.id
                 ? 'border-transparent bg-foreground text-background'
-                : 'border-transparent bg-transparent text-muted-foreground hover:bg-white/4 hover:text-foreground'
+                : 'border-transparent bg-transparent text-muted-foreground hover:bg-field-hover hover:text-foreground'
             }`}
             onClick={() => setActive(t.id)}
             onMouseEnter={(e) => {
