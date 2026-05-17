@@ -58,12 +58,7 @@ const EditorPage = () => {
             <ToolRail active={tool} setActive={setTool} />
           </div>
           <div className="min-w-0 flex-1">
-            <CanvasStage
-              selected={selected === 'l1' || selected === 'g1'}
-              zoom={zoom}
-              onContextMenu={onCanvasContextMenu}
-              onMouseMove={onCanvasMove}
-            />
+            <CanvasStage onContextMenu={onCanvasContextMenu} onMouseMove={onCanvasMove} />
           </div>
           <RightRail selected={selected} setSelected={setSelected} />
         </div>

@@ -30,7 +30,7 @@ function Topbar({ avatarInitial, onLogout }: TopbarProps) {
           <IRedo size={14} />
         </IconButton>
 
-        <div className="w-px bg-hairline" style={{ height: 18, margin: '0 4px' }} />
+        <div className="mx-1 h-[18px] w-px bg-hairline" />
 
         <IconButton title="Settings">
           <ISettings size={14} />
