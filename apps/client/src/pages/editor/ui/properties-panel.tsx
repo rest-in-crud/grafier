@@ -1,4 +1,4 @@
-import { Slider, Panel, PanelHeader, PanelBody } from './primitives';
+import { Slider, Swatch, Panel, PanelHeader, PanelBody } from './primitives';
 
 export function PropertiesPanel({ className }: { className?: string } = {}) {
   return (
@@ -70,10 +70,7 @@ export function PropertiesPanel({ className }: { className?: string } = {}) {
           <div className="grid gap-2">
             <div className="font-mono text-[9px] tracking-[0.2em] text-fg-dim uppercase">FILL</div>
             <div className="flex items-center gap-2">
-              <div
-                className="h-5.5 w-5.5 shrink-0 border border-hairline-strong"
-                style={{ background: '#f2f2f2' }}
-              />
+              <Swatch interactive={false} color="#f2f2f2" />
               <input
                 className="border border-hairline bg-field py-1.25 px-2 text-[11px] text-foreground focus:border-foreground focus:outline-none"
                 defaultValue="#F2F2F2"
@@ -86,8 +83,8 @@ export function PropertiesPanel({ className }: { className?: string } = {}) {
               STROKE
             </div>
             <div className="flex items-center gap-2">
-              <div
-                className="h-5.5 w-5.5 shrink-0 border border-hairline-strong"
+              <Swatch
+                interactive={false}
                 style={{ background: 'transparent', borderStyle: 'dashed' }}
               />
               <input

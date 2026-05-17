@@ -5,10 +5,16 @@ type SwatchProps = {
   color?: string;
   className?: string;
   style?: CSSProperties;
+  interactive?: boolean;
 };
 
-const colorSwatch = 'w-[22px] h-[22px] border border-hairline-strong shrink-0 cursor-pointer';
+const colorSwatch = 'w-5.5 h-5.5 border border-hairline-strong shrink-0';
 
-export function Swatch({ color, className, style }: SwatchProps) {
-  return <div className={cn(colorSwatch, className)} style={{ background: color, ...style }} />;
+export function Swatch({ color, className, style, interactive = true }: SwatchProps) {
+  return (
+    <div
+      className={cn(colorSwatch, interactive && 'cursor-pointer', className)}
+      style={{ background: color, ...style }}
+    />
+  );
 }
