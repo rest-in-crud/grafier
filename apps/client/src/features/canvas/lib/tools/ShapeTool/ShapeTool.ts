@@ -7,7 +7,7 @@ import {
   DEFAULT_SHAPE_TYPE,
   LINE_SHAPE_STYLE,
   ShapeStyle,
-} from '@/features/canvas/lib/shapes/shape.config.ts';
+} from './shape.config.ts';
 
 const SHAPE_STYLE_SCHEMA: Record<string, FieldSchema> = {
   fill: { type: 'color', label: 'Fill' },

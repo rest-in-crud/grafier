@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { CanvasEngine } from "@/features/canvas/lib/CanvasEngine.ts";
-import { ShapeType } from '@/features/canvas/lib/shapes/shape.config.ts';
+import { ShapeType } from '@/features/canvas/lib/tools/ShapeTool/shape.config.ts';
 
 interface CanvasState {
   activeTool: string;
@@ -9,8 +9,6 @@ interface CanvasState {
   activeShape: ShapeType | null
   setActiveShape: (shape: ShapeType | null) => void
 
-  toolStyles: Record<string, Record<string, unknown>>
-  setToolStyle: (toolId: string, patch: Record<string, unknown>) => void
   toolStyles: Record<string, Record<string, unknown>>;
   setToolStyle: (toolId: string, patch: Record<string, unknown>) => void;
   engineRef: { current: CanvasEngine | null};
@@ -20,10 +18,6 @@ interface CanvasState {
 export const useCanvasStore = create<CanvasState>((set) => ({
   activeTool: 'select',
   setActiveTool: (tool) => set({ activeTool: tool }),
-
-  activeShape: 'rect',
-  setActiveShape: (shape) => set({ activeShape: shape }),
-
   activeShape: null,
   setActiveShape: (shape) => set({ activeShape: shape }),
 
