@@ -319,6 +319,13 @@
     background: linear-gradient(135deg, #2a2a2a, #555);
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    .editor-gradient-btn::before,
+    .radial-container {
+      animation: none;
+    }
+  }
+
   /* ── editor options-bar: select chevron ── */
   .editor-select {
     appearance: none;
