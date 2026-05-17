@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import type { IconProps, ToolId } from '../types';
+import { ToolButton } from './primitives';
 import {
   IMove,
   IMarquee,
@@ -65,13 +66,9 @@ export function ToolRail({
         '_div' in t ? (
           <div key={i} className="my-1 h-px w-6 bg-hairline" />
         ) : (
-          <button
+          <ToolButton
             key={t.id}
-            className={`relative flex h-10 w-10 cursor-pointer items-center justify-center border ${
-              active === t.id
-                ? 'border-transparent bg-foreground text-background'
-                : 'border-transparent bg-transparent text-muted-foreground hover:bg-field-hover hover:text-foreground'
-            }`}
+            active={active === t.id}
             onClick={() => setActive(t.id)}
             onMouseEnter={(e) => {
               const r = e.currentTarget.getBoundingClientRect();
@@ -84,10 +81,10 @@ export function ToolRail({
               });
             }}
             onMouseLeave={() => setHover((h) => (h && h.id === t.id ? null : h))}
+            ariaLabel={t.name}
           >
             <t.Icon />
-            <span className="absolute right-0.5 bottom-0.5 h-0 w-0 border-l-4 border-b-4 border-l-transparent border-b-current" />
-          </button>
+          </ToolButton>
         ),
       )}
       {hover && (

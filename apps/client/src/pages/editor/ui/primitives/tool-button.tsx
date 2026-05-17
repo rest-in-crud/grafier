@@ -7,6 +7,7 @@ type ToolButtonProps = {
   onClick: () => void;
   onMouseEnter: (e: ReactMouseEvent<HTMLButtonElement>) => void;
   onMouseLeave: () => void;
+  ariaLabel: string;
 };
 
 const toolBtn = 'relative flex h-10 w-10 cursor-pointer items-center justify-center border';
@@ -22,10 +23,12 @@ export function ToolButton({
   onClick,
   onMouseEnter,
   onMouseLeave,
+  ariaLabel,
 }: ToolButtonProps) {
   return (
     <button
       type="button"
+      aria-label={ariaLabel}
       className={cn(toolBtn, active ? toolBtnActive : toolBtnInactive)}
       onClick={onClick}
       onMouseEnter={onMouseEnter}

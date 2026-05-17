@@ -1,4 +1,5 @@
 import { Menubar } from './menubar';
+import { IconButton } from './primitives';
 import { IUndo, IRedo, ISettings, IExport } from '../icons';
 
 export type TopbarProps = {
@@ -22,30 +23,18 @@ function Topbar({ avatarInitial, onLogout }: TopbarProps) {
       </div>
 
       <div className="flex h-full items-center gap-2">
-        <button
-          type="button"
-          title="Undo"
-          className="flex h-7 w-7 cursor-pointer items-center justify-center border border-transparent text-fg-dim transition-all duration-120 hover:border-hairline-strong hover:text-foreground"
-        >
+        <IconButton title="Undo">
           <IUndo size={14} />
-        </button>
-        <button
-          type="button"
-          title="Redo"
-          className="flex h-7 w-7 cursor-pointer items-center justify-center border border-transparent text-fg-dim transition-all duration-120 hover:border-hairline-strong hover:text-foreground"
-        >
+        </IconButton>
+        <IconButton title="Redo">
           <IRedo size={14} />
-        </button>
+        </IconButton>
 
         <div className="w-px bg-hairline" style={{ height: 18, margin: '0 4px' }} />
 
-        <button
-          type="button"
-          title="Settings"
-          className="flex h-7 w-7 cursor-pointer items-center justify-center border border-transparent text-fg-dim transition-all duration-120 hover:border-hairline-strong hover:text-foreground"
-        >
+        <IconButton title="Settings">
           <ISettings size={14} />
-        </button>
+        </IconButton>
 
         <span role="button" className="editor-gradient-btn">
           <span className="editor-gradient-btn-label">
