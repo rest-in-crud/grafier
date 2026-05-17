@@ -1,5 +1,5 @@
 import type { BlendMode, EditorOpts, ToolId } from '../types';
-import { HSlider } from './h-slider';
+import { Slider } from './primitives/slider';
 
 type Props = {
   tool: ToolId;
@@ -50,7 +50,7 @@ const OptionsBar = ({ tool, opts, setOpts }: Props) => {
         <div className={optSep} />
         <div className={optGroup}>
           <span className={optLabel}>Size</span>
-          <HSlider
+          <Slider
             value={opts.size}
             onChange={(v) => update('size', v)}
             min={1}
@@ -61,12 +61,12 @@ const OptionsBar = ({ tool, opts, setOpts }: Props) => {
         <div className={optSep} />
         <div className={optGroup}>
           <span className={optLabel}>Opacity</span>
-          <HSlider value={opts.opacity} onChange={(v) => update('opacity', v)} suffix="%" />
+          <Slider value={opts.opacity} onChange={(v) => update('opacity', v)} suffix="%" />
         </div>
         <div className={optSep} />
         <div className={optGroup}>
           <span className={optLabel}>Hardness</span>
-          <HSlider
+          <Slider
             value={opts.hardness}
             onChange={(v) => update('hardness', v)}
             suffix="%"
@@ -110,7 +110,7 @@ const OptionsBar = ({ tool, opts, setOpts }: Props) => {
         <div className={optGroup}>
           <span className={optLabel}>Stroke</span>
           <div className={colorSwatch} style={{ background: '#000', borderColor: 'var(--fg)' }} />
-          <HSlider
+          <Slider
             value={opts.stroke}
             onChange={(v) => update('stroke', v)}
             min={0}
@@ -135,7 +135,7 @@ const OptionsBar = ({ tool, opts, setOpts }: Props) => {
         </select>
         <div className={optGroup}>
           <span className={optLabel}>Size</span>
-          <HSlider value={48} onChange={() => {}} min={6} max={400} suffix=" PT" compact />
+          <Slider value={48} onChange={() => {}} min={6} max={400} suffix=" PT" compact />
         </div>
         <div className={togglePill}>
           <button className={pillBtnOn} style={{ fontWeight: 700 }}>

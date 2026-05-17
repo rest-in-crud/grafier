@@ -1,4 +1,4 @@
-import { HSlider } from './h-slider';
+import { Slider } from './primitives/slider';
 
 export function PropertiesPanel({ className }: { className?: string } = {}) {
   return (
@@ -99,7 +99,7 @@ export function PropertiesPanel({ className }: { className?: string } = {}) {
                 style={{ flex: 1 }}
               />
             </div>
-            <HSlider value={1} onChange={() => {}} min={0} max={20} suffix=" PX" />
+            <Slider value={1} onChange={() => {}} min={0} max={20} suffix=" PX" />
           </div>
           <div className="grid gap-2">
             <div className="font-mono text-[9px] tracking-[0.2em] text-fg-dim uppercase">
@@ -112,7 +112,7 @@ export function PropertiesPanel({ className }: { className?: string } = {}) {
               >
                 OPACITY
               </span>
-              <HSlider value={100} onChange={() => {}} suffix="%" />
+              <Slider value={100} onChange={() => {}} suffix="%" />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
               <span
@@ -121,7 +121,7 @@ export function PropertiesPanel({ className }: { className?: string } = {}) {
               >
                 BLUR
               </span>
-              <HSlider value={0} onChange={() => {}} min={0} max={50} suffix=" PX" />
+              <Slider value={0} onChange={() => {}} min={0} max={50} suffix=" PX" />
             </div>
           </div>
         </div>

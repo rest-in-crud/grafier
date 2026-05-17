@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { HSlider } from './h-slider';
+import { Slider } from './primitives/slider';
 
 type StatusBarProps = {
   cursor: { x: number; y: number };
@@ -24,7 +24,7 @@ const StatusBar: FC<StatusBarProps> = ({ cursor, zoom, setZoom }) => {
       <span>SAVED · 14:22</span>
       <div className="ml-auto flex items-center gap-3.5">
         <span>ZOOM</span>
-        <HSlider value={zoom} onChange={setZoom} min={10} max={400} suffix="%" />
+        <Slider value={zoom} onChange={setZoom} min={10} max={400} suffix="%" />
       </div>
     </div>
   );

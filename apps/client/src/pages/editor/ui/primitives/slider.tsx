@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 
-type HSliderProps = {
+type SliderProps = {
   value: number;
   onChange: (v: number) => void;
   min?: number;
@@ -10,7 +10,7 @@ type HSliderProps = {
   compact?: boolean;
 };
 
-const HSlider = ({
+const Slider = ({
   value,
   onChange,
   min = 0,
@@ -18,7 +18,7 @@ const HSlider = ({
   step = 1,
   suffix = '',
   compact = false,
-}: HSliderProps) => {
+}: SliderProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
 
@@ -79,4 +79,4 @@ const HSlider = ({
   );
 };
 
-export { HSlider };
+export { Slider };
