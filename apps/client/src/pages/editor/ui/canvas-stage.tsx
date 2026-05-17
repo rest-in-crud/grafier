@@ -92,7 +92,7 @@ type CanvasStageProps = {
 export function CanvasStage({ selected, zoom, onContextMenu, onMouseMove }: CanvasStageProps) {
   return (
     <div
-      className="relative flex items-center justify-center overflow-hidden bg-chrome"
+      className="canvas-stage-bg relative flex items-center justify-center overflow-hidden"
       onContextMenu={onContextMenu}
       onMouseMove={onMouseMove}
     >
@@ -100,7 +100,7 @@ export function CanvasStage({ selected, zoom, onContextMenu, onMouseMove }: Canv
       <div className="absolute top-0 left-4.5 right-0 z-4 h-4.5 border-b border-hairline bg-background pointer-events-none select-none" />
       <div className="absolute top-4.5 left-0 bottom-0 z-4 w-4.5 border-r border-hairline bg-background pointer-events-none select-none" />
       <div
-        className="relative h-130 w-200 overflow-hidden bg-raised"
+        className="canvas-doc-bg relative h-130 w-200 overflow-hidden"
         style={{
           transform: `scale(${zoom / 100})`,
           boxShadow:

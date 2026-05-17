@@ -17,14 +17,11 @@ const optSep = 'w-px h-5 bg-hairline shrink-0';
 const optGroup = 'flex items-center gap-2.5';
 
 const optSelect = [
+  'editor-select',
   'bg-transparent border border-hairline-strong text-foreground',
   'font-mono text-[10px] tracking-[0.1em] uppercase',
-  'py-1 pl-2 pr-[22px] cursor-pointer appearance-none',
+  'py-1 pl-2 pr-[22px] cursor-pointer',
   'focus:outline-none focus:border-foreground',
-  '[background-image:linear-gradient(45deg,transparent_50%,var(--fg-dim)_50%),linear-gradient(135deg,var(--fg-dim)_50%,transparent_50%)]',
-  '[background-position:calc(100%-12px)_50%,calc(100%-8px)_50%]',
-  '[background-size:4px_4px,4px_4px]',
-  '[background-repeat:no-repeat]',
 ].join(' ');
 
 const togglePill = 'inline-flex border border-hairline-strong';

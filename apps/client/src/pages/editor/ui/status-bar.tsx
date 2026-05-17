@@ -12,7 +12,7 @@ const StatusBar: FC<StatusBarProps> = ({ cursor, zoom, setZoom }) => {
   const py = cursor.y.toString().padStart(4, '0');
 
   return (
-    <div className="flex h-full items-center gap-3.5 border-t border-hairline bg-chrome px-3.5 font-mono text-[10px] uppercase tracking-[0.14em] text-fg-dim">
+    <div className="flex h-full items-center gap-3.5 border-t border-hairline bg-background px-3.5 font-mono text-[10px] uppercase tracking-[0.14em] text-fg-dim">
       <span>GRAFIER · V1.0</span>
       <span className="h-3 w-px bg-hairline" />
       <span>

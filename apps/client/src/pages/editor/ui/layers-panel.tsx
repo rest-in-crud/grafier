@@ -77,7 +77,9 @@ function TreeRow({ node, depth, selected, setSelected, toggle }: TreeRowProps) {
       <div
         className={[
           'group/row relative flex cursor-pointer select-none items-center gap-1.5 border-l-2 py-1.25 pr-3',
-          isSelected ? 'border-l-foreground bg-white/8' : 'border-l-transparent hover:bg-white/4',
+          isSelected
+            ? 'border-l-foreground bg-white/8'
+            : 'border-l-transparent hover:bg-field-hover',
         ].join(' ')}
         style={{ paddingLeft }}
         onClick={() => setSelected(node.id)}
@@ -149,9 +151,11 @@ function TreeRow({ node, depth, selected, setSelected, toggle }: TreeRowProps) {
 }
 
 export function LayersPanel({
+  className,
   selected,
   setSelected,
 }: {
+  className?: string;
   selected: string;
   setSelected: (id: string) => void;
 }) {
@@ -171,7 +175,7 @@ export function LayersPanel({
   }
 
   return (
-    <div className="flex flex-col overflow-hidden">
+    <div className={['flex flex-col overflow-hidden', className].filter(Boolean).join(' ')}>
       <div className="font-mono flex items-center justify-between border-b border-hairline bg-background px-3 py-2 text-[10px] tracking-[0.2em] text-muted-foreground uppercase">
         <span className="text-foreground">LAYERS</span>
         <span className="flex gap-1">

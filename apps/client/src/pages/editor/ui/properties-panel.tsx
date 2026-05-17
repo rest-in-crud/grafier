@@ -1,8 +1,8 @@
 import { HSlider } from './h-slider';
 
-export function PropertiesPanel() {
+export function PropertiesPanel({ className }: { className?: string } = {}) {
   return (
-    <div className="flex flex-col overflow-hidden">
+    <div className={['flex flex-col overflow-hidden', className].filter(Boolean).join(' ')}>
       <div className="font-mono flex items-center justify-between border-b border-hairline bg-background px-3 py-2 text-[10px] tracking-[0.2em] text-muted-foreground uppercase">
         <span className="text-foreground">PROPERTIES</span>
         <span>RECT · L1</span>

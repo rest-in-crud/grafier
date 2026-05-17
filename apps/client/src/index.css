@@ -295,7 +295,7 @@
     align-items: center;
     gap: 7px;
     padding: 6px 16px;
-    font-family: var(--mono);
+    font-family: var(--mono), serif;
     font-size: 10px;
     font-weight: 500;
     letter-spacing: 0.22em;
@@ -316,5 +316,34 @@
   /* ── editor topbar: avatar gradient background ── */
   .editor-avatar-bg {
     background: linear-gradient(135deg, #2a2a2a, #555);
+  }
+
+  /* ── editor options-bar: select chevron ── */
+  .editor-select {
+    appearance: none;
+    background-image:
+      linear-gradient(45deg, transparent 50%, var(--fg-dim) 50%),
+      linear-gradient(135deg, var(--fg-dim) 50%, transparent 50%);
+    background-position:
+      calc(100% - 12px) 50%,
+      calc(100% - 8px) 50%;
+    background-size:
+      4px 4px,
+      4px 4px;
+    background-repeat: no-repeat;
+  }
+
+  /* ── canvas stage: ruler/grid pattern on stage area ── */
+  .canvas-stage-bg {
+    background:
+      repeating-linear-gradient(0deg, #070707 0 24px, #0a0a0a 24px 25px),
+      repeating-linear-gradient(90deg, #070707 0 24px, #0a0a0a 24px 25px), #060606;
+  }
+
+  /* ── canvas doc: checkerboard background ── */
+  .canvas-doc-bg {
+    background:
+      repeating-conic-gradient(#1a1a1a 0% 25%, #141414 0% 50%) 0 0 / 20px 20px,
+      #1a1a1a;
   }
 }
