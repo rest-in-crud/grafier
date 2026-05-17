@@ -251,4 +251,70 @@
     border: 1px solid var(--hairline-strong);
     padding: 4px 10px;
   }
+
+  /* ── editor topbar: spinning conic-gradient export button ── */
+  .editor-gradient-btn {
+    position: relative;
+    padding: 1px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+    cursor: pointer;
+    display: inline-block;
+  }
+
+  .editor-gradient-btn::before {
+    content: '';
+    position: absolute;
+    inset: -50%;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      transparent 320deg,
+      rgba(255, 255, 255, 0) 330deg,
+      rgba(255, 255, 255, 0.95) 355deg,
+      rgba(255, 255, 255, 1) 360deg,
+      transparent 5deg
+    );
+    animation: editor-gradient-spin 3.5s linear infinite;
+  }
+
+  .editor-gradient-btn::after {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    background: #0a0a0a;
+    border-radius: 999px;
+    z-index: 1;
+  }
+
+  .editor-gradient-btn-label {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 16px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--fg);
+  }
+
+  .editor-gradient-btn:hover .editor-gradient-btn-label {
+    color: #fff;
+  }
+
+  @keyframes editor-gradient-spin {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+
+  /* ── editor topbar: avatar gradient background ── */
+  .editor-avatar-bg {
+    background: linear-gradient(135deg, #2a2a2a, #555);
+  }
 }
