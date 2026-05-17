@@ -1,6 +1,6 @@
 import { cn } from '@/shared/lib/utils';
 
-type EditorSelectProps = {
+export type EditorSelectProps = {
   options: readonly string[];
   value?: string;
   defaultValue?: string;
