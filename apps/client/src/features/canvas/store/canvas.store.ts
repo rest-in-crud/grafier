@@ -8,7 +8,6 @@ interface CanvasState {
 
   activeShape: ShapeType | null
   setActiveShape: (shape: ShapeType | null) => void
-
   toolStyles: Record<string, Record<string, unknown>>;
   setToolStyle: (toolId: string, patch: Record<string, unknown>) => void;
   engineRef: { current: CanvasEngine | null};
@@ -21,6 +20,7 @@ export const useCanvasStore = create<CanvasState>((set) => ({
   activeShape: null,
   setActiveShape: (shape) => set({ activeShape: shape }),
 
+
   toolStyles: {},
   setToolStyle: (toolId, patch) =>
     set((state) => ({
@@ -29,7 +29,6 @@ export const useCanvasStore = create<CanvasState>((set) => ({
         [toolId]: { ...state.toolStyles[toolId], ...patch },
       },
     })),
-
-  engineRef: { current: null },
-  setEngineRef: (ref) => set({ engineRef: ref }),
+    engineRef: { current: null },
+    setEngineRef: (ref) => set({ engineRef: ref }),
 }));

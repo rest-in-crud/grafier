@@ -13,8 +13,7 @@ export interface FieldSchema {
   options?: string[];
   // preset-picker
   presets?: { id: string; label: string }[];
-}
-
+  
 export interface BaseTool {
   activate(canvas: Canvas, styles?: Record<string, unknown>): void;
   deactivate(canvas: Canvas): void;

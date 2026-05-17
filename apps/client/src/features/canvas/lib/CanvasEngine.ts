@@ -32,7 +32,6 @@ export class CanvasEngine {
     this._canvas.on('object:added', (e) => {
       const obj = e.target;
       obj.erasable = true;
-
       if (obj.data?.id) return;
 
       const id = crypto.randomUUID();
