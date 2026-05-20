@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { CanvasEngine } from '@/features/canvas/lib/CanvasEngine.ts';
+import { CanvasEngine } from '@/features/canvas/lib/CanvasEngine';
 
 export const useCanvas = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -7,23 +7,27 @@ export const useCanvas = () => {
   const engineRef = useRef<CanvasEngine | null>(null);
 
   useEffect(() => {
-    if (!canvasRef.current || !containerRef.current) return;
+    const canvasEl = canvasRef.current;
+    const containerEl = containerRef.current;
+    if (!canvasEl || !containerEl) return;
 
-    const { width, height } = containerRef.current.getBoundingClientRect();
-
-    engineRef.current = new CanvasEngine(canvasRef.current, { width, height });
+    let disposed = false;
+    const { width, height } = containerEl.getBoundingClientRect();
+    const engine = new CanvasEngine(canvasEl, { width, height });
+    engineRef.current = engine;
 
     const observer = new ResizeObserver(([entry]) => {
+      if (disposed) return;
       const { width, height } = entry.contentRect;
-      engineRef.current?.resize(width, height);
+      engine.resize(width, height);
     });
-
-    observer.observe(containerRef.current);
+    observer.observe(containerEl);
 
     return () => {
+      disposed = true;
       observer.disconnect();
-      engineRef.current?.destroy();
       engineRef.current = null;
+      void engine.destroy();
     };
   }, []);
 

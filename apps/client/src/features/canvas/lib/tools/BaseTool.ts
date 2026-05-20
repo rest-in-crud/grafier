@@ -1,4 +1,4 @@
-import { Canvas } from 'fabric';
+import type { Canvas } from 'fabric';
 
 export interface BaseTool {
   activate(canvas: Canvas): void;

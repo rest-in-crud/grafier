@@ -1,16 +1,21 @@
-import { BaseTool } from './BaseTool';
+import type { BaseTool } from './BaseTool';
+import type { ToolId } from '@/pages/editor/types';
 
 export interface ToolRegistration {
-  id: string;
+  id: ToolId;
   tool: BaseTool;
 }
 
 export function isToolRegistration(mod: unknown): mod is ToolRegistration {
+  if (typeof mod !== 'object' || mod === null) return false;
+  if (!('id' in mod) || !('tool' in mod)) return false;
+  if (typeof mod.id !== 'string') return false;
+  const { tool } = mod;
+  if (typeof tool !== 'object' || tool === null) return false;
   return (
-    typeof mod === 'object' &&
-    mod !== null &&
-    'id' in mod &&
-    'tool' in mod &&
-    typeof (mod as Record<string, unknown>).id === 'string'
+    'activate' in tool &&
+    'deactivate' in tool &&
+    typeof tool.activate === 'function' &&
+    typeof tool.deactivate === 'function'
   );
 }

@@ -1,5 +1,7 @@
-import { BaseTool } from '@/features/canvas/lib/tools/BaseTool.ts';
-import { Canvas, PencilBrush } from 'fabric';
+import { PencilBrush } from 'fabric';
+import type { Canvas } from 'fabric';
+import type { BaseTool } from './BaseTool';
+import type { ToolRegistration } from './types';
 
 export class PenTool implements BaseTool {
   activate(canvas: Canvas) {
@@ -13,4 +15,5 @@ export class PenTool implements BaseTool {
   }
 }
 
-export default { id: 'pen', tool: new PenTool() };
+const registration: ToolRegistration = { id: 'pencil', tool: new PenTool() };
+export default registration;

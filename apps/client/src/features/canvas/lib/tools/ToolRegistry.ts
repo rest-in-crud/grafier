@@ -1,14 +1,15 @@
-import { BaseTool } from '@/features/canvas/lib/tools/BaseTool.ts';
-import { isToolRegistration } from '@/features/canvas/lib/tools/types.ts';
+import type { ToolId } from '@/pages/editor/types';
+import type { BaseTool } from './BaseTool';
+import { isToolRegistration } from './types';
 
 export class ToolRegistry {
-  private static tools = new Map<string, BaseTool>();
+  private static tools = new Map<ToolId, BaseTool>();
   private static initialized = false;
 
   static init() {
     if (this.initialized) return;
 
-    const modules = import.meta.glob(['./*Tool.ts', '!./BaseTool.ts', '!./ToolRegistry.ts'], {
+    const modules = import.meta.glob(['./*Tool.ts', '!./BaseTool.ts'], {
       eager: true,
       import: 'default',
     });
@@ -22,7 +23,7 @@ export class ToolRegistry {
     this.initialized = true;
   }
 
-  static get(name: string): BaseTool | null {
+  static get(name: ToolId): BaseTool | null {
     return this.tools.get(name) ?? null;
   }
 }
