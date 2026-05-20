@@ -13,9 +13,11 @@ export interface LayersStoreInterface {
   setLocked: (layerId: string, locked: boolean) => void;
   setOpacity: (layerId: string, opacity: number) => void;
   renameLayer: (layerId: string, name: string) => void;
+  setCollapsed: (layerId: string, collapsed: boolean) => void;
 
-  addObjectToLayer: (layerId: string, objectId: string) => void;
+  addObjectToLayer: (layerId: string, objectId: string, name: string) => void;
   removeObjectFromLayer: (layerId: string, objectId: string) => void;
   moveObjectBetweenLayers: (objectId: string, fromLayerId: string, toLayerId: string) => void;
   reorderObjectInLayer: (layerId: string, fromIndex: number, toIndex: number) => void;
+  setObjectVisibility: (layerId: string, objectId: string, visible: boolean) => void;
 }

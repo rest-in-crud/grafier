@@ -11,13 +11,14 @@ export function useLayerSync(engineRef: RefObject<CanvasEngine | null>) {
       if (!canvas) return;
 
       for (const layer of state.layers) {
-        const ids = new Set(layer.objectsIds);
-        const objects = canvas.getObjects().filter((o) => {
+        const objectVisibility = new Map(layer.objects.map((o) => [o.id, o.visible]));
+        const canvasObjects = canvas.getObjects().filter((o) => {
           const id = o.data?.id;
-          return typeof id === 'string' && ids.has(id);
+          return typeof id === 'string' && objectVisibility.has(id);
         });
-        for (const object of objects) {
-          object.visible = layer.visible;
+        for (const object of canvasObjects) {
+          const ownVisible = objectVisibility.get(object.data?.id ?? '') ?? true;
+          object.visible = layer.visible && ownVisible;
           object.selectable = !layer.locked;
           object.evented = !layer.locked;
           const ownOpacity =

@@ -142,7 +142,7 @@ export const LayersPanel = () => {
                 </span>
               )}
 
-              <span className="shrink-0 text-fg-dimmer text-2xs">{layer.objectsIds.length}</span>
+              <span className="shrink-0 text-fg-dimmer text-2xs">{layer.objects.length}</span>
 
               <div className="flex shrink-0 flex-col">
                 <button
