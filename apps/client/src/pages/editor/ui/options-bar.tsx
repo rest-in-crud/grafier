@@ -1,38 +1,42 @@
-import type { BlendMode, EditorOpts, ToolId } from '../types';
+import { useCanvasStore } from '@/features/canvas/store/canvas.store';
+import { PEN_DEFAULT_STYLES } from '@/features/canvas/lib/tools/PenTool/PenTool.styles';
+import {
+  CLOSED_SHAPE_STYLE,
+  SHAPE_OPTIONS,
+} from '@/features/canvas/lib/tools/ShapeTool/shape.config';
+import type { ShapeType } from '@/features/canvas/lib/tools/ShapeTool/shape.config';
+import {
+  DEFAULT_TEXT_FONT_FAMILY,
+  DEFAULT_TEXT_FONT_WEIGHT,
+  GOOGLE_TEXT_FONTS,
+  GOOGLE_TEXT_FONT_WEIGHTS,
+} from '@/features/canvas/lib/tools/TextTool/googleFonts';
+import { TEXT_DEFAULT_STYLES } from '@/features/canvas/lib/tools/TextTool/TextTool';
+import { ERASER_DEFAULT_STYLES } from '@/features/canvas/lib/tools/EraserTool/EraserTool';
+import type { ToolId } from '../types';
+import { Field, Label, Select, Separator, Slider, TogglePill } from './primitives';
 import type { ToggleOption } from './primitives';
-import { Field, Label, Select, Separator, Slider, Swatch, TogglePill } from './primitives';
 
-type Props = {
-  tool: ToolId;
-  opts: EditorOpts;
-  setOpts: (o: EditorOpts) => void;
-};
+type Props = { tool: ToolId };
 
 const optionsBar =
   'flex items-center h-[40px] overflow-hidden border-b border-hairline bg-chrome px-3.5 gap-[18px] text-xs';
 
-const BLEND_OPTIONS = ['NORMAL', 'MULTIPLY', 'SCREEN', 'OVERLAY'] as const;
-const FONT_OPTIONS = ['INTER', 'JETBRAINS MONO', 'SERIF'] as const;
+function PencilOptions() {
+  const styles = useCanvasStore((s) => s.toolStyles.pencil);
+  const setToolStyle = useCanvasStore((s) => s.setToolStyle);
 
-type ToolOptionsProps = {
-  opts: EditorOpts;
-  update: <K extends keyof EditorOpts>(k: K, v: EditorOpts[K]) => void;
-};
+  const width = styles?.width ?? PEN_DEFAULT_STYLES.width;
+  const opacity = styles?.opacity ?? PEN_DEFAULT_STYLES.opacity;
 
-function PaintOptions({
-  tool,
-  opts,
-  update,
-}: ToolOptionsProps & { tool: 'brush' | 'pencil' | 'eraser' }) {
-  const toolLabel = tool === 'brush' ? 'Brush' : tool === 'pencil' ? 'Pencil' : 'Eraser';
   return (
     <>
-      <Label>{toolLabel}</Label>
+      <Label>Pencil</Label>
       <Separator />
-      <Field label="Size">
+      <Field label="Width">
         <Slider
-          value={opts.size}
-          onChange={(v) => update('size', v)}
+          value={width}
+          onChange={(v) => setToolStyle('pencil', { width: v })}
           min={1}
           max={200}
           suffix=" PX"
@@ -40,46 +44,62 @@ function PaintOptions({
       </Field>
       <Separator />
       <Field label="Opacity">
-        <Slider value={opts.opacity} onChange={(v) => update('opacity', v)} suffix="%" />
-      </Field>
-      <Separator />
-      <Field label="Hardness">
-        <Slider value={opts.hardness} onChange={(v) => update('hardness', v)} suffix="%" compact />
-      </Field>
-      <Separator />
-      <Field label="Blend">
-        <Select
-          options={BLEND_OPTIONS}
-          value={opts.blend}
-          onChange={(v) => update('blend', v as BlendMode)}
+        <Slider
+          value={opacity}
+          onChange={(v) => setToolStyle('pencil', { opacity: v })}
+          suffix="%"
         />
       </Field>
     </>
   );
 }
 
-const SHAPE_PILL_OPTIONS: ToggleOption<string>[] = [
-  { value: 'RECT', label: 'RECT' },
-  { value: 'ELLIPSE', label: 'ELLIPSE' },
-  { value: 'POLY', label: 'POLY' },
-  { value: 'LINE', label: 'LINE' },
-];
+function EraserOptions() {
+  const styles = useCanvasStore((s) => s.toolStyles.eraser);
+  const setToolStyle = useCanvasStore((s) => s.setToolStyle);
 
-function ShapeOptions({ opts, update }: ToolOptionsProps) {
+  const size = styles?.size ?? ERASER_DEFAULT_STYLES.size;
+
+  return (
+    <>
+      <Label>Eraser</Label>
+      <Separator />
+      <Field label="Size">
+        <Slider
+          value={size}
+          onChange={(v) => setToolStyle('eraser', { size: v })}
+          min={1}
+          max={200}
+          suffix=" PX"
+        />
+      </Field>
+    </>
+  );
+}
+
+const SHAPE_PILL_OPTIONS: ToggleOption<ShapeType>[] = SHAPE_OPTIONS.map((s) => ({
+  value: s.type,
+  label: s.label.toUpperCase(),
+}));
+
+function ShapeOptions() {
+  const activeShape = useCanvasStore((s) => s.activeShape);
+  const setActiveShape = useCanvasStore((s) => s.setActiveShape);
+  const styles = useCanvasStore((s) => s.toolStyles.shape);
+  const setToolStyle = useCanvasStore((s) => s.setToolStyle);
+
+  const strokeWidth = styles?.strokeWidth ?? CLOSED_SHAPE_STYLE.strokeWidth;
+
   return (
     <>
       <Label>Shape</Label>
       <Separator />
-      <TogglePill options={SHAPE_PILL_OPTIONS} value="RECT" onChange={(_v: string) => {}} />
+      <TogglePill options={SHAPE_PILL_OPTIONS} value={activeShape} onChange={setActiveShape} />
       <Separator />
-      <Field label="Fill">
-        <Swatch color="#e8e8e8" />
-      </Field>
       <Field label="Stroke">
-        <Swatch color="#000" style={{ borderColor: 'var(--fg)' }} />
         <Slider
-          value={opts.stroke}
-          onChange={(v) => update('stroke', v)}
+          value={strokeWidth}
+          onChange={(v) => setToolStyle('shape', { strokeWidth: v })}
           min={0}
           max={20}
           suffix=" PX"
@@ -90,88 +110,73 @@ function ShapeOptions({ opts, update }: ToolOptionsProps) {
   );
 }
 
-const TEXT_STYLE_OPTIONS: ToggleOption<string>[] = [
-  { value: 'B', label: 'B', style: { fontWeight: 700 } },
-  { value: 'I', label: 'I', style: { fontStyle: 'italic' } },
-  { value: 'U', label: 'U', style: { textDecoration: 'underline' } },
-];
-
-const TEXT_ALIGN_OPTIONS: ToggleOption<string>[] = [
-  { value: 'L', label: 'L' },
-  { value: 'C', label: 'C' },
-  { value: 'R', label: 'R' },
-  { value: 'J', label: 'J' },
-];
+const FONT_FAMILY_OPTIONS: string[] = [...GOOGLE_TEXT_FONTS];
+const FONT_WEIGHT_OPTIONS: string[] = [...GOOGLE_TEXT_FONT_WEIGHTS];
 
 function TextOptions() {
+  const styles = useCanvasStore((s) => s.toolStyles.text);
+  const setToolStyle = useCanvasStore((s) => s.setToolStyle);
+
+  const fontFamily = styles?.fontFamily ?? DEFAULT_TEXT_FONT_FAMILY;
+  const fontWeight = styles?.fontWeight ?? DEFAULT_TEXT_FONT_WEIGHT;
+  const fontSize = styles?.fontSize ?? TEXT_DEFAULT_STYLES.fontSize;
+
   return (
     <>
       <Label>Type</Label>
       <Separator />
-      <Select options={FONT_OPTIONS} defaultValue="INTER" />
-      <Field label="Size">
-        <Slider value={48} onChange={(_v: number) => {}} min={6} max={400} suffix=" PT" compact />
+      <Field label="Font">
+        <Select
+          options={FONT_FAMILY_OPTIONS}
+          value={fontFamily}
+          onChange={(v) => setToolStyle('text', { fontFamily: v })}
+        />
       </Field>
-      <TogglePill options={TEXT_STYLE_OPTIONS} value="B" onChange={(_v: string) => {}} />
-      <TogglePill options={TEXT_ALIGN_OPTIONS} value="L" onChange={(_v: string) => {}} />
+      <Field label="Weight">
+        <Select
+          options={FONT_WEIGHT_OPTIONS}
+          value={fontWeight}
+          onChange={(v) => setToolStyle('text', { fontWeight: v })}
+        />
+      </Field>
+      <Field label="Size">
+        <Slider
+          value={fontSize}
+          onChange={(v) => setToolStyle('text', { fontSize: v })}
+          min={6}
+          max={400}
+          suffix=" PT"
+          compact
+        />
+      </Field>
     </>
   );
 }
-
-const AUTO_SELECT_OPTIONS: ToggleOption<string>[] = [
-  { value: 'LAYER', label: 'LAYER' },
-  { value: 'GROUP', label: 'GROUP' },
-];
-
-const SHOW_BOUNDS_OPTIONS: ToggleOption<string>[] = [
-  { value: 'ON', label: 'ON' },
-  { value: 'OFF', label: 'OFF' },
-];
-
-const ALIGN_OPTIONS: ToggleOption<string>[] = [
-  { value: 'L', label: 'L' },
-  { value: 'C', label: 'C' },
-  { value: 'R', label: 'R' },
-  { value: 'T', label: 'T' },
-  { value: 'M', label: 'M' },
-  { value: 'B', label: 'B' },
-];
 
 function SelectionOptions() {
   return (
     <>
       <Label>Selection</Label>
       <Separator />
-      <Field label="Auto-Select">
-        <TogglePill options={AUTO_SELECT_OPTIONS} value="LAYER" onChange={(_v: string) => {}} />
-      </Field>
-      <Separator />
-      <Field label="Show Bounds">
-        <TogglePill options={SHOW_BOUNDS_OPTIONS} value="ON" onChange={(_v: string) => {}} />
-      </Field>
-      <Separator />
-      <Field label="Align">
-        <TogglePill options={ALIGN_OPTIONS} value="" onChange={(_v: string) => {}} />
-      </Field>
+      <span className="text-fg-dimmer text-2xs">Select an object to edit its properties</span>
     </>
   );
 }
 
-export function OptionsBar({ tool, opts, setOpts }: Props) {
-  const update = <K extends keyof EditorOpts>(k: K, v: EditorOpts[K]) =>
-    setOpts({ ...opts, [k]: v });
+export function OptionsBar({ tool }: Props) {
   return (
     <div className={optionsBar}>
-      {(tool === 'brush' || tool === 'pencil' || tool === 'eraser') && (
-        <PaintOptions tool={tool} opts={opts} update={update} />
+      {tool === 'pencil' ? (
+        <PencilOptions />
+      ) : tool === 'eraser' ? (
+        <EraserOptions />
+      ) : tool === 'shape' ? (
+        <ShapeOptions />
+      ) : tool === 'text' ? (
+        <TextOptions />
+      ) : (
+        <SelectionOptions />
       )}
-      {tool === 'shape' && <ShapeOptions opts={opts} update={update} />}
-      {tool === 'text' && <TextOptions />}
-      {tool !== 'brush' &&
-        tool !== 'pencil' &&
-        tool !== 'eraser' &&
-        tool !== 'shape' &&
-        tool !== 'text' && <SelectionOptions />}
     </div>
   );
 }

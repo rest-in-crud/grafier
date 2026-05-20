@@ -12,7 +12,6 @@ import { CanvasStage } from './ui/canvas-stage';
 import { RightRail } from './ui/right-rail';
 import { StatusBar } from './ui/status-bar';
 import { RadialMenu } from './ui/radial-menu';
-import type { EditorOpts } from './types';
 
 const EditorPage = () => {
   const user = useAuthStore((s) => s.user);
@@ -21,13 +20,6 @@ const EditorPage = () => {
   const tool = useCanvasStore((s) => s.activeTool);
   const setTool = useCanvasStore((s) => s.setActiveTool);
   const [zoom, setZoom] = useState<number>(75);
-  const [opts, setOpts] = useState<EditorOpts>({
-    size: 32,
-    opacity: 100,
-    hardness: 80,
-    blend: 'NORMAL',
-    stroke: 1,
-  });
   const [radial, setRadial] = useState<{ x: number; y: number } | null>(null);
   const [cursor, setCursor] = useState<{ x: number; y: number }>({ x: 412, y: 268 });
 
@@ -54,7 +46,7 @@ const EditorPage = () => {
         <div className="h-9.5 shrink-0">
           <Topbar avatarInitial={avatarInitial} onLogout={onLogout} />
         </div>
-        <OptionsBar tool={tool} opts={opts} setOpts={setOpts} />
+        <OptionsBar tool={tool} />
         <div className="flex min-h-0 flex-1">
           <div className="w-14 shrink-0">
             <ToolRail active={tool} setActive={setTool} />

@@ -31,20 +31,21 @@ export class TextTool implements BaseTool {
 
   private handler: ((e: TPointerEventInfo<TPointerEvent>) => void) | null = null;
 
-  activate(canvas: Canvas, styles: Record<string, unknown> = this.defaultStyles) {
+  activate(canvas: Canvas, styles: Record<string, unknown> = {}) {
+    const merged = { ...TEXT_DEFAULT_STYLES, ...styles };
     injectGoogleFontsLink();
     canvas.isDrawingMode = false;
     canvas.selection = false;
 
     this.handler = async ({ scenePoint }) => {
       const activeHandler = this.handler;
-      await loadTextFont(styles.fontFamily, styles.fontWeight);
+      await loadTextFont(merged.fontFamily, merged.fontWeight);
       if (this.handler !== activeHandler) return;
 
       const text = new IText('', {
         left: scenePoint.x,
         top: scenePoint.y,
-        ...styles,
+        ...merged,
       });
       canvas.add(text);
       canvas.setActiveObject(text);
