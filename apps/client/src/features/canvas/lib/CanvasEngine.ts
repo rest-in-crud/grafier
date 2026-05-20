@@ -11,14 +11,31 @@ interface CanvasConfig {
   backgroundColor?: string;
 }
 
+const OBJECT_TYPE_LABELS: Record<string, string> = {
+  rect: 'Rectangle',
+  circle: 'Circle',
+  ellipse: 'Ellipse',
+  triangle: 'Triangle',
+  line: 'Line',
+  path: 'Pen Stroke',
+  'i-text': 'Text',
+};
+
 export class CanvasEngine {
   private readonly canvas: Canvas;
   private activeTool: BaseTool | null = null;
   private activeToolId: ToolId | null = null;
   private readonly unsubscribe: () => void;
+  private readonly objectCounter: Record<string, number> = {};
 
   get fabricCanvas(): Canvas {
     return this.canvas;
+  }
+
+  private generateObjectName(type: string): string {
+    const label = OBJECT_TYPE_LABELS[type] ?? 'Object';
+    this.objectCounter[label] = (this.objectCounter[label] ?? 0) + 1;
+    return `${label} ${this.objectCounter[label]}`;
   }
 
   constructor(canvasElement: HTMLCanvasElement, config: CanvasConfig) {
@@ -36,11 +53,12 @@ export class CanvasEngine {
       if (obj.data?.id) return;
 
       const id = crypto.randomUUID();
+      const name = this.generateObjectName(obj.type);
       obj.data = { ...obj.data, id };
 
       const { activeLayerId, addObjectToLayer } = useLayersStore.getState();
       if (activeLayerId) {
-        addObjectToLayer(activeLayerId, id);
+        addObjectToLayer(activeLayerId, id, name);
       }
     });
 
@@ -48,7 +66,7 @@ export class CanvasEngine {
       const id = e.target?.data?.id;
       if (!id) return;
       const { layers, removeObjectFromLayer } = useLayersStore.getState();
-      const owningLayer = layers.find((l) => l.objectsIds.includes(id));
+      const owningLayer = layers.find((l) => l.objects.some((o) => o.id === id));
       if (owningLayer) {
         removeObjectFromLayer(owningLayer.id, id);
       }

@@ -1,9 +1,15 @@
+export interface LayerObject {
+  id: string;
+  name: string;
+  visible: boolean;
+}
+
 export interface Layer {
   id: string;
   name: string;
   visible: boolean;
   locked: boolean;
   opacity: number;
-  objectsIds: string[];
+  objects: LayerObject[];
   collapsed: boolean;
 }
