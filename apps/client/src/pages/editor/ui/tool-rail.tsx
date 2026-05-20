@@ -23,6 +23,7 @@ type ToolEntry = {
   name: string;
   kbd: string;
   Icon: (p: IconProps) => ReactNode;
+  implemented: boolean;
 };
 type ToolsEntry = DividerEntry | ToolEntry;
 
@@ -30,25 +31,26 @@ type TooltipState = {
   id: ToolId;
   name: string;
   kbd: string;
+  implemented: boolean;
   x: number;
   y: number;
 } | null;
 
 const TOOLS: ToolsEntry[] = [
-  { id: 'move', name: 'Move', kbd: 'V', Icon: IMove },
-  { id: 'marquee', name: 'Marquee', kbd: 'M', Icon: IMarquee },
-  { id: 'lasso', name: 'Lasso', kbd: 'L', Icon: ILasso },
+  { id: 'move', name: 'Move', kbd: 'V', Icon: IMove, implemented: true },
+  { id: 'marquee', name: 'Marquee', kbd: 'M', Icon: IMarquee, implemented: false },
+  { id: 'lasso', name: 'Lasso', kbd: 'L', Icon: ILasso, implemented: false },
   { _div: true },
-  { id: 'brush', name: 'Brush', kbd: 'B', Icon: IBrush },
-  { id: 'pencil', name: 'Pencil', kbd: 'P', Icon: IPencil },
-  { id: 'eraser', name: 'Eraser', kbd: 'E', Icon: IEraser },
+  { id: 'brush', name: 'Brush', kbd: 'B', Icon: IBrush, implemented: false },
+  { id: 'pencil', name: 'Pencil', kbd: 'P', Icon: IPencil, implemented: true },
+  { id: 'eraser', name: 'Eraser', kbd: 'E', Icon: IEraser, implemented: true },
   { _div: true },
-  { id: 'shape', name: 'Shape', kbd: 'U', Icon: IShape },
-  { id: 'text', name: 'Text', kbd: 'T', Icon: IText },
-  { id: 'dropper', name: 'Eyedropper', kbd: 'I', Icon: IDropper },
+  { id: 'shape', name: 'Shape', kbd: 'U', Icon: IShape, implemented: true },
+  { id: 'text', name: 'Text', kbd: 'T', Icon: IText, implemented: true },
+  { id: 'dropper', name: 'Eyedropper', kbd: 'I', Icon: IDropper, implemented: false },
   { _div: true },
-  { id: 'hand', name: 'Hand', kbd: 'H', Icon: IHand },
-  { id: 'zoom', name: 'Zoom', kbd: 'Z', Icon: IZoom },
+  { id: 'hand', name: 'Hand', kbd: 'H', Icon: IHand, implemented: false },
+  { id: 'zoom', name: 'Zoom', kbd: 'Z', Icon: IZoom, implemented: false },
 ];
 
 export function ToolRail({
@@ -69,6 +71,7 @@ export function ToolRail({
           <ToolButton
             key={t.id}
             active={active === t.id}
+            disabled={!t.implemented}
             onClick={() => setActive(t.id)}
             onMouseEnter={(e) => {
               const r = e.currentTarget.getBoundingClientRect();
@@ -76,6 +79,7 @@ export function ToolRail({
                 id: t.id,
                 name: t.name,
                 kbd: t.kbd,
+                implemented: t.implemented,
                 x: r.right + 6,
                 y: r.top + r.height / 2,
               });
@@ -93,7 +97,11 @@ export function ToolRail({
           style={{ left: hover.x, top: hover.y, transform: 'translateY(-50%)' }}
         >
           {hover.name}
-          <span className="ml-2 text-muted-foreground">{hover.kbd}</span>
+          {hover.implemented ? (
+            <span className="ml-2 text-muted-foreground">{hover.kbd}</span>
+          ) : (
+            <span className="ml-2 text-fg-dimmer">Soon</span>
+          )}
         </span>
       )}
     </div>
