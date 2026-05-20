@@ -42,7 +42,7 @@ export class CanvasEngine {
     this.canvas = new Canvas(canvasElement, {
       width: config.width,
       height: config.height,
-      backgroundColor: config.backgroundColor ?? '#e5e7eb',
+      backgroundColor: config.backgroundColor ?? 'transparent',
       selection: true,
     });
     ToolRegistry.init();
