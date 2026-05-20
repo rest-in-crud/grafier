@@ -1,5 +1,6 @@
 import { Canvas } from 'fabric';
 import type { ToolId } from '@/pages/editor/types';
+import type { ToolStyles } from '@/features/canvas/store/canvas.store';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import { useLayersStore } from '@/features/layers/store/layers.store';
 import type { BaseTool } from './tools/BaseTool';
@@ -21,10 +22,29 @@ const OBJECT_TYPE_LABELS: Record<string, string> = {
   'i-text': 'Text',
 };
 
+function styleSliceFor(
+  toolId: ToolId,
+  toolStyles: ToolStyles,
+): Record<string, unknown> | undefined {
+  switch (toolId) {
+    case 'pencil':
+      return toolStyles.pencil;
+    case 'eraser':
+      return toolStyles.eraser;
+    case 'text':
+      return toolStyles.text;
+    case 'shape':
+      return toolStyles.shape;
+    default:
+      return undefined;
+  }
+}
+
 export class CanvasEngine {
   private readonly canvas: Canvas;
   private activeTool: BaseTool | null = null;
   private activeToolId: ToolId | null = null;
+  private activeToolStyles: Record<string, unknown> | undefined = undefined;
   private readonly unsubscribe: () => void;
   private readonly objectCounter: Record<string, number> = {};
 
@@ -72,19 +92,29 @@ export class CanvasEngine {
       }
     });
 
-    this.setTool(useCanvasStore.getState().activeTool);
+    const initial = useCanvasStore.getState();
+    this.setTool(initial.activeTool, styleSliceFor(initial.activeTool, initial.toolStyles));
+
     this.unsubscribe = useCanvasStore.subscribe((state) => {
+      const nextStyles = styleSliceFor(state.activeTool, state.toolStyles);
       if (state.activeTool !== this.activeToolId) {
-        this.setTool(state.activeTool);
+        this.setTool(state.activeTool, nextStyles);
+        return;
+      }
+      if (nextStyles !== this.activeToolStyles) {
+        this.activeTool?.deactivate(this.canvas);
+        this.activeToolStyles = nextStyles;
+        this.activeTool?.activate(this.canvas, nextStyles);
       }
     });
   }
 
-  private setTool(toolId: ToolId) {
+  private setTool(toolId: ToolId, styles: Record<string, unknown> | undefined) {
     this.activeTool?.deactivate(this.canvas);
     this.activeTool = ToolRegistry.get(toolId);
     this.activeToolId = toolId;
-    this.activeTool?.activate(this.canvas);
+    this.activeToolStyles = styles;
+    this.activeTool?.activate(this.canvas, styles);
   }
 
   public async destroy() {
