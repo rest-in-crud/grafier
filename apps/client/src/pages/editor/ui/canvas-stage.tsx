@@ -9,7 +9,7 @@ type CanvasStageProps = {
 export function CanvasStage({ onContextMenu, onMouseMove, children }: CanvasStageProps) {
   return (
     <div
-      className="canvas-stage-bg relative overflow-hidden"
+      className="canvas-stage-bg relative size-full overflow-hidden"
       onContextMenu={onContextMenu}
       onMouseMove={onMouseMove}
     >
