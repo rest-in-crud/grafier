@@ -1,16 +1,13 @@
-import { LayersPanel } from './layers-panel';
+import { LayersPanel } from '@/features/layers/components/LayersPanel';
 import { PropertiesPanel } from './properties-panel';
 import { Separator } from './primitives';
 
-type RightRailProps = {
-  selected: string;
-  setSelected: (id: string) => void;
-};
-
-export function RightRail({ selected, setSelected }: RightRailProps) {
+export function RightRail() {
   return (
     <div className="flex flex-col w-70 overflow-hidden border-l border-hairline bg-chrome">
-      <LayersPanel className="flex-1 min-h-[220px]" selected={selected} setSelected={setSelected} />
+      <div className="flex-1 min-h-[220px]">
+        <LayersPanel />
+      </div>
       <Separator orientation="horizontal" />
       <PropertiesPanel className="flex-1 min-h-[220px]" />
     </div>

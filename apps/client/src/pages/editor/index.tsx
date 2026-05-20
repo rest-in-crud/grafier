@@ -20,7 +20,6 @@ const EditorPage = () => {
 
   const tool = useCanvasStore((s) => s.activeTool);
   const setTool = useCanvasStore((s) => s.setActiveTool);
-  const [selected, setSelected] = useState<string>('l1');
   const [zoom, setZoom] = useState<number>(75);
   const [opts, setOpts] = useState<EditorOpts>({
     size: 32,
@@ -65,7 +64,7 @@ const EditorPage = () => {
               <CanvasArea />
             </CanvasStage>
           </div>
-          <RightRail selected={selected} setSelected={setSelected} />
+          <RightRail />
         </div>
         <div className="h-6.5 shrink-0">
           <StatusBar cursor={cursor} zoom={zoom} setZoom={setZoom} />
