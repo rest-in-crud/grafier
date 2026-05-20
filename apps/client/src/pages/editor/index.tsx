@@ -3,6 +3,8 @@ import type { MouseEvent } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuthStore } from '@/features/auth/store';
 import { performLogout } from '@/features/auth/session';
+import { useCanvasStore } from '@/features/canvas/store/canvas.store';
+import { CanvasArea } from '@/features/canvas/components/CanvasArea';
 import { Topbar } from './ui/topbar';
 import { OptionsBar } from './ui/options-bar';
 import { ToolRail } from './ui/tool-rail';
@@ -10,13 +12,14 @@ import { CanvasStage } from './ui/canvas-stage';
 import { RightRail } from './ui/right-rail';
 import { StatusBar } from './ui/status-bar';
 import { RadialMenu } from './ui/radial-menu';
-import type { ToolId, EditorOpts } from './types';
+import type { EditorOpts } from './types';
 
 const EditorPage = () => {
   const user = useAuthStore((s) => s.user);
   const navigate = useNavigate();
 
-  const [tool, setTool] = useState<ToolId>('move');
+  const tool = useCanvasStore((s) => s.activeTool);
+  const setTool = useCanvasStore((s) => s.setActiveTool);
   const [selected, setSelected] = useState<string>('l1');
   const [zoom, setZoom] = useState<number>(75);
   const [opts, setOpts] = useState<EditorOpts>({
@@ -58,7 +61,9 @@ const EditorPage = () => {
             <ToolRail active={tool} setActive={setTool} />
           </div>
           <div className="min-w-0 flex-1">
-            <CanvasStage onContextMenu={onCanvasContextMenu} onMouseMove={onCanvasMove} />
+            <CanvasStage onContextMenu={onCanvasContextMenu} onMouseMove={onCanvasMove}>
+              <CanvasArea />
+            </CanvasStage>
           </div>
           <RightRail selected={selected} setSelected={setSelected} />
         </div>
