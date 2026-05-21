@@ -27,6 +27,8 @@ export const LayersPanel = () => {
     renameLayer,
     setCollapsed,
     setObjectVisibility,
+    setObjectLocked,
+    renameObject,
   } = useLayersStore();
 
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -39,6 +41,11 @@ export const LayersPanel = () => {
 
   const commitRename = (layerId: string) => {
     if (editingName.trim()) renameLayer(layerId, editingName.trim());
+    setEditingId(null);
+  };
+
+  const commitObjectRename = (layerId: string, objectId: string) => {
+    if (editingName.trim()) renameObject(layerId, objectId, editingName.trim());
     setEditingId(null);
   };
 
@@ -228,9 +235,41 @@ export const LayersPanel = () => {
                       >
                         {obj.visible ? <Eye size={11} /> : <EyeSlash size={11} />}
                       </button>
-                      <span className="min-w-0 flex-1 truncate select-none" title={obj.name}>
-                        {obj.name}
-                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setObjectLocked(layer.id, obj.id, !obj.locked)}
+                        title={obj.locked ? 'Unlock object' : 'Lock object'}
+                        className={cn(
+                          'flex h-4.5 w-4.5 shrink-0 items-center justify-center',
+                          obj.locked ? 'text-foreground' : 'text-fg-dim hover:text-foreground',
+                        )}
+                      >
+                        {obj.locked ? <Lock size={11} /> : <LockOpen size={11} />}
+                      </button>
+                      {editingId === obj.id ? (
+                        <input
+                          autoFocus
+                          value={editingName}
+                          onChange={(e) => setEditingName(e.target.value)}
+                          onBlur={() => commitObjectRename(layer.id, obj.id)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') commitObjectRename(layer.id, obj.id);
+                            if (e.key === 'Escape') setEditingId(null);
+                          }}
+                          className="min-w-0 flex-1 border border-foreground bg-transparent px-1 text-[11px] text-foreground outline-none"
+                        />
+                      ) : (
+                        <span
+                          onDoubleClick={() => {
+                            setEditingId(obj.id);
+                            setEditingName(obj.name);
+                          }}
+                          className="min-w-0 flex-1 truncate select-none"
+                          title={obj.name}
+                        >
+                          {obj.name}
+                        </span>
+                      )}
                     </div>
                   ))}
                 </div>
