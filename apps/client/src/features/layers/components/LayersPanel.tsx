@@ -29,11 +29,14 @@ export const LayersPanel = () => {
     setObjectVisibility,
     setObjectLocked,
     renameObject,
+    moveObjectBetweenLayers,
+    reorderObjectInLayer,
   } = useLayersStore();
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
   const dragFromIndex = useRef<number | null>(null);
+  const objectDragRef = useRef<{ layerId: string; objectId: string } | null>(null);
 
   // Top of panel mirrors top of z-order (last item in the store array).
   const displayLayers = [...layers].reverse();
@@ -82,12 +85,19 @@ export const LayersPanel = () => {
                 onDragStart={() => {
                   dragFromIndex.current = storeIndex;
                 }}
+                onDragEnd={() => {
+                  dragFromIndex.current = null;
+                }}
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={() => {
+                  const objSrc = objectDragRef.current;
+                  if (objSrc && objSrc.layerId !== layer.id) {
+                    moveObjectBetweenLayers(objSrc.objectId, objSrc.layerId, layer.id);
+                    return;
+                  }
                   if (dragFromIndex.current !== null && dragFromIndex.current !== storeIndex) {
                     reorderLayers(dragFromIndex.current, storeIndex);
                   }
-                  dragFromIndex.current = null;
                 }}
                 onClick={() => setActiveLayer(layer.id)}
                 className={cn(
@@ -219,8 +229,34 @@ export const LayersPanel = () => {
                   {[...layer.objects].reverse().map((obj) => (
                     <div
                       key={obj.id}
+                      draggable
+                      onDragStart={(e) => {
+                        e.stopPropagation();
+                        objectDragRef.current = { layerId: layer.id, objectId: obj.id };
+                      }}
+                      onDragEnd={() => {
+                        objectDragRef.current = null;
+                      }}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      onDrop={(e) => {
+                        e.stopPropagation();
+                        const src = objectDragRef.current;
+                        if (!src || src.objectId === obj.id) return;
+                        if (src.layerId === layer.id) {
+                          const fromIndex = layer.objects.findIndex((o) => o.id === src.objectId);
+                          const toIndex = layer.objects.findIndex((o) => o.id === obj.id);
+                          if (fromIndex >= 0 && toIndex >= 0) {
+                            reorderObjectInLayer(layer.id, fromIndex, toIndex);
+                          }
+                        } else {
+                          moveObjectBetweenLayers(src.objectId, src.layerId, layer.id);
+                        }
+                      }}
                       className={cn(
-                        'flex items-center gap-1.5 py-1 pr-2 pl-8 text-[11px]',
+                        'flex cursor-grab items-center gap-1.5 py-1 pr-2 pl-8 text-[11px] active:cursor-grabbing',
                         obj.visible ? 'text-muted-foreground' : 'text-fg-dimmer',
                       )}
                     >
