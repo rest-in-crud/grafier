@@ -20,4 +20,6 @@ export interface LayersStoreInterface {
   moveObjectBetweenLayers: (objectId: string, fromLayerId: string, toLayerId: string) => void;
   reorderObjectInLayer: (layerId: string, fromIndex: number, toIndex: number) => void;
   setObjectVisibility: (layerId: string, objectId: string, visible: boolean) => void;
+  setObjectLocked: (layerId: string, objectId: string, locked: boolean) => void;
+  renameObject: (layerId: string, objectId: string, name: string) => void;
 }

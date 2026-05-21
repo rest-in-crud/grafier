@@ -27,11 +27,16 @@ export const LayersPanel = () => {
     renameLayer,
     setCollapsed,
     setObjectVisibility,
+    setObjectLocked,
+    renameObject,
+    moveObjectBetweenLayers,
+    reorderObjectInLayer,
   } = useLayersStore();
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
   const dragFromIndex = useRef<number | null>(null);
+  const objectDragRef = useRef<{ layerId: string; objectId: string } | null>(null);
 
   // Top of panel mirrors top of z-order (last item in the store array).
   const displayLayers = [...layers].reverse();
@@ -39,6 +44,11 @@ export const LayersPanel = () => {
 
   const commitRename = (layerId: string) => {
     if (editingName.trim()) renameLayer(layerId, editingName.trim());
+    setEditingId(null);
+  };
+
+  const commitObjectRename = (layerId: string, objectId: string) => {
+    if (editingName.trim()) renameObject(layerId, objectId, editingName.trim());
     setEditingId(null);
   };
 
@@ -75,12 +85,19 @@ export const LayersPanel = () => {
                 onDragStart={() => {
                   dragFromIndex.current = storeIndex;
                 }}
+                onDragEnd={() => {
+                  dragFromIndex.current = null;
+                }}
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={() => {
+                  const objSrc = objectDragRef.current;
+                  if (objSrc && objSrc.layerId !== layer.id) {
+                    moveObjectBetweenLayers(objSrc.objectId, objSrc.layerId, layer.id);
+                    return;
+                  }
                   if (dragFromIndex.current !== null && dragFromIndex.current !== storeIndex) {
                     reorderLayers(dragFromIndex.current, storeIndex);
                   }
-                  dragFromIndex.current = null;
                 }}
                 onClick={() => setActiveLayer(layer.id)}
                 className={cn(
@@ -212,8 +229,34 @@ export const LayersPanel = () => {
                   {[...layer.objects].reverse().map((obj) => (
                     <div
                       key={obj.id}
+                      draggable
+                      onDragStart={(e) => {
+                        e.stopPropagation();
+                        objectDragRef.current = { layerId: layer.id, objectId: obj.id };
+                      }}
+                      onDragEnd={() => {
+                        objectDragRef.current = null;
+                      }}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      onDrop={(e) => {
+                        e.stopPropagation();
+                        const src = objectDragRef.current;
+                        if (!src || src.objectId === obj.id) return;
+                        if (src.layerId === layer.id) {
+                          const fromIndex = layer.objects.findIndex((o) => o.id === src.objectId);
+                          const toIndex = layer.objects.findIndex((o) => o.id === obj.id);
+                          if (fromIndex >= 0 && toIndex >= 0) {
+                            reorderObjectInLayer(layer.id, fromIndex, toIndex);
+                          }
+                        } else {
+                          moveObjectBetweenLayers(src.objectId, src.layerId, layer.id);
+                        }
+                      }}
                       className={cn(
-                        'flex items-center gap-1.5 py-1 pr-2 pl-8 text-[11px]',
+                        'flex cursor-grab items-center gap-1.5 py-1 pr-2 pl-8 text-[11px] active:cursor-grabbing',
                         obj.visible ? 'text-muted-foreground' : 'text-fg-dimmer',
                       )}
                     >
@@ -228,9 +271,41 @@ export const LayersPanel = () => {
                       >
                         {obj.visible ? <Eye size={11} /> : <EyeSlash size={11} />}
                       </button>
-                      <span className="min-w-0 flex-1 truncate select-none" title={obj.name}>
-                        {obj.name}
-                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setObjectLocked(layer.id, obj.id, !obj.locked)}
+                        title={obj.locked ? 'Unlock object' : 'Lock object'}
+                        className={cn(
+                          'flex h-4.5 w-4.5 shrink-0 items-center justify-center',
+                          obj.locked ? 'text-foreground' : 'text-fg-dim hover:text-foreground',
+                        )}
+                      >
+                        {obj.locked ? <Lock size={11} /> : <LockOpen size={11} />}
+                      </button>
+                      {editingId === obj.id ? (
+                        <input
+                          autoFocus
+                          value={editingName}
+                          onChange={(e) => setEditingName(e.target.value)}
+                          onBlur={() => commitObjectRename(layer.id, obj.id)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') commitObjectRename(layer.id, obj.id);
+                            if (e.key === 'Escape') setEditingId(null);
+                          }}
+                          className="min-w-0 flex-1 border border-foreground bg-transparent px-1 text-[11px] text-foreground outline-none"
+                        />
+                      ) : (
+                        <span
+                          onDoubleClick={() => {
+                            setEditingId(obj.id);
+                            setEditingName(obj.name);
+                          }}
+                          className="min-w-0 flex-1 truncate select-none"
+                          title={obj.name}
+                        >
+                          {obj.name}
+                        </span>
+                      )}
                     </div>
                   ))}
                 </div>
