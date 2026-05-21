@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import type { MouseEvent } from 'react';
-import { useNavigate } from 'react-router';
-import { useAuthStore } from '@/features/auth/store';
+import { useUser } from '@/features/auth/queries';
 import { performLogout } from '@/features/auth/session';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import { CanvasArea } from '@/features/canvas/components/CanvasArea';
@@ -16,18 +15,12 @@ import { useToolShortcuts } from './hooks/useToolShortcuts';
 
 const EditorPage = () => {
   useToolShortcuts();
-  const user = useAuthStore((s) => s.user);
-  const navigate = useNavigate();
+  const { user } = useUser();
 
   const tool = useCanvasStore((s) => s.activeTool);
   const setTool = useCanvasStore((s) => s.setActiveTool);
   const [radial, setRadial] = useState<{ x: number; y: number } | null>(null);
   const [cursor, setCursor] = useState<{ x: number; y: number }>({ x: 412, y: 268 });
-
-  const onLogout = () => {
-    performLogout();
-    navigate('/signin');
-  };
 
   const avatarInitial = user?.name?.charAt(0)?.toUpperCase() ?? 'U';
 
@@ -45,7 +38,7 @@ const EditorPage = () => {
     <>
       <div className="fixed inset-0 flex flex-col overflow-hidden bg-background font-sans text-foreground">
         <div className="h-9.5 shrink-0">
-          <Topbar avatarInitial={avatarInitial} onLogout={onLogout} />
+          <Topbar avatarInitial={avatarInitial} onLogout={performLogout} />
         </div>
         <OptionsBar tool={tool} />
         <div className="flex min-h-0 flex-1">
