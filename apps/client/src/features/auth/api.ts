@@ -10,8 +10,9 @@ import {
   type ForgotPasswordValues,
   type VerifyEmailValues,
 } from '@/features/auth/schema';
-import { getAccessToken, setAccessToken } from '@/features/auth/token';
-import { clearAuth } from '@/features/auth/lib';
+import { getAccessToken, setAccessToken, clearAccessToken } from '@/features/auth/token';
+import { queryClient } from '@/shared/lib/query-client';
+import { userQueryKey } from '@/features/auth/query-keys';
 import { createApiClient } from '@/shared/lib/api-client';
 
 const apiClient = createApiClient({
@@ -21,7 +22,10 @@ const apiClient = createApiClient({
     const { accessToken } = await api.refresh();
     setAccessToken(accessToken);
   },
-  onUnauthorized: clearAuth,
+  onUnauthorized: () => {
+    clearAccessToken();
+    queryClient.setQueryData(userQueryKey, null);
+  },
 });
 
 const api = {
