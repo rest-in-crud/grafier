@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import type { SelectionPatch, SelectionSnapshot } from '@/features/canvas/store/canvas.store';
-import { Slider, Swatch, Panel, PanelHeader, PanelBody } from './primitives';
+import { ColorField, Slider, Panel, PanelHeader, PanelBody } from './primitives';
 
 const TYPE_LABELS: Record<string, string> = {
   rect: 'RECT',
@@ -43,54 +43,6 @@ function NumberField({ symbol, value, suffix, onCommit }: NumberFieldProps) {
       </span>
       <input
         className="w-full border border-hairline bg-field py-1.25 pr-2 pl-5.5 text-[11px] text-foreground focus:border-foreground focus:outline-none"
-        value={local}
-        onChange={(e) => setLocal(e.target.value)}
-        onBlur={commit}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') e.currentTarget.blur();
-          if (e.key === 'Escape') {
-            setLocal(display);
-            e.currentTarget.blur();
-          }
-        }}
-      />
-    </div>
-  );
-}
-
-type ColorFieldProps = {
-  value: string | null;
-  onCommit: (color: string) => void;
-};
-
-function ColorField({ value, onCommit }: ColorFieldProps) {
-  const display = value ?? 'NONE';
-  const [local, setLocal] = useState(display);
-  const [prevDisplay, setPrevDisplay] = useState(display);
-
-  if (display !== prevDisplay) {
-    setPrevDisplay(display);
-    setLocal(display);
-  }
-
-  const commit = () => {
-    const trimmed = local.trim();
-    if (trimmed !== (value ?? '') && trimmed.length > 0 && trimmed !== 'NONE') {
-      onCommit(trimmed);
-    } else {
-      setLocal(display);
-    }
-  };
-
-  return (
-    <div className="flex items-center gap-2">
-      <Swatch
-        interactive={false}
-        color={value ?? undefined}
-        style={value === null ? { background: 'transparent', borderStyle: 'dashed' } : undefined}
-      />
-      <input
-        className="flex-1 border border-hairline bg-field px-2 py-1.25 text-[11px] text-foreground focus:border-foreground focus:outline-none"
         value={local}
         onChange={(e) => setLocal(e.target.value)}
         onBlur={commit}
@@ -164,10 +116,15 @@ function PropertiesBody({ selection }: { selection: SelectionSnapshot }) {
   );
 }
 
-function EmptyState() {
+function CanvasProperties() {
+  const color = useCanvasStore((s) => s.canvasBgColor);
+  const setCanvasBgColor = useCanvasStore((s) => s.setCanvasBgColor);
   return (
-    <div className="flex h-full items-center justify-center px-3 py-6 text-center font-mono text-[10px] tracking-mono text-fg-dimmer uppercase">
-      Select an object to edit
+    <div className="grid gap-3.5 p-3">
+      <div className="grid gap-2">
+        <div className="font-mono text-[9px] tracking-[0.2em] text-fg-dim uppercase">CANVAS</div>
+        <ColorField value={color} onCommit={setCanvasBgColor} />
+      </div>
     </div>
   );
 }
@@ -179,7 +136,9 @@ export function PropertiesPanel({ className }: { className?: string } = {}) {
   return (
     <Panel className={className}>
       <PanelHeader title="PROPERTIES" right={meta ? <span>{meta}</span> : null} />
-      <PanelBody>{selection ? <PropertiesBody selection={selection} /> : <EmptyState />}</PanelBody>
+      <PanelBody>
+        {selection ? <PropertiesBody selection={selection} /> : <CanvasProperties />}
+      </PanelBody>
     </Panel>
   );
 }

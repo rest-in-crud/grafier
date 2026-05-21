@@ -8,13 +8,13 @@ import type {
 } from '@/features/canvas/store/canvas.store';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import { useLayersStore } from '@/features/layers/store/layers.store';
+import { removeFromLayer } from './removeFromLayer';
 import type { BaseTool } from './tools/BaseTool';
 import { ToolRegistry } from './tools/ToolRegistry';
 
 interface CanvasConfig {
   width: number;
   height: number;
-  backgroundColor?: string;
 }
 
 const OBJECT_TYPE_LABELS: Record<string, string> = {
@@ -67,6 +67,7 @@ export class CanvasEngine {
   private activeToolId: ToolId | null = null;
   private activeToolStyles: Record<string, unknown> | undefined = undefined;
   private activeZoom: number = 100;
+  private activeCanvasBgColor: string = '#ffffff';
   private readonly unsubscribe: () => void;
   private readonly layersUnsubscribe: () => void;
   private removingLayerObjects = false;
@@ -87,7 +88,6 @@ export class CanvasEngine {
     this.canvas = new Canvas(canvasElement, {
       width: config.width,
       height: config.height,
-      backgroundColor: config.backgroundColor ?? 'transparent',
       selection: true,
     });
     ToolRegistry.init();
@@ -109,15 +109,7 @@ export class CanvasEngine {
 
     this.canvas.on('object:removed', (e) => {
       if (this.isRestoring) return;
-
-      const rawId: unknown = e.target?.data?.id;
-      const id = typeof rawId === 'string' ? rawId : undefined;
-      if (!id) return;
-      const { layers, removeObjectFromLayer } = useLayersStore.getState();
-      const owningLayer = layers.find((l) => l.objects.some((o) => o.id === id));
-      if (owningLayer) {
-        removeObjectFromLayer(owningLayer.id, id);
-      }
+      removeFromLayer(e.target);
     });
 
     const refreshSelection = () => {
@@ -145,6 +137,7 @@ export class CanvasEngine {
     const initial = useCanvasStore.getState();
     this.setTool(initial.activeTool, styleSliceFor(initial.activeTool, initial.toolStyles));
     this.applyZoom(initial.zoom);
+    this.applyCanvasBgColor(initial.canvasBgColor);
 
     this.unsubscribe = useCanvasStore.subscribe((state) => {
       const nextStyles = styleSliceFor(state.activeTool, state.toolStyles);
@@ -157,6 +150,9 @@ export class CanvasEngine {
       }
       if (state.zoom !== this.activeZoom) {
         this.applyZoom(state.zoom);
+      }
+      if (state.canvasBgColor !== this.activeCanvasBgColor) {
+        this.applyCanvasBgColor(state.canvasBgColor);
       }
     });
 
@@ -183,6 +179,12 @@ export class CanvasEngine {
         state.layers.map((l) => [l.id, new Set(l.objects.map((o) => o.id))]),
       );
     });
+  }
+
+  private applyCanvasBgColor(color: string) {
+    this.activeCanvasBgColor = color;
+    this.canvas.set('backgroundColor', color);
+    this.canvas.requestRenderAll();
   }
 
   private applyZoom(zoom: number) {

@@ -7,6 +7,8 @@ export type { ToggleOption } from './toggle-pill';
 export { Select } from './select';
 export type { EditorSelectProps } from './select';
 export { Swatch } from './swatch';
+export { ColorField } from './color-field';
+export type { ColorFieldProps } from './color-field';
 export { IconButton } from './icon-button';
 export { ToolButton } from './tool-button';
 export { Slider } from './slider';
