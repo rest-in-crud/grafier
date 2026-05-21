@@ -29,6 +29,13 @@
       "when": 1778880303142,
       "tag": "0003_outgoing_sinister_six",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1779329117063,
+      "tag": "0004_glossy_joshua_kane",
+      "breakpoints": true
     }
   ]
 }
