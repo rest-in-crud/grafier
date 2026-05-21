@@ -14,7 +14,4 @@ export default defineConfig({
       '@': resolve(__dirname, './src'),
     },
   },
-  build: {
-    target: 'es2022',
-  },
 });
