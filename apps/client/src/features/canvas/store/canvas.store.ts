@@ -10,6 +10,32 @@ export type ToolStyles = {
   shape?: { strokeWidth?: number; fill?: string; stroke?: string; opacity?: number };
 };
 
+export type SelectionSnapshot = {
+  id: string;
+  type: string;
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+  angle: number;
+  opacity: number;
+  fill: string | null;
+  stroke: string | null;
+  strokeWidth: number;
+};
+
+export type SelectionPatch = Partial<{
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+  angle: number;
+  opacity: number;
+  fill: string;
+  stroke: string;
+  strokeWidth: number;
+}>;
+
 interface CanvasState {
   activeTool: ToolId;
   setActiveTool: (tool: ToolId) => void;
@@ -20,6 +46,10 @@ interface CanvasState {
     toolId: K,
     patch: Partial<NonNullable<ToolStyles[K]>>,
   ) => void;
+  selection: SelectionSnapshot | null;
+  setSelection: (s: SelectionSnapshot | null) => void;
+  applyToSelection: (patch: SelectionPatch) => void;
+  setApplyToSelection: (fn: (patch: SelectionPatch) => void) => void;
 }
 
 export const useCanvasStore = create<CanvasState>((set) => ({
@@ -35,4 +65,8 @@ export const useCanvasStore = create<CanvasState>((set) => ({
         [toolId]: { ...state.toolStyles[toolId], ...patch },
       },
     })),
+  selection: null,
+  setSelection: (s) => set({ selection: s }),
+  applyToSelection: () => {},
+  setApplyToSelection: (fn) => set({ applyToSelection: fn }),
 }));
