@@ -1,13 +1,14 @@
 import type { FC } from 'react';
+import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import { Slider } from './primitives/slider';
 
 type StatusBarProps = {
   cursor: { x: number; y: number };
-  zoom: number;
-  setZoom: (v: number) => void;
 };
 
-const StatusBar: FC<StatusBarProps> = ({ cursor, zoom, setZoom }) => {
+const StatusBar: FC<StatusBarProps> = ({ cursor }) => {
+  const zoom = useCanvasStore((s) => s.zoom);
+  const setZoom = useCanvasStore((s) => s.setZoom);
   const px = cursor.x.toString().padStart(4, '0');
   const py = cursor.y.toString().padStart(4, '0');
 

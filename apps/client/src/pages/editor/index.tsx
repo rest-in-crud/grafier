@@ -19,7 +19,6 @@ const EditorPage = () => {
 
   const tool = useCanvasStore((s) => s.activeTool);
   const setTool = useCanvasStore((s) => s.setActiveTool);
-  const [zoom, setZoom] = useState<number>(75);
   const [radial, setRadial] = useState<{ x: number; y: number } | null>(null);
   const [cursor, setCursor] = useState<{ x: number; y: number }>({ x: 412, y: 268 });
 
@@ -59,7 +58,7 @@ const EditorPage = () => {
           <RightRail />
         </div>
         <div className="h-6.5 shrink-0">
-          <StatusBar cursor={cursor} zoom={zoom} setZoom={setZoom} />
+          <StatusBar cursor={cursor} />
         </div>
       </div>
       {radial && <RadialMenu x={radial.x} y={radial.y} onClose={() => setRadial(null)} />}
