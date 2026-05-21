@@ -72,7 +72,7 @@ export const useLayersStore = create<LayersStoreInterface>((set) => ({
     set((state) => ({
       layers: state.layers.map((l) =>
         l.id === layerId
-          ? { ...l, objects: [...l.objects, { id: objectId, name, visible: true }] }
+          ? { ...l, objects: [...l.objects, { id: objectId, name, visible: true, locked: false }] }
           : l,
       ),
     })),
@@ -119,6 +119,24 @@ export const useLayersStore = create<LayersStoreInterface>((set) => ({
       layers: state.layers.map((l) =>
         l.id === layerId
           ? { ...l, objects: l.objects.map((o) => (o.id === objectId ? { ...o, visible } : o)) }
+          : l,
+      ),
+    })),
+
+  setObjectLocked: (layerId, objectId, locked) =>
+    set((state) => ({
+      layers: state.layers.map((l) =>
+        l.id === layerId
+          ? { ...l, objects: l.objects.map((o) => (o.id === objectId ? { ...o, locked } : o)) }
+          : l,
+      ),
+    })),
+
+  renameObject: (layerId, objectId, name) =>
+    set((state) => ({
+      layers: state.layers.map((l) =>
+        l.id === layerId
+          ? { ...l, objects: l.objects.map((o) => (o.id === objectId ? { ...o, name } : o)) }
           : l,
       ),
     })),
