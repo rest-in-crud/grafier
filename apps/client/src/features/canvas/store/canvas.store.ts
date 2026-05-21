@@ -50,6 +50,8 @@ interface CanvasState {
   setSelection: (s: SelectionSnapshot | null) => void;
   applyToSelection: (patch: SelectionPatch) => void;
   setApplyToSelection: (fn: (patch: SelectionPatch) => void) => void;
+  zoom: number;
+  setZoom: (zoom: number) => void;
 }
 
 export const useCanvasStore = create<CanvasState>((set) => ({
@@ -69,4 +71,6 @@ export const useCanvasStore = create<CanvasState>((set) => ({
   setSelection: (s) => set({ selection: s }),
   applyToSelection: () => {},
   setApplyToSelection: (fn) => set({ applyToSelection: fn }),
+  zoom: 100,
+  setZoom: (zoom) => set({ zoom }),
 }));
