@@ -1,53 +1,70 @@
+import { useState } from 'react';
+import type { MouseEvent } from 'react';
 import { useNavigate } from 'react-router';
-import { performLogout } from '@/features/auth/session';
 import { useAuthStore } from '@/features/auth/store';
-import { AsciiBackground } from '@/shared/ui/ascii-background';
-import { Button } from '@/shared/ui/button';
+import { performLogout } from '@/features/auth/session';
+import { useCanvasStore } from '@/features/canvas/store/canvas.store';
+import { CanvasArea } from '@/features/canvas/components/CanvasArea';
+import { Topbar } from './ui/topbar';
+import { OptionsBar } from './ui/options-bar';
+import { ToolRail } from './ui/tool-rail';
+import { CanvasStage } from './ui/canvas-stage';
+import { RightRail } from './ui/right-rail';
+import { StatusBar } from './ui/status-bar';
+import { RadialMenu } from './ui/radial-menu';
+import { useToolShortcuts } from './hooks/useToolShortcuts';
 
 const EditorPage = () => {
-  const user = useAuthStore((state) => state.user);
+  useToolShortcuts();
+  const user = useAuthStore((s) => s.user);
   const navigate = useNavigate();
+
+  const tool = useCanvasStore((s) => s.activeTool);
+  const setTool = useCanvasStore((s) => s.setActiveTool);
+  const [radial, setRadial] = useState<{ x: number; y: number } | null>(null);
+  const [cursor, setCursor] = useState<{ x: number; y: number }>({ x: 412, y: 268 });
 
   const onLogout = () => {
     performLogout();
     navigate('/signin');
   };
 
+  const avatarInitial = user?.name?.charAt(0)?.toUpperCase() ?? 'U';
+
+  function onCanvasContextMenu(e: MouseEvent) {
+    e.preventDefault();
+    setRadial({ x: e.clientX, y: e.clientY });
+  }
+
+  function onCanvasMove(e: MouseEvent) {
+    const r = e.currentTarget.getBoundingClientRect();
+    setCursor({ x: Math.round(e.clientX - r.left), y: Math.round(e.clientY - r.top) });
+  }
+
   return (
-    <div className="fixed inset-0 overflow-hidden bg-background">
-      <div aria-hidden className="pointer-events-none absolute inset-0 bg-shell-glow" />
-      <AsciiBackground />
-      <div aria-hidden className="pointer-events-none absolute inset-0 bg-shell-grid" />
-      <div aria-hidden className="pointer-events-none absolute inset-0 bg-shell-vignette" />
-
-      <header className="pointer-events-none fixed inset-x-0 top-0 z-20 flex items-center justify-between px-7 py-4">
-        <span className="font-mono text-xs font-semibold uppercase tracking-[0.3em] text-foreground">
-          Grafier
-        </span>
-      </header>
-
-      <main className="relative z-10 flex h-full items-center justify-center overflow-y-auto px-8 py-24">
-        <div className="flex max-w-140 flex-col items-center gap-7 text-center">
-          <div className="flex items-center gap-3 self-stretch font-mono text-2xs uppercase tracking-mono text-muted-foreground">
-            <span className="h-px flex-1 bg-hairline" />
-            <span>Workspace</span>
-            <span className="h-px flex-1 bg-hairline" />
-          </div>
-
-          <h1 className="text-display font-medium tracking-tight">
-            Welcome{user?.name ? `, ${user.name}` : ''}.
-          </h1>
-
-          <p className="max-w-[44ch] text-body text-muted-foreground">
-            The editor is coming in v0.2. For now, the auth loop is fully wired.
-          </p>
-
-          <Button variant="ghost" onClick={onLogout}>
-            Log out
-          </Button>
+    <>
+      <div className="fixed inset-0 flex flex-col overflow-hidden bg-background font-sans text-foreground">
+        <div className="h-9.5 shrink-0">
+          <Topbar avatarInitial={avatarInitial} onLogout={onLogout} />
         </div>
-      </main>
-    </div>
+        <OptionsBar tool={tool} />
+        <div className="flex min-h-0 flex-1">
+          <div className="w-14 shrink-0">
+            <ToolRail active={tool} setActive={setTool} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <CanvasStage onContextMenu={onCanvasContextMenu} onMouseMove={onCanvasMove}>
+              <CanvasArea />
+            </CanvasStage>
+          </div>
+          <RightRail />
+        </div>
+        <div className="h-6.5 shrink-0">
+          <StatusBar cursor={cursor} />
+        </div>
+      </div>
+      {radial && <RadialMenu x={radial.x} y={radial.y} onClose={() => setRadial(null)} />}
+    </>
   );
 };
 
