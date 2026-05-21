@@ -1,4 +1,4 @@
-import { Canvas } from 'fabric';
+import { Canvas, Point } from 'fabric';
 import type { FabricObject } from 'fabric';
 import type { ToolId } from '@/pages/editor/types';
 import type {
@@ -66,6 +66,7 @@ export class CanvasEngine {
   private activeTool: BaseTool | null = null;
   private activeToolId: ToolId | null = null;
   private activeToolStyles: Record<string, unknown> | undefined = undefined;
+  private activeZoom: number = 100;
   private readonly unsubscribe: () => void;
   private readonly objectCounter: Record<string, number> = {};
 
@@ -137,19 +138,27 @@ export class CanvasEngine {
 
     const initial = useCanvasStore.getState();
     this.setTool(initial.activeTool, styleSliceFor(initial.activeTool, initial.toolStyles));
+    this.applyZoom(initial.zoom);
 
     this.unsubscribe = useCanvasStore.subscribe((state) => {
       const nextStyles = styleSliceFor(state.activeTool, state.toolStyles);
       if (state.activeTool !== this.activeToolId) {
         this.setTool(state.activeTool, nextStyles);
-        return;
-      }
-      if (nextStyles !== this.activeToolStyles) {
+      } else if (nextStyles !== this.activeToolStyles) {
         this.activeTool?.deactivate(this.canvas);
         this.activeToolStyles = nextStyles;
         this.activeTool?.activate(this.canvas, nextStyles);
       }
+      if (state.zoom !== this.activeZoom) {
+        this.applyZoom(state.zoom);
+      }
     });
+  }
+
+  private applyZoom(zoom: number) {
+    this.activeZoom = zoom;
+    const center = new Point(this.canvas.getWidth() / 2, this.canvas.getHeight() / 2);
+    this.canvas.zoomToPoint(center, zoom / 100);
   }
 
   private applyPatchToSelection(patch: SelectionPatch) {
