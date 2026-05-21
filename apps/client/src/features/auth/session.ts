@@ -10,7 +10,6 @@ import type {
   ResetPasswordValues,
   SignInValues,
   SignUpValues,
-  User,
   VerifyEmailValues,
 } from '@/features/auth/schema';
 
@@ -71,18 +70,6 @@ const performConfirmEmail = async (token: string): Promise<void> => {
   await api.confirmEmail(token);
 };
 
-const requireAuth = () => {
-  const user = queryClient.getQueryData<User | null>(userQueryKey);
-  if (!user) throw redirect('/signin');
-  return null;
-};
-
-const requireAnon = () => {
-  const user = queryClient.getQueryData<User | null>(userQueryKey);
-  if (user) throw redirect('/');
-  return null;
-};
-
 export {
   performSignIn,
   performSignUp,
@@ -94,6 +81,4 @@ export {
   performResetPassword,
   performResendVerification,
   performConfirmEmail,
-  requireAuth,
-  requireAnon,
 };
