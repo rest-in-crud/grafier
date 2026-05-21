@@ -1,9 +1,4 @@
-import {
-    ForbiddenException,
-    Inject,
-    Injectable,
-    NotFoundException,
-} from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { and, asc, count, desc, eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DRIZZLE } from '../database/database.module';
@@ -21,10 +16,7 @@ export class ProjectsService {
     constructor(@Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>) {}
 
     private async assertOwner(projectId: string, userId: string) {
-        const [project] = await this.db
-            .select()
-            .from(projects)
-            .where(eq(projects.id, projectId));
+        const [project] = await this.db.select().from(projects).where(eq(projects.id, projectId));
 
         if (!project) throw new NotFoundException('Project not found');
         if (project.userID !== userId) throw new ForbiddenException('Access denied');
@@ -169,9 +161,7 @@ export class ProjectsService {
                 .limit(1);
 
             if (oldest) {
-                await this.db
-                    .delete(projectHistory)
-                    .where(eq(projectHistory.id, oldest.id));
+                await this.db.delete(projectHistory).where(eq(projectHistory.id, oldest.id));
             }
         }
 
@@ -218,12 +208,7 @@ export class ProjectsService {
         const [entry] = await this.db
             .select()
             .from(projectHistory)
-            .where(
-                and(
-                    eq(projectHistory.id, entryId),
-                    eq(projectHistory.projectID, id),
-                ),
-            );
+            .where(and(eq(projectHistory.id, entryId), eq(projectHistory.projectID, id)));
 
         if (!entry) throw new NotFoundException('History entry not found');
 
@@ -251,11 +236,6 @@ export class ProjectsService {
 
         await this.db
             .delete(projectHistory)
-            .where(
-                and(
-                    eq(projectHistory.id, entryId),
-                    eq(projectHistory.projectID, id),
-                ),
-            );
+            .where(and(eq(projectHistory.id, entryId), eq(projectHistory.projectID, id)));
     }
 }

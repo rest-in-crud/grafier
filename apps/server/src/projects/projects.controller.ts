@@ -41,11 +41,7 @@ export class ProjectsController {
     }
 
     @Patch(':id')
-    update(
-        @CurrentUser() user: AuthUser,
-        @Param('id') id: string,
-        @Body() dto: UpdateProjectDto,
-    ) {
+    update(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() dto: UpdateProjectDto) {
         return this.projectsService.updateProject(id, user.id, dto);
     }
 
@@ -56,11 +52,7 @@ export class ProjectsController {
     }
 
     @Put(':id/canvas')
-    saveCanvas(
-        @CurrentUser() user: AuthUser,
-        @Param('id') id: string,
-        @Body() dto: SaveCanvasDto,
-    ) {
+    saveCanvas(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() dto: SaveCanvasDto) {
         return this.projectsService.saveCanvas(id, user.id, dto);
     }
 
