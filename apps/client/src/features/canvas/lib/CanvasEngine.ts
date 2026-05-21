@@ -1,6 +1,11 @@
 import { Canvas } from 'fabric';
+import type { FabricObject } from 'fabric';
 import type { ToolId } from '@/pages/editor/types';
-import type { ToolStyles } from '@/features/canvas/store/canvas.store';
+import type {
+  SelectionPatch,
+  SelectionSnapshot,
+  ToolStyles,
+} from '@/features/canvas/store/canvas.store';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import { useLayersStore } from '@/features/layers/store/layers.store';
 import type { BaseTool } from './tools/BaseTool';
@@ -38,6 +43,22 @@ function styleSliceFor(
     default:
       return undefined;
   }
+}
+
+function projectSelection(obj: FabricObject): SelectionSnapshot {
+  return {
+    id: typeof obj.data?.id === 'string' ? obj.data.id : '',
+    type: obj.type,
+    left: Math.round(obj.left ?? 0),
+    top: Math.round(obj.top ?? 0),
+    width: Math.round(obj.getScaledWidth()),
+    height: Math.round(obj.getScaledHeight()),
+    angle: Math.round(obj.angle ?? 0),
+    opacity: obj.opacity ?? 1,
+    fill: typeof obj.fill === 'string' ? obj.fill : null,
+    stroke: typeof obj.stroke === 'string' ? obj.stroke : null,
+    strokeWidth: obj.strokeWidth ?? 0,
+  };
 }
 
 export class CanvasEngine {
@@ -92,6 +113,28 @@ export class CanvasEngine {
       }
     });
 
+    const refreshSelection = () => {
+      const objects = this.canvas.getActiveObjects();
+      if (objects.length !== 1) {
+        useCanvasStore.getState().setSelection(null);
+        return;
+      }
+      useCanvasStore.getState().setSelection(projectSelection(objects[0]));
+    };
+
+    this.canvas.on('selection:created', refreshSelection);
+    this.canvas.on('selection:updated', refreshSelection);
+    this.canvas.on('selection:cleared', () => {
+      useCanvasStore.getState().setSelection(null);
+    });
+    this.canvas.on('object:modified', (e) => {
+      if (e.target && this.canvas.getActiveObject() === e.target) {
+        refreshSelection();
+      }
+    });
+
+    useCanvasStore.getState().setApplyToSelection((patch) => this.applyPatchToSelection(patch));
+
     const initial = useCanvasStore.getState();
     this.setTool(initial.activeTool, styleSliceFor(initial.activeTool, initial.toolStyles));
 
@@ -109,6 +152,29 @@ export class CanvasEngine {
     });
   }
 
+  private applyPatchToSelection(patch: SelectionPatch) {
+    const obj = this.canvas.getActiveObject();
+    if (!obj) return;
+
+    if (patch.width !== undefined && obj.width) {
+      obj.set('scaleX', patch.width / obj.width);
+    }
+    if (patch.height !== undefined && obj.height) {
+      obj.set('scaleY', patch.height / obj.height);
+    }
+    if (patch.left !== undefined) obj.set('left', patch.left);
+    if (patch.top !== undefined) obj.set('top', patch.top);
+    if (patch.angle !== undefined) obj.set('angle', patch.angle);
+    if (patch.opacity !== undefined) obj.set('opacity', patch.opacity);
+    if (patch.fill !== undefined) obj.set('fill', patch.fill);
+    if (patch.stroke !== undefined) obj.set('stroke', patch.stroke);
+    if (patch.strokeWidth !== undefined) obj.set('strokeWidth', patch.strokeWidth);
+
+    obj.setCoords();
+    this.canvas.requestRenderAll();
+    useCanvasStore.getState().setSelection(projectSelection(obj));
+  }
+
   private setTool(toolId: ToolId, styles: Record<string, unknown> | undefined) {
     this.activeTool?.deactivate(this.canvas);
     this.activeTool = ToolRegistry.get(toolId);
@@ -119,6 +185,8 @@ export class CanvasEngine {
 
   public async destroy() {
     this.unsubscribe();
+    useCanvasStore.getState().setApplyToSelection(() => {});
+    useCanvasStore.getState().setSelection(null);
     this.activeTool?.deactivate(this.canvas);
     await this.canvas.dispose();
   }
