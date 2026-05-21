@@ -68,6 +68,8 @@ export class CanvasEngine {
   private activeToolStyles: Record<string, unknown> | undefined = undefined;
   private activeZoom: number = 100;
   private readonly unsubscribe: () => void;
+  private readonly layersUnsubscribe: () => void;
+  private removingLayerObjects = false;
   private readonly objectCounter: Record<string, number> = {};
 
   get fabricCanvas(): Canvas {
@@ -153,6 +155,30 @@ export class CanvasEngine {
         this.applyZoom(state.zoom);
       }
     });
+
+    let prevLayerObjectIds = new Map<string, Set<string>>(
+      useLayersStore.getState().layers.map((l) => [l.id, new Set(l.objects.map((o) => o.id))]),
+    );
+    this.layersUnsubscribe = useLayersStore.subscribe((state) => {
+      if (this.removingLayerObjects) return;
+      const currentLayerIds = new Set(state.layers.map((l) => l.id));
+      this.removingLayerObjects = true;
+      try {
+        for (const [prevLayerId, objectIds] of prevLayerObjectIds) {
+          if (currentLayerIds.has(prevLayerId)) continue;
+          const toRemove = this.canvas.getObjects().filter((o) => {
+            const id = o.data?.id;
+            return typeof id === 'string' && objectIds.has(id);
+          });
+          for (const obj of toRemove) this.canvas.remove(obj);
+        }
+      } finally {
+        this.removingLayerObjects = false;
+      }
+      prevLayerObjectIds = new Map(
+        state.layers.map((l) => [l.id, new Set(l.objects.map((o) => o.id))]),
+      );
+    });
   }
 
   private applyZoom(zoom: number) {
@@ -194,6 +220,7 @@ export class CanvasEngine {
 
   public async destroy() {
     this.unsubscribe();
+    this.layersUnsubscribe();
     useCanvasStore.getState().setApplyToSelection(() => {});
     useCanvasStore.getState().setSelection(null);
     this.activeTool?.deactivate(this.canvas);
