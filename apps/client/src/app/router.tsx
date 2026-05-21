@@ -1,4 +1,4 @@
-import type { RouteObject } from 'react-router';
+import { createBrowserRouter, type RouteObject } from 'react-router';
 import { AuthShell } from '@/widgets/auth-shell';
 import { EditorPage } from '@/pages/editor';
 import { SignInPage } from '@/pages/sign-in';
@@ -35,4 +35,4 @@ const routes: RouteObject[] = [
   { path: '*', Component: NotFoundPage },
 ];
 
-export { routes };
+export const router = createBrowserRouter(routes);

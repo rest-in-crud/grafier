@@ -24,16 +24,6 @@ const performSignUp = async (values: SignUpValues): Promise<void> => {
   await api.signUp(values);
 };
 
-const performRestoreSession = async (): Promise<null> => {
-  try {
-    await queryClient.fetchQuery(userQueryOptions);
-  } catch {
-    clearAccessToken();
-    queryClient.setQueryData(userQueryKey, null);
-  }
-  return null;
-};
-
 const startGoogleOAuth = () => {
   const base = (import.meta.env.VITE_URL_BACKEND ?? '/api').replace(/\/$/, '');
   window.location.href = `${base}/auth/google`;
@@ -73,7 +63,6 @@ const performConfirmEmail = async (token: string): Promise<void> => {
 export {
   performSignIn,
   performSignUp,
-  performRestoreSession,
   startGoogleOAuth,
   completeOAuth,
   performLogout,
