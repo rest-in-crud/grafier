@@ -147,8 +147,7 @@ export const useHistory = (engineRef: RefObject<CanvasEngine | null>) => {
         if (!canvas) return;
         const active = canvas.getActiveObject();
         if (!active || ('isEditing' in active && active.isEditing)) return;
-        const targets =
-          active instanceof ActiveSelection ? [...active.getObjects()] : [active];
+        const targets = active instanceof ActiveSelection ? [...active.getObjects()] : [active];
         canvas.discardActiveObject();
         for (const obj of targets) {
           canvas.remove(obj);

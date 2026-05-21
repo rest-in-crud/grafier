@@ -136,7 +136,9 @@ export function PropertiesPanel({ className }: { className?: string } = {}) {
   return (
     <Panel className={className}>
       <PanelHeader title="PROPERTIES" right={meta ? <span>{meta}</span> : null} />
-      <PanelBody>{selection ? <PropertiesBody selection={selection} /> : <CanvasProperties />}</PanelBody>
+      <PanelBody>
+        {selection ? <PropertiesBody selection={selection} /> : <CanvasProperties />}
+      </PanelBody>
     </Panel>
   );
 }
