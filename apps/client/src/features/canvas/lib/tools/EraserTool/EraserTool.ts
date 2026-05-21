@@ -1,5 +1,6 @@
 import { EraserBrush } from '@erase2d/fabric';
 import type { Canvas, FabricObject } from 'fabric';
+import { useLayersStore } from '@/features/layers/store/layers.store';
 import type { BaseTool } from '../BaseTool';
 import type { ToolRegistration } from '../types';
 
@@ -23,6 +24,12 @@ export class EraserTool implements BaseTool {
         for (const target of targets) {
           if (this.isFullyErased(target)) {
             canvas.remove(target);
+            const id = typeof target.data?.id === 'string' ? target.data.id : undefined;
+            if (id) {
+              const { layers, removeObjectFromLayer } = useLayersStore.getState();
+              const owningLayer = layers.find((l) => l.objects.some((o) => o.id === id));
+              if (owningLayer) removeObjectFromLayer(owningLayer.id, id);
+            }
           }
         }
         canvas.requestRenderAll();
