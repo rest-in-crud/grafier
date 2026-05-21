@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { MouseEvent } from 'react';
 import { useNavigate } from 'react-router';
-import { useAuthStore } from '@/features/auth/store';
+import { useUser } from '@/features/auth/queries';
 import { performLogout } from '@/features/auth/session';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import { CanvasArea } from '@/features/canvas/components/CanvasArea';
@@ -16,7 +16,7 @@ import { useToolShortcuts } from './hooks/useToolShortcuts';
 
 const EditorPage = () => {
   useToolShortcuts();
-  const user = useAuthStore((s) => s.user);
+  const { user } = useUser();
   const navigate = useNavigate();
 
   const tool = useCanvasStore((s) => s.activeTool);

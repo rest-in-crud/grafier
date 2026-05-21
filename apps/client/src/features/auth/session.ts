@@ -1,21 +1,23 @@
+import { redirect } from 'react-router';
 import { api } from '@/features/auth/api';
-import { setAccessToken } from '@/features/auth/token';
-import { useAuthStore } from '@/features/auth/store';
+import { setAccessToken, clearAccessToken } from '@/features/auth/token';
+import { queryClient } from '@/shared/lib/query-client';
+import { userQueryKey } from '@/features/auth/query-keys';
+import { userQueryOptions } from '@/features/auth/queries';
 import type {
   AuthResponse,
   ForgotPasswordValues,
   ResetPasswordValues,
   SignInValues,
   SignUpValues,
+  User,
   VerifyEmailValues,
 } from '@/features/auth/schema';
-import { clearAuth } from '@/features/auth/lib';
-import { redirect } from 'react-router';
 
 const performSignIn = async (values: SignInValues): Promise<AuthResponse> => {
   const result = await api.signIn(values);
   setAccessToken(result.accessToken);
-  useAuthStore.getState().setUser(result.user);
+  queryClient.setQueryData(userQueryKey, result.user);
   return result;
 };
 
@@ -25,14 +27,11 @@ const performSignUp = async (values: SignUpValues): Promise<void> => {
 
 const performRestoreSession = async (): Promise<null> => {
   try {
-    const { accessToken } = await api.refresh();
-    setAccessToken(accessToken);
-    const user = await api.me({ skipAuthRefresh: true });
-    useAuthStore.getState().setUser(user);
+    await queryClient.fetchQuery(userQueryOptions);
   } catch {
-    clearAuth();
+    clearAccessToken();
+    queryClient.setQueryData(userQueryKey, null);
   }
-
   return null;
 };
 
@@ -42,13 +41,17 @@ const startGoogleOAuth = () => {
 };
 
 const completeOAuth = async () => {
-  await performRestoreSession();
-  const user = useAuthStore.getState().user;
-  throw redirect(user ? '/' : '/signin?error=oauth');
+  try {
+    await queryClient.fetchQuery(userQueryOptions);
+  } catch {
+    throw redirect('/signin?error=oauth');
+  }
+  throw redirect('/');
 };
 
 const performLogout = () => {
-  clearAuth();
+  clearAccessToken();
+  queryClient.setQueryData(userQueryKey, null);
   api.logout().catch(() => {});
 };
 
@@ -69,13 +72,13 @@ const performConfirmEmail = async (token: string): Promise<void> => {
 };
 
 const requireAuth = () => {
-  const user = useAuthStore.getState().user;
+  const user = queryClient.getQueryData<User | null>(userQueryKey);
   if (!user) throw redirect('/signin');
   return null;
 };
 
 const requireAnon = () => {
-  const user = useAuthStore.getState().user;
+  const user = queryClient.getQueryData<User | null>(userQueryKey);
   if (user) throw redirect('/');
   return null;
 };
