@@ -12,8 +12,10 @@ import { CanvasStage } from './ui/canvas-stage';
 import { RightRail } from './ui/right-rail';
 import { StatusBar } from './ui/status-bar';
 import { RadialMenu } from './ui/radial-menu';
+import { useToolShortcuts } from './hooks/useToolShortcuts';
 
 const EditorPage = () => {
+  useToolShortcuts();
   const user = useAuthStore((s) => s.user);
   const navigate = useNavigate();
 

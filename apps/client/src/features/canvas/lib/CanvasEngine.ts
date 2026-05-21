@@ -71,6 +71,7 @@ export class CanvasEngine {
   private readonly layersUnsubscribe: () => void;
   private removingLayerObjects = false;
   private readonly objectCounter: Record<string, number> = {};
+  public isRestoring = false;
 
   get fabricCanvas(): Canvas {
     return this.canvas;
@@ -94,7 +95,7 @@ export class CanvasEngine {
     this.canvas.on('object:added', (e) => {
       const obj = e.target;
       obj.erasable = true;
-      if (obj.data?.id) return;
+      if (this.isRestoring || obj.data?.id) return;
 
       const id = crypto.randomUUID();
       const name = this.generateObjectName(obj.type);
@@ -107,7 +108,10 @@ export class CanvasEngine {
     });
 
     this.canvas.on('object:removed', (e) => {
-      const id = e.target?.data?.id;
+      if (this.isRestoring) return;
+
+      const rawId: unknown = e.target?.data?.id;
+      const id = typeof rawId === 'string' ? rawId : undefined;
       if (!id) return;
       const { layers, removeObjectFromLayer } = useLayersStore.getState();
       const owningLayer = layers.find((l) => l.objects.some((o) => o.id === id));
