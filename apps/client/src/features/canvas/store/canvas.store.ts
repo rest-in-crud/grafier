@@ -52,6 +52,8 @@ interface CanvasState {
   setApplyToSelection: (fn: (patch: SelectionPatch) => void) => void;
   zoom: number;
   setZoom: (zoom: number) => void;
+  canvasBgColor: string;
+  setCanvasBgColor: (color: string) => void;
 }
 
 export const useCanvasStore = create<CanvasState>((set) => ({
@@ -73,4 +75,6 @@ export const useCanvasStore = create<CanvasState>((set) => ({
   setApplyToSelection: (fn) => set({ applyToSelection: fn }),
   zoom: 100,
   setZoom: (zoom) => set({ zoom }),
+  canvasBgColor: '#ffffff',
+  setCanvasBgColor: (color) => set({ canvasBgColor: color }),
 }));
