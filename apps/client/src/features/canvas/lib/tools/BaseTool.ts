@@ -19,4 +19,6 @@ export interface FieldSchema {
 export interface BaseTool {
   activate(canvas: Canvas, styles?: Record<string, unknown>): void;
   deactivate(canvas: Canvas): void;
+  suspend?(canvas: Canvas): void;
+  resume?(canvas: Canvas): void;
 }
