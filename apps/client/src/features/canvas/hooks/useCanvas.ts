@@ -2,8 +2,10 @@ import { useEffect, useRef } from 'react';
 import type { RefObject } from 'react';
 import { CanvasEngine } from '@/features/canvas/lib/CanvasEngine';
 
-export const useCanvas = (engineRef: RefObject<CanvasEngine | null>) => {
-  const containerRef = useRef<HTMLDivElement>(null);
+export const useCanvas = (
+  engineRef: RefObject<CanvasEngine | null>,
+  containerRef: RefObject<HTMLDivElement | null>,
+) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -29,7 +31,7 @@ export const useCanvas = (engineRef: RefObject<CanvasEngine | null>) => {
       engineRef.current = null;
       void engine.destroy();
     };
-  }, [engineRef]);
+  }, [engineRef, containerRef]);
 
-  return { containerRef, canvasRef };
+  return { canvasRef };
 };

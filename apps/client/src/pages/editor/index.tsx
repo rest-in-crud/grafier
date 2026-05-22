@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import type { MouseEvent } from 'react';
 import type { CanvasEngine } from '@/features/canvas/lib/CanvasEngine';
 import { useTempMoveOverride } from './hooks/useTempMoveOverride';
+import { useViewport } from './hooks/useViewport';
 import { useUser } from '@/features/auth/queries';
 import { performLogout } from '@/features/auth/session';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
@@ -17,7 +18,9 @@ import { useToolShortcuts } from './hooks/useToolShortcuts';
 
 const EditorPage = () => {
   const engineRef = useRef<CanvasEngine | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   useTempMoveOverride(engineRef);
+  useViewport(containerRef, engineRef);
   useToolShortcuts();
   const { user } = useUser();
 
@@ -51,7 +54,7 @@ const EditorPage = () => {
           </div>
           <div className="min-w-0 flex-1">
             <CanvasStage onContextMenu={onCanvasContextMenu} onMouseMove={onCanvasMove}>
-              <CanvasArea engineRef={engineRef} />
+              <CanvasArea engineRef={engineRef} containerRef={containerRef} />
             </CanvasStage>
           </div>
           <RightRail />

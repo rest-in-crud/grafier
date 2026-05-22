@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import type { Point } from 'fabric';
 import type { ToolId } from '@/pages/editor/types';
 import type { ShapeType } from '@/features/canvas/lib/tools/ShapeTool/shape.config';
 import { DEFAULT_SHAPE_TYPE } from '@/features/canvas/lib/tools/ShapeTool/shape.config';
@@ -61,6 +62,8 @@ interface CanvasState {
   setSelectObjectsByIds: (fn: (ids: string[]) => void) => void;
   zoom: number;
   setZoom: (zoom: number) => void;
+  zoomToPoint: (zoom: number, point: Point) => void;
+  setZoomToPoint: (fn: (zoom: number, point: Point) => void) => void;
   canvasBgColor: string;
   setCanvasBgColor: (color: string) => void;
 }
@@ -88,6 +91,8 @@ export const useCanvasStore = create<CanvasState>((set) => ({
   setSelectObjectsByIds: (fn) => set({ selectObjectsByIds: fn }),
   zoom: 100,
   setZoom: (zoom) => set({ zoom }),
+  zoomToPoint: () => {},
+  setZoomToPoint: (fn) => set({ zoomToPoint: fn }),
   canvasBgColor: '#ffffff',
   setCanvasBgColor: (color) => set({ canvasBgColor: color }),
 }));

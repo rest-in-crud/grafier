@@ -156,6 +156,13 @@ export class CanvasEngine {
       this.canvas.requestRenderAll();
     });
 
+    useCanvasStore.getState().setZoomToPoint((zoom, point) => {
+      this.applyZoom(zoom, point);
+      if (useCanvasStore.getState().zoom !== zoom) {
+        useCanvasStore.getState().setZoom(zoom);
+      }
+    });
+
     const initial = useCanvasStore.getState();
     this.setTool(initial.activeTool, styleSliceFor(initial.activeTool, initial.toolStyles));
     this.applyZoom(initial.zoom);
@@ -229,10 +236,10 @@ export class CanvasEngine {
     this.canvas.requestRenderAll();
   }
 
-  private applyZoom(zoom: number) {
+  private applyZoom(zoom: number, point?: Point) {
     this.activeZoom = zoom;
-    const center = new Point(this.canvas.getWidth() / 2, this.canvas.getHeight() / 2);
-    this.canvas.zoomToPoint(center, zoom / 100);
+    const focus = point ?? new Point(this.canvas.getWidth() / 2, this.canvas.getHeight() / 2);
+    this.canvas.zoomToPoint(focus, zoom / 100);
   }
 
   private applyPatchToSelection(patch: SelectionPatch) {
@@ -272,6 +279,7 @@ export class CanvasEngine {
     useCanvasStore.getState().setApplyToSelection(() => {});
     useCanvasStore.getState().setSelectObjectById(() => {});
     useCanvasStore.getState().setSelectObjectsByIds(() => {});
+    useCanvasStore.getState().setZoomToPoint(() => {});
     useCanvasStore.getState().setSelection({ ids: [], primary: null });
     this.activeTool?.deactivate(this.canvas);
     await this.canvas.dispose();

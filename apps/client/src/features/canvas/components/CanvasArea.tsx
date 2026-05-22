@@ -6,10 +6,11 @@ import { useHistory } from '@/features/canvas/hooks/useHistory';
 
 type Props = {
   engineRef: RefObject<CanvasEngine | null>;
+  containerRef: RefObject<HTMLDivElement | null>;
 };
 
-export const CanvasArea = ({ engineRef }: Props) => {
-  const { containerRef, canvasRef } = useCanvas(engineRef);
+export const CanvasArea = ({ engineRef, containerRef }: Props) => {
+  const { canvasRef } = useCanvas(engineRef, containerRef);
   useLayerSync(engineRef);
   useHistory(engineRef);
 
