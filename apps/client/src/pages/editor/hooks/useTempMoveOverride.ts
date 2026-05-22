@@ -1,11 +1,13 @@
 import { useEffect, useRef } from 'react';
 import type { RefObject } from 'react';
 import type { CanvasEngine } from '@/features/canvas/lib/CanvasEngine';
+import type { BaseTool } from '@/features/canvas/lib/tools/BaseTool';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import { isPrimaryModifier } from '@/shared/lib/platform';
 import { ToolRegistry } from '@/features/canvas/lib/tools/ToolRegistry';
 
 type Snapshot = {
+  tool: BaseTool | null;
   isDrawingMode: boolean;
   selection: boolean;
   hoverCursor: string;
@@ -29,6 +31,7 @@ export function useTempMoveOverride(engineRef: RefObject<CanvasEngine | null>) {
       const tool = ToolRegistry.get(toolId);
 
       snapshotRef.current = {
+        tool,
         isDrawingMode: canvas.isDrawingMode,
         selection: canvas.selection,
         hoverCursor: canvas.hoverCursor,
@@ -48,9 +51,7 @@ export function useTempMoveOverride(engineRef: RefObject<CanvasEngine | null>) {
         snapshotRef.current = null;
         return;
       }
-      const toolId = useCanvasStore.getState().activeTool;
-      const tool = ToolRegistry.get(toolId);
-      tool?.resume?.(canvas);
+      snap.tool?.resume?.(canvas);
       canvas.isDrawingMode = snap.isDrawingMode;
       canvas.selection = snap.selection;
       canvas.hoverCursor = snap.hoverCursor;
@@ -82,15 +83,23 @@ export function useTempMoveOverride(engineRef: RefObject<CanvasEngine | null>) {
       if (!modifierHeldRef.current && activeRef.current) exitOverride();
     };
 
+    const handleBlur = () => {
+      modifierHeldRef.current = false;
+      mouseDownRef.current = false;
+      if (activeRef.current) exitOverride();
+    };
+
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
     window.addEventListener('mousedown', handleMouseDown);
     window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('blur', handleBlur);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
       window.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('blur', handleBlur);
     };
   }, [engineRef]);
 }
