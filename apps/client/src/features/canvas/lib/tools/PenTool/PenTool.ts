@@ -56,6 +56,14 @@ export class PenTool implements BaseTool {
   deactivate(canvas: Canvas) {
     canvas.isDrawingMode = false;
   }
+
+  suspend(canvas: Canvas): void {
+    canvas.isDrawingMode = false;
+  }
+
+  resume(canvas: Canvas): void {
+    canvas.isDrawingMode = true;
+  }
 }
 
 const registration: ToolRegistration = { id: 'pencil', tool: new PenTool() };

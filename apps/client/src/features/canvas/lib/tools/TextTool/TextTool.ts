@@ -65,6 +65,16 @@ export class TextTool implements BaseTool {
     }
     canvas.selection = true;
   }
+
+  suspend(canvas: Canvas): void {
+    if (this.handler) canvas.off('mouse:down', this.handler);
+    canvas.selection = true;
+  }
+
+  resume(canvas: Canvas): void {
+    if (this.handler) canvas.on('mouse:down', this.handler);
+    canvas.selection = false;
+  }
 }
 
 const registration: ToolRegistration = { id: 'text', tool: new TextTool() };
