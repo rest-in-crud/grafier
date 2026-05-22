@@ -112,23 +112,14 @@ export class CanvasEngine {
       removeFromLayer(e.target);
     });
 
-    const refreshSelection = () => {
-      const objects = this.canvas.getActiveObjects();
-      const ids = objects
-        .map((o) => (typeof o.data?.id === 'string' ? o.data.id : null))
-        .filter((id): id is string => id !== null);
-      const primary = objects.length === 1 ? projectSelection(objects[0]) : null;
-      useCanvasStore.getState().setSelection({ ids, primary });
-    };
-
-    this.canvas.on('selection:created', refreshSelection);
-    this.canvas.on('selection:updated', refreshSelection);
+    this.canvas.on('selection:created', () => this.refreshSelection());
+    this.canvas.on('selection:updated', () => this.refreshSelection());
     this.canvas.on('selection:cleared', () => {
       useCanvasStore.getState().setSelection({ ids: [], primary: null });
     });
     this.canvas.on('object:modified', (e) => {
       if (e.target && this.canvas.getActiveObject() === e.target) {
-        refreshSelection();
+        this.refreshSelection();
       }
     });
 
@@ -181,6 +172,18 @@ export class CanvasEngine {
     });
   }
 
+  private refreshSelection(): void {
+    const objects = this.canvas.getActiveObjects();
+    const nextIds = objects
+      .map((o) => (typeof o.data?.id === 'string' ? o.data.id : null))
+      .filter((id): id is string => id !== null);
+    const prev = useCanvasStore.getState().selection.ids;
+    const idsUnchanged = prev.length === nextIds.length && prev.every((id, i) => id === nextIds[i]);
+    const ids = idsUnchanged ? prev : nextIds;
+    const primary = objects.length === 1 ? projectSelection(objects[0]) : null;
+    useCanvasStore.getState().setSelection({ ids, primary });
+  }
+
   private applyCanvasBgColor(color: string) {
     this.activeCanvasBgColor = color;
     this.canvas.set('backgroundColor', color);
@@ -213,8 +216,7 @@ export class CanvasEngine {
 
     obj.setCoords();
     this.canvas.requestRenderAll();
-    const snapshot = projectSelection(obj);
-    useCanvasStore.getState().setSelection({ ids: [snapshot.id], primary: snapshot });
+    this.refreshSelection();
   }
 
   private setTool(toolId: ToolId, styles: Record<string, unknown> | undefined) {
