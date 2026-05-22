@@ -24,6 +24,7 @@ export function useViewport(
 
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
+      if (isPanning.current) return;
       const canvas = getCanvas();
       if (!canvas) return;
 
@@ -103,12 +104,21 @@ export function useViewport(
       if (canvas) canvas.defaultCursor = isSpacePressed.current ? 'grab' : 'default';
     };
 
+    const handleBlur = () => {
+      isSpacePressed.current = false;
+      isPanning.current = false;
+      panStart.current = null;
+      const canvas = getCanvas();
+      if (canvas) canvas.defaultCursor = 'default';
+    };
+
     wrapper.addEventListener('wheel', handleWheel, { passive: false });
     wrapper.addEventListener('mousedown', handleMouseDown);
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
+    window.addEventListener('blur', handleBlur);
 
     return () => {
       wrapper.removeEventListener('wheel', handleWheel);
@@ -117,6 +127,7 @@ export function useViewport(
       window.removeEventListener('mouseup', handleMouseUp);
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('blur', handleBlur);
     };
   }, [wrapperRef, engineRef]);
 }
