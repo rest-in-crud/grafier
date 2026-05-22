@@ -3,6 +3,7 @@ import type { Point } from 'fabric';
 import type { ToolId } from '@/pages/editor/types';
 import type { ShapeType } from '@/features/canvas/lib/tools/ShapeTool/shape.config';
 import { DEFAULT_SHAPE_TYPE } from '@/features/canvas/lib/tools/ShapeTool/shape.config';
+import { loadToolStyles, saveToolStyles } from '@/features/canvas/lib/persistence';
 
 export type ToolStyles = {
   pencil?: { width?: number; opacity?: number; color?: string };
@@ -73,14 +74,16 @@ export const useCanvasStore = create<CanvasState>((set) => ({
   setActiveTool: (tool) => set({ activeTool: tool }),
   activeShape: DEFAULT_SHAPE_TYPE,
   setActiveShape: (shape) => set({ activeShape: shape }),
-  toolStyles: {},
+  toolStyles: loadToolStyles(),
   setToolStyle: (toolId, patch) =>
-    set((state) => ({
-      toolStyles: {
+    set((state) => {
+      const nextToolStyles: ToolStyles = {
         ...state.toolStyles,
         [toolId]: { ...state.toolStyles[toolId], ...patch },
-      },
-    })),
+      };
+      saveToolStyles(nextToolStyles);
+      return { toolStyles: nextToolStyles };
+    }),
   selection: { ids: [], primary: null },
   setSelection: (selection) => set({ selection }),
   applyToSelection: () => {},
