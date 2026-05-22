@@ -1,7 +1,14 @@
 import { useState } from 'react';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import type { SelectionPatch, SelectionSnapshot } from '@/features/canvas/store/canvas.store';
-import { ColorField, Slider, Panel, PanelHeader, PanelBody } from './primitives';
+import {
+  ColorField,
+  CollapsibleSection,
+  Slider,
+  Panel,
+  PanelHeader,
+  PanelBody,
+} from './primitives';
 import { MultiSelectionPlaceholder } from './multi-selection-placeholder';
 
 const TYPE_LABELS: Record<string, string> = {
@@ -65,8 +72,7 @@ function PropertiesBody({ selection }: { selection: SelectionSnapshot }) {
 
   return (
     <div className="grid gap-3.5 p-3">
-      <div className="grid gap-2">
-        <div className="font-mono text-[9px] tracking-[0.2em] text-fg-dim uppercase">TRANSFORM</div>
+      <CollapsibleSection id="transform" title="TRANSFORM">
         <div className="grid grid-cols-2 gap-1.5">
           <NumberField symbol="X" value={selection.left} onCommit={(v) => apply({ left: v })} />
           <NumberField symbol="Y" value={selection.top} onCommit={(v) => apply({ top: v })} />
@@ -79,15 +85,13 @@ function PropertiesBody({ selection }: { selection: SelectionSnapshot }) {
             onCommit={(v) => apply({ angle: v })}
           />
         </div>
-      </div>
+      </CollapsibleSection>
 
-      <div className="grid gap-2">
-        <div className="font-mono text-[9px] tracking-[0.2em] text-fg-dim uppercase">FILL</div>
+      <CollapsibleSection id="fill" title="FILL">
         <ColorField value={selection.fill} onCommit={(v) => apply({ fill: v })} />
-      </div>
+      </CollapsibleSection>
 
-      <div className="grid gap-2">
-        <div className="font-mono text-[9px] tracking-[0.2em] text-fg-dim uppercase">STROKE</div>
+      <CollapsibleSection id="stroke" title="STROKE">
         <ColorField value={selection.stroke} onCommit={(v) => apply({ stroke: v })} />
         <Slider
           value={selection.strokeWidth}
@@ -96,12 +100,9 @@ function PropertiesBody({ selection }: { selection: SelectionSnapshot }) {
           max={20}
           suffix=" PX"
         />
-      </div>
+      </CollapsibleSection>
 
-      <div className="grid gap-2">
-        <div className="font-mono text-[9px] tracking-[0.2em] text-fg-dim uppercase">
-          APPEARANCE
-        </div>
+      <CollapsibleSection id="appearance" title="APPEARANCE">
         <div className="flex items-center gap-2">
           <span className="w-15 font-mono text-[9px] tracking-[0.2em] text-fg-dim uppercase">
             OPACITY
@@ -112,7 +113,7 @@ function PropertiesBody({ selection }: { selection: SelectionSnapshot }) {
             suffix="%"
           />
         </div>
-      </div>
+      </CollapsibleSection>
     </div>
   );
 }
@@ -122,10 +123,9 @@ function CanvasProperties() {
   const setCanvasBgColor = useCanvasStore((s) => s.setCanvasBgColor);
   return (
     <div className="grid gap-3.5 p-3">
-      <div className="grid gap-2">
-        <div className="font-mono text-[9px] tracking-[0.2em] text-fg-dim uppercase">CANVAS</div>
+      <CollapsibleSection id="canvas" title="CANVAS">
         <ColorField value={color} onCommit={setCanvasBgColor} />
-      </div>
+      </CollapsibleSection>
     </div>
   );
 }

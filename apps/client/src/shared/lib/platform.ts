@@ -19,3 +19,8 @@ export const primaryModifierKey = (): 'meta' | 'ctrl' => (isMac() ? 'meta' : 'ct
 
 export const isPrimaryModifier = (e: KeyboardEvent | MouseEvent): boolean =>
   isMac() ? e.metaKey : e.ctrlKey || e.metaKey;
+
+export const formatHotkey = (parts: string[]): string => {
+  const mac = isMac();
+  return parts.map((p) => (p === 'Mod' ? (mac ? '⌘' : 'Ctrl') : p)).join(mac ? '' : '+');
+};

@@ -61,6 +61,10 @@ interface CanvasState {
   selectObjectsByIds: (ids: string[]) => void;
   setSelectObjectById: (fn: (id: string) => void) => void;
   setSelectObjectsByIds: (fn: (ids: string[]) => void) => void;
+  duplicateSelection: () => void;
+  setDuplicateSelection: (fn: () => void) => void;
+  removeObjectById: (id: string) => void;
+  setRemoveObjectById: (fn: (id: string) => void) => void;
   zoom: number;
   setZoom: (zoom: number) => void;
   zoomToPoint: (zoom: number, point: Point) => void;
@@ -92,6 +96,10 @@ export const useCanvasStore = create<CanvasState>((set) => ({
   selectObjectsByIds: () => {},
   setSelectObjectById: (fn) => set({ selectObjectById: fn }),
   setSelectObjectsByIds: (fn) => set({ selectObjectsByIds: fn }),
+  duplicateSelection: () => {},
+  setDuplicateSelection: (fn) => set({ duplicateSelection: fn }),
+  removeObjectById: () => {},
+  setRemoveObjectById: (fn) => set({ removeObjectById: fn }),
   zoom: 100,
   setZoom: (zoom) => set({ zoom }),
   zoomToPoint: () => {},
