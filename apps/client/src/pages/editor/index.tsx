@@ -1,8 +1,10 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { MouseEvent } from 'react';
 import type { CanvasEngine } from '@/features/canvas/lib/CanvasEngine';
+import { loadRailWidth, saveRailWidth } from './lib/preferences';
 import { useTempMoveOverride } from './hooks/useTempMoveOverride';
 import { useViewport } from './hooks/useViewport';
+import { useEditorShortcuts } from './hooks/useEditorShortcuts';
 import { useUser } from '@/features/auth/queries';
 import { performLogout } from '@/features/auth/session';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
@@ -21,6 +23,7 @@ const EditorPage = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   useTempMoveOverride(engineRef);
   useViewport(containerRef, engineRef);
+  useEditorShortcuts(engineRef);
   useToolShortcuts();
   const { user } = useUser();
 
@@ -28,6 +31,11 @@ const EditorPage = () => {
   const setTool = useCanvasStore((s) => s.setActiveTool);
   const [radial, setRadial] = useState<{ x: number; y: number } | null>(null);
   const [cursor, setCursor] = useState<{ x: number; y: number }>({ x: 412, y: 268 });
+  const [railWidth, setRailWidth] = useState<number>(() => loadRailWidth());
+
+  useEffect(() => {
+    saveRailWidth(railWidth);
+  }, [railWidth]);
 
   const avatarInitial = user?.name?.charAt(0)?.toUpperCase() ?? 'U';
 
@@ -57,7 +65,7 @@ const EditorPage = () => {
               <CanvasArea engineRef={engineRef} containerRef={containerRef} />
             </CanvasStage>
           </div>
-          <RightRail />
+          <RightRail width={railWidth} onResize={setRailWidth} />
         </div>
         <div className="h-6.5 shrink-0">
           <StatusBar cursor={cursor} />
