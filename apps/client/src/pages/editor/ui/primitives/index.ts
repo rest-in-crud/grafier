@@ -12,3 +12,4 @@ export type { ColorFieldProps } from './color-field';
 export { IconButton } from './icon-button';
 export { ToolButton } from './tool-button';
 export { Slider } from './slider';
+export { CollapsibleSection } from './collapsible-section';
