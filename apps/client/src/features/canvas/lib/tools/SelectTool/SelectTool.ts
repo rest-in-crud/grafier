@@ -6,6 +6,8 @@ export class SelectTool implements BaseTool {
   activate(canvas: Canvas) {
     canvas.isDrawingMode = false;
     canvas.selection = true;
+    canvas.defaultCursor = 'default';
+    canvas.hoverCursor = 'move';
   }
   deactivate(canvas: Canvas) {
     canvas.selection = false;

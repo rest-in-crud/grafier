@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import type { Point } from 'fabric';
 import type { ToolId } from '@/pages/editor/types';
 import type { ShapeType } from '@/features/canvas/lib/tools/ShapeTool/shape.config';
 import { DEFAULT_SHAPE_TYPE } from '@/features/canvas/lib/tools/ShapeTool/shape.config';
@@ -36,6 +37,11 @@ export type SelectionPatch = Partial<{
   strokeWidth: number;
 }>;
 
+export type SelectionState = {
+  ids: string[];
+  primary: SelectionSnapshot | null;
+};
+
 interface CanvasState {
   activeTool: ToolId;
   setActiveTool: (tool: ToolId) => void;
@@ -46,12 +52,18 @@ interface CanvasState {
     toolId: K,
     patch: Partial<NonNullable<ToolStyles[K]>>,
   ) => void;
-  selection: SelectionSnapshot | null;
-  setSelection: (s: SelectionSnapshot | null) => void;
+  selection: SelectionState;
+  setSelection: (selection: SelectionState) => void;
   applyToSelection: (patch: SelectionPatch) => void;
   setApplyToSelection: (fn: (patch: SelectionPatch) => void) => void;
+  selectObjectById: (id: string) => void;
+  selectObjectsByIds: (ids: string[]) => void;
+  setSelectObjectById: (fn: (id: string) => void) => void;
+  setSelectObjectsByIds: (fn: (ids: string[]) => void) => void;
   zoom: number;
   setZoom: (zoom: number) => void;
+  zoomToPoint: (zoom: number, point: Point) => void;
+  setZoomToPoint: (fn: (zoom: number, point: Point) => void) => void;
   canvasBgColor: string;
   setCanvasBgColor: (color: string) => void;
 }
@@ -69,12 +81,18 @@ export const useCanvasStore = create<CanvasState>((set) => ({
         [toolId]: { ...state.toolStyles[toolId], ...patch },
       },
     })),
-  selection: null,
-  setSelection: (s) => set({ selection: s }),
+  selection: { ids: [], primary: null },
+  setSelection: (selection) => set({ selection }),
   applyToSelection: () => {},
   setApplyToSelection: (fn) => set({ applyToSelection: fn }),
+  selectObjectById: () => {},
+  selectObjectsByIds: () => {},
+  setSelectObjectById: (fn) => set({ selectObjectById: fn }),
+  setSelectObjectsByIds: (fn) => set({ selectObjectsByIds: fn }),
   zoom: 100,
   setZoom: (zoom) => set({ zoom }),
+  zoomToPoint: () => {},
+  setZoomToPoint: (fn) => set({ zoomToPoint: fn }),
   canvasBgColor: '#ffffff',
   setCanvasBgColor: (color) => set({ canvasBgColor: color }),
 }));

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import type { SelectionPatch, SelectionSnapshot } from '@/features/canvas/store/canvas.store';
 import { ColorField, Slider, Panel, PanelHeader, PanelBody } from './primitives';
+import { MultiSelectionPlaceholder } from './multi-selection-placeholder';
 
 const TYPE_LABELS: Record<string, string> = {
   rect: 'RECT',
@@ -131,14 +132,28 @@ function CanvasProperties() {
 
 export function PropertiesPanel({ className }: { className?: string } = {}) {
   const selection = useCanvasStore((s) => s.selection);
-  const meta = selection ? (TYPE_LABELS[selection.type] ?? selection.type.toUpperCase()) : null;
+  const ids = selection.ids;
+  const meta =
+    ids.length === 1 && selection.primary
+      ? (TYPE_LABELS[selection.primary.type] ?? selection.primary.type.toUpperCase())
+      : null;
+
+  const body =
+    ids.length === 0 ? (
+      <CanvasProperties />
+    ) : ids.length === 1 && selection.primary ? (
+      <PropertiesBody selection={selection.primary} />
+    ) : (
+      <MultiSelectionPlaceholder count={ids.length} />
+    );
 
   return (
     <Panel className={className}>
-      <PanelHeader title="PROPERTIES" right={meta ? <span>{meta}</span> : null} />
-      <PanelBody>
-        {selection ? <PropertiesBody selection={selection} /> : <CanvasProperties />}
-      </PanelBody>
+      <PanelHeader
+        title="PROPERTIES"
+        right={ids.length === 1 && meta ? <span>{meta}</span> : null}
+      />
+      <PanelBody>{body}</PanelBody>
     </Panel>
   );
 }

@@ -36,6 +36,8 @@ export class ShapeTool implements BaseTool {
   activate(canvas: Canvas, styles: Record<string, unknown> = this.defaultStyles) {
     canvas.isDrawingMode = false;
     canvas.selection = false;
+    canvas.hoverCursor = 'crosshair';
+    canvas.defaultCursor = 'crosshair';
 
     this.handler = ({ scenePoint }) => {
       const { activeTool, activeShape } = useCanvasStore.getState();
@@ -48,6 +50,7 @@ export class ShapeTool implements BaseTool {
 
       canvas.add(shape);
       canvas.setActiveObject(shape);
+      useCanvasStore.getState().setActiveTool('move');
       canvas.requestRenderAll();
     };
 
@@ -61,7 +64,17 @@ export class ShapeTool implements BaseTool {
     }
     canvas.selection = true;
   }
+
+  suspend(canvas: Canvas): void {
+    if (this.handler) canvas.off('mouse:down', this.handler);
+    canvas.selection = true;
+  }
+
+  resume(canvas: Canvas): void {
+    if (this.handler) canvas.on('mouse:down', this.handler);
+    canvas.selection = false;
+  }
 }
 
-const registration: ToolRegistration = { id: 'shape', tool: new ShapeTool() };
+const registration: ToolRegistration = { id: 'shape', tool: new ShapeTool(), behavior: 'insert' };
 export default registration;

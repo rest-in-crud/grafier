@@ -32,6 +32,8 @@ export class EraserTool implements BaseTool {
     });
     canvas.freeDrawingBrush = brush;
     canvas.isDrawingMode = true;
+    canvas.defaultCursor = 'default';
+    canvas.hoverCursor = canvas.defaultCursor;
   }
 
   private isFullyErased(obj: FabricObject): boolean {
@@ -59,7 +61,15 @@ export class EraserTool implements BaseTool {
   deactivate(canvas: Canvas) {
     canvas.isDrawingMode = false;
   }
+
+  suspend(canvas: Canvas): void {
+    canvas.isDrawingMode = false;
+  }
+
+  resume(canvas: Canvas): void {
+    canvas.isDrawingMode = true;
+  }
 }
 
-const registration: ToolRegistration = { id: 'eraser', tool: new EraserTool() };
+const registration: ToolRegistration = { id: 'eraser', tool: new EraserTool(), behavior: 'draw' };
 export default registration;
