@@ -66,5 +66,5 @@ export class PenTool implements BaseTool {
   }
 }
 
-const registration: ToolRegistration = { id: 'pencil', tool: new PenTool() };
+const registration: ToolRegistration = { id: 'pencil', tool: new PenTool(), behavior: 'draw' };
 export default registration;

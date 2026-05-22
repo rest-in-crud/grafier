@@ -50,6 +50,7 @@ export class ShapeTool implements BaseTool {
 
       canvas.add(shape);
       canvas.setActiveObject(shape);
+      useCanvasStore.getState().setActiveTool('move');
       canvas.requestRenderAll();
     };
 
@@ -75,5 +76,5 @@ export class ShapeTool implements BaseTool {
   }
 }
 
-const registration: ToolRegistration = { id: 'shape', tool: new ShapeTool() };
+const registration: ToolRegistration = { id: 'shape', tool: new ShapeTool(), behavior: 'insert' };
 export default registration;

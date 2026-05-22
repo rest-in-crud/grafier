@@ -71,5 +71,5 @@ export class EraserTool implements BaseTool {
   }
 }
 
-const registration: ToolRegistration = { id: 'eraser', tool: new EraserTool() };
+const registration: ToolRegistration = { id: 'eraser', tool: new EraserTool(), behavior: 'draw' };
 export default registration;

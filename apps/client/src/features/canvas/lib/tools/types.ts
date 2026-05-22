@@ -1,9 +1,12 @@
 import type { BaseTool } from './BaseTool';
 import type { ToolId } from '@/pages/editor/types';
 
+export type ToolBehavior = 'draw' | 'insert';
+
 export interface ToolRegistration {
   id: ToolId;
   tool: BaseTool;
+  behavior?: ToolBehavior;
 }
 
 export function isToolRegistration(mod: unknown): mod is ToolRegistration {
