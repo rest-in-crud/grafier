@@ -36,6 +36,8 @@ export class TextTool implements BaseTool {
     injectGoogleFontsLink();
     canvas.isDrawingMode = false;
     canvas.selection = false;
+    canvas.hoverCursor = 'crosshair';
+    canvas.defaultCursor = 'crosshair';
 
     this.handler = async ({ scenePoint }) => {
       const activeHandler = this.handler;

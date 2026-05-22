@@ -36,6 +36,8 @@ export class ShapeTool implements BaseTool {
   activate(canvas: Canvas, styles: Record<string, unknown> = this.defaultStyles) {
     canvas.isDrawingMode = false;
     canvas.selection = false;
+    canvas.hoverCursor = 'crosshair';
+    canvas.defaultCursor = 'crosshair';
 
     this.handler = ({ scenePoint }) => {
       const { activeTool, activeShape } = useCanvasStore.getState();

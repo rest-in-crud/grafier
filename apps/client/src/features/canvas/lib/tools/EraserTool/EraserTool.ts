@@ -32,6 +32,7 @@ export class EraserTool implements BaseTool {
     });
     canvas.freeDrawingBrush = brush;
     canvas.isDrawingMode = true;
+    canvas.hoverCursor = canvas.defaultCursor;
   }
 
   private isFullyErased(obj: FabricObject): boolean {
