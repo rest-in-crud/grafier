@@ -163,9 +163,9 @@ const resizeClosed = (
   let dy = current.y - start.y;
 
   if (modifiers.shift) {
-    const s = Math.min(Math.abs(dx), Math.abs(dy));
-    dx = Math.sign(dx || 1) * s;
-    dy = Math.sign(dy || 1) * s;
+    const s = Math.max(Math.abs(dx), Math.abs(dy));
+    dx = (dx === 0 ? 1 : Math.sign(dx)) * s;
+    dy = (dy === 0 ? 1 : Math.sign(dy)) * s;
   }
 
   const absW = Math.abs(dx);
@@ -221,7 +221,9 @@ const resizeLineLike = (
     shape.setCoords();
     return;
   }
-  shape.set({ path: buildArrowPath(anchorX, anchorY, endX, endY) });
+  if ('_setPath' in shape && typeof shape._setPath === 'function') {
+    shape._setPath(buildArrowPath(anchorX, anchorY, endX, endY), false);
+  }
   shape.setCoords();
 };
 
@@ -254,11 +256,10 @@ export const applyDimensions = (
     if (type === 'line') {
       shape.set({ x1: origin.x - half, y1: origin.y, x2: origin.x + half, y2: origin.y });
     } else {
-      shape.set({
-        left: origin.x,
-        top: origin.y,
-        path: buildArrowPath(-half, 0, half, 0),
-      });
+      shape.set({ left: origin.x, top: origin.y });
+      if ('_setPath' in shape && typeof shape._setPath === 'function') {
+        shape._setPath(buildArrowPath(-half, 0, half, 0), false);
+      }
     }
   } else {
     shape.set({ left: origin.x, top: origin.y, width: dims.width, height: dims.height });
