@@ -1,4 +1,4 @@
-import { Canvas, Point } from 'fabric';
+import { ActiveSelection, Canvas, Point } from 'fabric';
 import type { FabricObject } from 'fabric';
 import type { ToolId } from '@/pages/editor/types';
 import type {
@@ -125,6 +125,37 @@ export class CanvasEngine {
 
     useCanvasStore.getState().setApplyToSelection((patch) => this.applyPatchToSelection(patch));
 
+    useCanvasStore.getState().setSelectObjectById((id) => {
+      if (this.canvas.getActiveObject()?.data?.id === id) return;
+      const obj = this.canvas.getObjects().find((o) => o.data?.id === id);
+      if (!obj || obj.selectable === false) return;
+      this.canvas.setActiveObject(obj);
+      this.canvas.requestRenderAll();
+      const layersState = useLayersStore.getState();
+      const owningLayer = layersState.layers.find((l) => l.objects.some((o) => o.id === id));
+      if (owningLayer && layersState.activeLayerId !== owningLayer.id) {
+        layersState.setActiveLayer(owningLayer.id);
+      }
+    });
+
+    useCanvasStore.getState().setSelectObjectsByIds((ids) => {
+      const objects = this.canvas
+        .getObjects()
+        .filter(
+          (o) =>
+            typeof o.data?.id === 'string' && ids.includes(o.data.id) && o.selectable !== false,
+        );
+      if (objects.length === 0) {
+        this.canvas.discardActiveObject();
+      } else if (objects.length === 1) {
+        this.canvas.setActiveObject(objects[0]);
+      } else {
+        const sel = new ActiveSelection(objects, { canvas: this.canvas });
+        this.canvas.setActiveObject(sel);
+      }
+      this.canvas.requestRenderAll();
+    });
+
     const initial = useCanvasStore.getState();
     this.setTool(initial.activeTool, styleSliceFor(initial.activeTool, initial.toolStyles));
     this.applyZoom(initial.zoom);
@@ -182,6 +213,14 @@ export class CanvasEngine {
     const ids = idsUnchanged ? prev : nextIds;
     const primary = objects.length === 1 ? projectSelection(objects[0]) : null;
     useCanvasStore.getState().setSelection({ ids, primary });
+    if (objects.length === 1) {
+      const id = nextIds[0];
+      const layersState = useLayersStore.getState();
+      const owningLayer = layersState.layers.find((l) => l.objects.some((o) => o.id === id));
+      if (owningLayer && layersState.activeLayerId !== owningLayer.id) {
+        layersState.setActiveLayer(owningLayer.id);
+      }
+    }
   }
 
   private applyCanvasBgColor(color: string) {
@@ -231,6 +270,8 @@ export class CanvasEngine {
     this.unsubscribe();
     this.layersUnsubscribe();
     useCanvasStore.getState().setApplyToSelection(() => {});
+    useCanvasStore.getState().setSelectObjectById(() => {});
+    useCanvasStore.getState().setSelectObjectsByIds(() => {});
     useCanvasStore.getState().setSelection({ ids: [], primary: null });
     this.activeTool?.deactivate(this.canvas);
     await this.canvas.dispose();

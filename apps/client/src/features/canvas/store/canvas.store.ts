@@ -55,6 +55,10 @@ interface CanvasState {
   setSelection: (selection: SelectionState) => void;
   applyToSelection: (patch: SelectionPatch) => void;
   setApplyToSelection: (fn: (patch: SelectionPatch) => void) => void;
+  selectObjectById: (id: string) => void;
+  selectObjectsByIds: (ids: string[]) => void;
+  setSelectObjectById: (fn: (id: string) => void) => void;
+  setSelectObjectsByIds: (fn: (ids: string[]) => void) => void;
   zoom: number;
   setZoom: (zoom: number) => void;
   canvasBgColor: string;
@@ -78,6 +82,10 @@ export const useCanvasStore = create<CanvasState>((set) => ({
   setSelection: (selection) => set({ selection }),
   applyToSelection: () => {},
   setApplyToSelection: (fn) => set({ applyToSelection: fn }),
+  selectObjectById: () => {},
+  selectObjectsByIds: () => {},
+  setSelectObjectById: (fn) => set({ selectObjectById: fn }),
+  setSelectObjectsByIds: (fn) => set({ selectObjectsByIds: fn }),
   zoom: 100,
   setZoom: (zoom) => set({ zoom }),
   canvasBgColor: '#ffffff',

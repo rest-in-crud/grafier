@@ -10,6 +10,7 @@ import {
   Plus,
   Trash,
 } from '@phosphor-icons/react';
+import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import { useLayersStore } from '@/features/layers/store/layers.store';
 import { cn } from '@/shared/lib/utils';
 
@@ -32,6 +33,10 @@ export const LayersPanel = () => {
     moveObjectBetweenLayers,
     reorderObjectInLayer,
   } = useLayersStore();
+
+  const selectedIds = useCanvasStore((s) => s.selection.ids);
+  const selectObjectById = useCanvasStore((s) => s.selectObjectById);
+  const selectObjectsByIds = useCanvasStore((s) => s.selectObjectsByIds);
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
@@ -255,9 +260,23 @@ export const LayersPanel = () => {
                           moveObjectBetweenLayers(src.objectId, src.layerId, layer.id);
                         }
                       }}
+                      onClick={(e) => {
+                        if (e.shiftKey) {
+                          const next = selectedIds.includes(obj.id)
+                            ? selectedIds.filter((x) => x !== obj.id)
+                            : [...selectedIds, obj.id];
+                          selectObjectsByIds(next);
+                        } else {
+                          selectObjectById(obj.id);
+                        }
+                      }}
                       className={cn(
-                        'flex cursor-grab items-center gap-1.5 py-1 pr-2 pl-8 text-[11px] active:cursor-grabbing',
-                        obj.visible ? 'text-muted-foreground' : 'text-fg-dimmer',
+                        'flex cursor-pointer items-center gap-1.5 py-1 pr-2 pl-8 text-[11px] active:cursor-grabbing',
+                        selectedIds.includes(obj.id)
+                          ? 'bg-white/10 text-foreground'
+                          : obj.visible
+                            ? 'text-muted-foreground'
+                            : 'text-fg-dimmer',
                       )}
                     >
                       <button
