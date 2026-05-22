@@ -163,6 +163,17 @@ export class CanvasEngine {
       }
     });
 
+    useCanvasStore.getState().setDuplicateSelection(() => {
+      void this.duplicateActive();
+    });
+
+    useCanvasStore.getState().setRemoveObjectById((id) => {
+      const obj = this.canvas.getObjects().find((o) => o.data?.id === id);
+      if (!obj) return;
+      this.canvas.remove(obj);
+      this.canvas.requestRenderAll();
+    });
+
     const initial = useCanvasStore.getState();
     this.setTool(initial.activeTool, styleSliceFor(initial.activeTool, initial.toolStyles));
     this.applyZoom(initial.zoom);
@@ -230,6 +241,33 @@ export class CanvasEngine {
     }
   }
 
+  private async duplicateActive(): Promise<void> {
+    const active = this.canvas.getActiveObject();
+    if (!active) return;
+
+    if (!(active instanceof ActiveSelection)) {
+      const clone = await active.clone();
+      clone.set({ left: (active.left ?? 0) + 10, top: (active.top ?? 0) + 10 });
+      this.canvas.add(clone);
+      this.canvas.setActiveObject(clone);
+      this.canvas.requestRenderAll();
+      return;
+    }
+
+    const children = [...active.getObjects()];
+    this.canvas.discardActiveObject();
+    const clones: FabricObject[] = [];
+    for (const child of children) {
+      const clone = await child.clone();
+      clone.set({ left: (clone.left ?? 0) + 10, top: (clone.top ?? 0) + 10 });
+      this.canvas.add(clone);
+      clones.push(clone);
+    }
+    const next = new ActiveSelection(clones, { canvas: this.canvas });
+    this.canvas.setActiveObject(next);
+    this.canvas.requestRenderAll();
+  }
+
   private applyCanvasBgColor(color: string) {
     this.activeCanvasBgColor = color;
     this.canvas.set('backgroundColor', color);
@@ -280,6 +318,8 @@ export class CanvasEngine {
     useCanvasStore.getState().setSelectObjectById(() => {});
     useCanvasStore.getState().setSelectObjectsByIds(() => {});
     useCanvasStore.getState().setZoomToPoint(() => {});
+    useCanvasStore.getState().setDuplicateSelection(() => {});
+    useCanvasStore.getState().setRemoveObjectById(() => {});
     useCanvasStore.getState().setSelection({ ids: [], primary: null });
     this.activeTool?.deactivate(this.canvas);
     await this.canvas.dispose();
