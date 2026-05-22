@@ -114,17 +114,17 @@ export class CanvasEngine {
 
     const refreshSelection = () => {
       const objects = this.canvas.getActiveObjects();
-      if (objects.length !== 1) {
-        useCanvasStore.getState().setSelection(null);
-        return;
-      }
-      useCanvasStore.getState().setSelection(projectSelection(objects[0]));
+      const ids = objects
+        .map((o) => (typeof o.data?.id === 'string' ? o.data.id : null))
+        .filter((id): id is string => id !== null);
+      const primary = objects.length === 1 ? projectSelection(objects[0]) : null;
+      useCanvasStore.getState().setSelection({ ids, primary });
     };
 
     this.canvas.on('selection:created', refreshSelection);
     this.canvas.on('selection:updated', refreshSelection);
     this.canvas.on('selection:cleared', () => {
-      useCanvasStore.getState().setSelection(null);
+      useCanvasStore.getState().setSelection({ ids: [], primary: null });
     });
     this.canvas.on('object:modified', (e) => {
       if (e.target && this.canvas.getActiveObject() === e.target) {
@@ -213,7 +213,8 @@ export class CanvasEngine {
 
     obj.setCoords();
     this.canvas.requestRenderAll();
-    useCanvasStore.getState().setSelection(projectSelection(obj));
+    const snapshot = projectSelection(obj);
+    useCanvasStore.getState().setSelection({ ids: [snapshot.id], primary: snapshot });
   }
 
   private setTool(toolId: ToolId, styles: Record<string, unknown> | undefined) {
@@ -228,7 +229,7 @@ export class CanvasEngine {
     this.unsubscribe();
     this.layersUnsubscribe();
     useCanvasStore.getState().setApplyToSelection(() => {});
-    useCanvasStore.getState().setSelection(null);
+    useCanvasStore.getState().setSelection({ ids: [], primary: null });
     this.activeTool?.deactivate(this.canvas);
     await this.canvas.dispose();
   }

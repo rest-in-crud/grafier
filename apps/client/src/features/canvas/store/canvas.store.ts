@@ -36,6 +36,11 @@ export type SelectionPatch = Partial<{
   strokeWidth: number;
 }>;
 
+export type SelectionState = {
+  ids: string[];
+  primary: SelectionSnapshot | null;
+};
+
 interface CanvasState {
   activeTool: ToolId;
   setActiveTool: (tool: ToolId) => void;
@@ -46,8 +51,8 @@ interface CanvasState {
     toolId: K,
     patch: Partial<NonNullable<ToolStyles[K]>>,
   ) => void;
-  selection: SelectionSnapshot | null;
-  setSelection: (s: SelectionSnapshot | null) => void;
+  selection: SelectionState;
+  setSelection: (selection: SelectionState) => void;
   applyToSelection: (patch: SelectionPatch) => void;
   setApplyToSelection: (fn: (patch: SelectionPatch) => void) => void;
   zoom: number;
@@ -69,8 +74,8 @@ export const useCanvasStore = create<CanvasState>((set) => ({
         [toolId]: { ...state.toolStyles[toolId], ...patch },
       },
     })),
-  selection: null,
-  setSelection: (s) => set({ selection: s }),
+  selection: { ids: [], primary: null },
+  setSelection: (selection) => set({ selection }),
   applyToSelection: () => {},
   setApplyToSelection: (fn) => set({ applyToSelection: fn }),
   zoom: 100,
