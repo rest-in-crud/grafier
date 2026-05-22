@@ -281,7 +281,10 @@ export const LayersPanel = () => {
                     >
                       <button
                         type="button"
-                        onClick={() => setObjectVisibility(layer.id, obj.id, !obj.visible)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setObjectVisibility(layer.id, obj.id, !obj.visible);
+                        }}
                         title={obj.visible ? 'Hide object' : 'Show object'}
                         className={cn(
                           'flex h-4.5 w-4.5 shrink-0 items-center justify-center',
@@ -292,7 +295,10 @@ export const LayersPanel = () => {
                       </button>
                       <button
                         type="button"
-                        onClick={() => setObjectLocked(layer.id, obj.id, !obj.locked)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setObjectLocked(layer.id, obj.id, !obj.locked);
+                        }}
                         title={obj.locked ? 'Unlock object' : 'Lock object'}
                         className={cn(
                           'flex h-4.5 w-4.5 shrink-0 items-center justify-center',
@@ -311,11 +317,13 @@ export const LayersPanel = () => {
                             if (e.key === 'Enter') commitObjectRename(layer.id, obj.id);
                             if (e.key === 'Escape') setEditingId(null);
                           }}
+                          onClick={(e) => e.stopPropagation()}
                           className="min-w-0 flex-1 border border-foreground bg-transparent px-1 text-[11px] text-foreground outline-none"
                         />
                       ) : (
                         <span
-                          onDoubleClick={() => {
+                          onDoubleClick={(e) => {
+                            e.stopPropagation();
                             setEditingId(obj.id);
                             setEditingName(obj.name);
                           }}
