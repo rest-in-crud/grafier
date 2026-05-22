@@ -37,6 +37,7 @@ export const LayersPanel = () => {
   const selectedIds = useCanvasStore((s) => s.selection.ids);
   const selectObjectById = useCanvasStore((s) => s.selectObjectById);
   const selectObjectsByIds = useCanvasStore((s) => s.selectObjectsByIds);
+  const removeObjectById = useCanvasStore((s) => s.removeObjectById);
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
@@ -333,6 +334,17 @@ export const LayersPanel = () => {
                           {obj.name}
                         </span>
                       )}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeObjectById(obj.id);
+                        }}
+                        title="Delete object"
+                        className="flex h-4.5 w-4.5 shrink-0 items-center justify-center text-fg-dim hover:text-destructive"
+                      >
+                        <Trash size={11} />
+                      </button>
                     </div>
                   ))}
                 </div>
