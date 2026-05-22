@@ -43,7 +43,7 @@ export const PEN_STYLE_SCHEMA: Record<string, FieldSchema> = {
     options: ['pencil', 'spray'],
   },
   color: { type: 'color', label: 'Color', group: 'General' },
-  width: { type: 'range', label: 'Width', group: 'General', min: 1, max: 150, unit: 'px' },
+  width: { type: 'range', label: 'Stroke width', group: 'General', min: 1, max: 150, unit: 'px' },
   opacity: { type: 'range', label: 'Opacity', group: 'General', min: 0, max: 100, unit: '%' },
   limitedToCanvasSize: { type: 'toggle', label: 'Limit to Canvas', group: 'General' },
 
