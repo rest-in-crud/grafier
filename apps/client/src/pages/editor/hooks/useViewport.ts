@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import type { RefObject } from 'react';
 import { Point } from 'fabric';
+import type { TMat2D } from 'fabric';
 import type { CanvasEngine } from '@/features/canvas/lib/CanvasEngine';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 
@@ -14,7 +15,7 @@ export function useViewport(
 ) {
   const isSpacePressed = useRef(false);
   const isPanning = useRef(false);
-  const panStart = useRef<{ x: number; y: number; vt: number[] } | null>(null);
+  const panStart = useRef<{ x: number; y: number; vt: TMat2D } | null>(null);
 
   useEffect(() => {
     const wrapper = wrapperRef.current;
@@ -74,12 +75,14 @@ export function useViewport(
     const handleMouseDown = (e: MouseEvent) => {
       if (!isSpacePressed.current) return;
       const canvas = getCanvas();
-      if (!canvas?.viewportTransform) return;
+      if (!canvas) return;
+      const tx = canvas.viewportTransform;
+      if (!tx) return;
       isPanning.current = true;
       panStart.current = {
         x: e.clientX,
         y: e.clientY,
-        vt: [...canvas.viewportTransform],
+        vt: [...tx],
       };
       canvas.defaultCursor = 'grabbing';
     };
@@ -90,7 +93,7 @@ export function useViewport(
       if (!canvas) return;
       const dx = e.clientX - panStart.current.x;
       const dy = e.clientY - panStart.current.y;
-      const vt = [...panStart.current.vt];
+      const vt: TMat2D = [...panStart.current.vt];
       vt[4] += dx;
       vt[5] += dy;
       canvas.setViewportTransform(vt);
