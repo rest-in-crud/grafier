@@ -3,17 +3,17 @@ import type { ToolId } from '../types';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 
 const SHORTCUT_MAP: Record<string, ToolId> = {
-  V: 'move',
-  M: 'marquee',
-  L: 'lasso',
-  B: 'brush',
-  P: 'pencil',
-  E: 'eraser',
-  U: 'shape',
-  T: 'text',
-  I: 'dropper',
-  H: 'hand',
-  Z: 'zoom',
+  KeyV: 'move',
+  KeyM: 'marquee',
+  KeyL: 'lasso',
+  KeyB: 'brush',
+  KeyP: 'pencil',
+  KeyE: 'eraser',
+  KeyU: 'shape',
+  KeyT: 'text',
+  KeyI: 'dropper',
+  KeyH: 'hand',
+  KeyZ: 'zoom',
 };
 
 export function useToolShortcuts() {
@@ -23,7 +23,7 @@ export function useToolShortcuts() {
       const tag = (document.activeElement?.tagName ?? '').toLowerCase();
       if (tag === 'input' || tag === 'textarea') return;
 
-      const toolId = SHORTCUT_MAP[e.key.toUpperCase()];
+      const toolId = SHORTCUT_MAP[e.code];
       if (toolId) useCanvasStore.getState().setActiveTool(toolId);
     };
 

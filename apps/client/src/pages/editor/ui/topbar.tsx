@@ -4,6 +4,7 @@ import { Menubar } from './menubar';
 import { IconButton } from './primitives';
 import { IUndo, IRedo, ISettings, IExport } from '../icons';
 import { useHistoryStore } from '@/features/canvas/store/history.store';
+import { formatHotkey } from '@/shared/lib/platform';
 
 type TooltipState = { name: string; kbd: string; x: number; y: number } | null;
 
@@ -39,14 +40,14 @@ function Topbar({ avatarInitial, onLogout }: TopbarProps) {
       <div className="flex h-full items-center gap-2">
         <IconButton
           onClick={undo}
-          onMouseEnter={(e) => showTooltip(e, 'Undo', 'Ctrl Z')}
+          onMouseEnter={(e) => showTooltip(e, 'Undo', formatHotkey(['Mod', 'Z']))}
           onMouseLeave={() => setTooltip(null)}
         >
           <IUndo size={14} />
         </IconButton>
         <IconButton
           onClick={redo}
-          onMouseEnter={(e) => showTooltip(e, 'Redo', 'Ctrl Y')}
+          onMouseEnter={(e) => showTooltip(e, 'Redo', formatHotkey(['Mod', 'Y']))}
           onMouseLeave={() => setTooltip(null)}
         >
           <IRedo size={14} />

@@ -26,6 +26,7 @@ export function useLayerSync(engineRef: RefObject<CanvasEngine | null>) {
           const ownOpacity =
             typeof object.data?.ownOpacity === 'number' ? object.data.ownOpacity : 1;
           object.opacity = layer.opacity * ownOpacity;
+          object.dirty = true;
         }
       }
       recalculateZOrder(state.layers, canvas);

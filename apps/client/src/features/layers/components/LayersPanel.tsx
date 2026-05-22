@@ -10,6 +10,7 @@ import {
   Plus,
   Trash,
 } from '@phosphor-icons/react';
+import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import { useLayersStore } from '@/features/layers/store/layers.store';
 import { cn } from '@/shared/lib/utils';
 
@@ -32,6 +33,11 @@ export const LayersPanel = () => {
     moveObjectBetweenLayers,
     reorderObjectInLayer,
   } = useLayersStore();
+
+  const selectedIds = useCanvasStore((s) => s.selection.ids);
+  const selectObjectById = useCanvasStore((s) => s.selectObjectById);
+  const selectObjectsByIds = useCanvasStore((s) => s.selectObjectsByIds);
+  const removeObjectById = useCanvasStore((s) => s.removeObjectById);
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
@@ -255,14 +261,31 @@ export const LayersPanel = () => {
                           moveObjectBetweenLayers(src.objectId, src.layerId, layer.id);
                         }
                       }}
+                      onClick={(e) => {
+                        if (e.shiftKey) {
+                          const next = selectedIds.includes(obj.id)
+                            ? selectedIds.filter((x) => x !== obj.id)
+                            : [...selectedIds, obj.id];
+                          selectObjectsByIds(next);
+                        } else {
+                          selectObjectById(obj.id);
+                        }
+                      }}
                       className={cn(
-                        'flex cursor-grab items-center gap-1.5 py-1 pr-2 pl-8 text-[11px] active:cursor-grabbing',
-                        obj.visible ? 'text-muted-foreground' : 'text-fg-dimmer',
+                        'flex cursor-pointer items-center gap-1.5 py-1 pr-2 pl-8 text-[11px] active:cursor-grabbing',
+                        selectedIds.includes(obj.id)
+                          ? 'bg-white/10 text-foreground'
+                          : obj.visible
+                            ? 'text-muted-foreground'
+                            : 'text-fg-dimmer',
                       )}
                     >
                       <button
                         type="button"
-                        onClick={() => setObjectVisibility(layer.id, obj.id, !obj.visible)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setObjectVisibility(layer.id, obj.id, !obj.visible);
+                        }}
                         title={obj.visible ? 'Hide object' : 'Show object'}
                         className={cn(
                           'flex h-4.5 w-4.5 shrink-0 items-center justify-center',
@@ -273,7 +296,10 @@ export const LayersPanel = () => {
                       </button>
                       <button
                         type="button"
-                        onClick={() => setObjectLocked(layer.id, obj.id, !obj.locked)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setObjectLocked(layer.id, obj.id, !obj.locked);
+                        }}
                         title={obj.locked ? 'Unlock object' : 'Lock object'}
                         className={cn(
                           'flex h-4.5 w-4.5 shrink-0 items-center justify-center',
@@ -292,11 +318,13 @@ export const LayersPanel = () => {
                             if (e.key === 'Enter') commitObjectRename(layer.id, obj.id);
                             if (e.key === 'Escape') setEditingId(null);
                           }}
+                          onClick={(e) => e.stopPropagation()}
                           className="min-w-0 flex-1 border border-foreground bg-transparent px-1 text-[11px] text-foreground outline-none"
                         />
                       ) : (
                         <span
-                          onDoubleClick={() => {
+                          onDoubleClick={(e) => {
+                            e.stopPropagation();
                             setEditingId(obj.id);
                             setEditingName(obj.name);
                           }}
@@ -306,6 +334,17 @@ export const LayersPanel = () => {
                           {obj.name}
                         </span>
                       )}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeObjectById(obj.id);
+                        }}
+                        title="Delete object"
+                        className="flex h-4.5 w-4.5 shrink-0 items-center justify-center text-fg-dim hover:text-destructive"
+                      >
+                        <Trash size={11} />
+                      </button>
                     </div>
                   ))}
                 </div>

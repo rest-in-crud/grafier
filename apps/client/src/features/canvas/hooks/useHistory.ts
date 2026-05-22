@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef } from 'react';
 import type { RefObject } from 'react';
+import { ActiveSelection } from 'fabric';
 import type { CanvasEngine } from '@/features/canvas/lib/CanvasEngine';
+import { removeFromLayer } from '@/features/canvas/lib/removeFromLayer';
 import { useLayersStore } from '@/features/layers/store/layers.store';
 import { useHistoryStore, HistorySnapshot } from '@/features/canvas/store/history.store';
 
@@ -137,17 +139,35 @@ export const useHistory = (engineRef: RefObject<CanvasEngine | null>) => {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Delete' || e.code === 'Backspace') {
+        if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
+        const tag = (document.activeElement?.tagName ?? '').toLowerCase();
+        if (tag === 'input' || tag === 'textarea') return;
+        const canvas = engineRef.current?.fabricCanvas;
+        if (!canvas) return;
+        const active = canvas.getActiveObject();
+        if (!active || ('isEditing' in active && active.isEditing)) return;
+        const targets = active instanceof ActiveSelection ? [...active.getObjects()] : [active];
+        canvas.discardActiveObject();
+        for (const obj of targets) {
+          canvas.remove(obj);
+          removeFromLayer(obj);
+        }
+        canvas.requestRenderAll();
+        return;
+      }
+
       const ctrl = e.ctrlKey || e.metaKey;
       if (!ctrl) return;
 
-      if (e.key === 'z' || e.key === 'Z') {
+      if (e.code === 'KeyZ') {
         e.preventDefault();
         if (e.shiftKey) {
           void redo();
         } else {
           void undo();
         }
-      } else if (e.key === 'y' || e.key === 'Y') {
+      } else if (e.code === 'KeyY') {
         e.preventDefault();
         void redo();
       }
@@ -155,7 +175,7 @@ export const useHistory = (engineRef: RefObject<CanvasEngine | null>) => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [undo, redo]);
+  }, [undo, redo, engineRef]);
 
   useEffect(() => {
     if (!engineRef.current) return;

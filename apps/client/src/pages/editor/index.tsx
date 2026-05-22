@@ -1,7 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { MouseEvent } from 'react';
-import { useNavigate } from 'react-router';
-import { useAuthStore } from '@/features/auth/store';
+import type { CanvasEngine } from '@/features/canvas/lib/CanvasEngine';
+import { loadRailWidth, saveRailWidth } from './lib/preferences';
+import { useTempMoveOverride } from './hooks/useTempMoveOverride';
+import { useViewport } from './hooks/useViewport';
+import { useEditorShortcuts } from './hooks/useEditorShortcuts';
+import { useUser } from '@/features/auth/queries';
 import { performLogout } from '@/features/auth/session';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import { CanvasArea } from '@/features/canvas/components/CanvasArea';
@@ -15,19 +19,23 @@ import { RadialMenu } from './ui/radial-menu';
 import { useToolShortcuts } from './hooks/useToolShortcuts';
 
 const EditorPage = () => {
+  const engineRef = useRef<CanvasEngine | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  useTempMoveOverride(engineRef);
+  useViewport(containerRef, engineRef);
+  useEditorShortcuts(engineRef);
   useToolShortcuts();
-  const user = useAuthStore((s) => s.user);
-  const navigate = useNavigate();
+  const { user } = useUser();
 
   const tool = useCanvasStore((s) => s.activeTool);
   const setTool = useCanvasStore((s) => s.setActiveTool);
   const [radial, setRadial] = useState<{ x: number; y: number } | null>(null);
   const [cursor, setCursor] = useState<{ x: number; y: number }>({ x: 412, y: 268 });
+  const [railWidth, setRailWidth] = useState<number>(() => loadRailWidth());
 
-  const onLogout = () => {
-    performLogout();
-    navigate('/signin');
-  };
+  useEffect(() => {
+    saveRailWidth(railWidth);
+  }, [railWidth]);
 
   const avatarInitial = user?.name?.charAt(0)?.toUpperCase() ?? 'U';
 
@@ -45,7 +53,7 @@ const EditorPage = () => {
     <>
       <div className="fixed inset-0 flex flex-col overflow-hidden bg-background font-sans text-foreground">
         <div className="h-9.5 shrink-0">
-          <Topbar avatarInitial={avatarInitial} onLogout={onLogout} />
+          <Topbar avatarInitial={avatarInitial} onLogout={performLogout} />
         </div>
         <OptionsBar tool={tool} />
         <div className="flex min-h-0 flex-1">
@@ -54,10 +62,10 @@ const EditorPage = () => {
           </div>
           <div className="min-w-0 flex-1">
             <CanvasStage onContextMenu={onCanvasContextMenu} onMouseMove={onCanvasMove}>
-              <CanvasArea />
+              <CanvasArea engineRef={engineRef} containerRef={containerRef} />
             </CanvasStage>
           </div>
-          <RightRail />
+          <RightRail width={railWidth} onResize={setRailWidth} />
         </div>
         <div className="h-6.5 shrink-0">
           <StatusBar cursor={cursor} />

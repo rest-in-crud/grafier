@@ -14,24 +14,29 @@ import {
 import { TEXT_DEFAULT_STYLES } from '@/features/canvas/lib/tools/TextTool/TextTool';
 import { ERASER_DEFAULT_STYLES } from '@/features/canvas/lib/tools/EraserTool/EraserTool';
 import type { ToolId } from '../types';
-import { Field, Label, Select, Separator, Slider, TogglePill } from './primitives';
+import { ColorField, Field, Label, Select, Separator, Slider, TogglePill } from './primitives';
 import type { ToggleOption } from './primitives';
 
 type Props = { tool: ToolId };
 
 const optionsBar =
-  'flex items-center h-[40px] overflow-hidden border-b border-hairline bg-chrome px-3.5 gap-[18px] text-xs';
+  'flex items-center h-[40px] overflow-hidden border-b border-hairline bg-chrome px-3.5 gap-[24px] text-xs';
 
 function PencilOptions() {
   const styles = useCanvasStore((s) => s.toolStyles.pencil);
   const setToolStyle = useCanvasStore((s) => s.setToolStyle);
 
+  const color = styles?.color ?? PEN_DEFAULT_STYLES.color;
   const width = styles?.width ?? PEN_DEFAULT_STYLES.width;
   const opacity = styles?.opacity ?? PEN_DEFAULT_STYLES.opacity;
 
   return (
     <>
       <Label>Pencil</Label>
+      <Separator />
+      <Field label="Color">
+        <ColorField value={color} onCommit={(v) => setToolStyle('pencil', { color: v })} />
+      </Field>
       <Separator />
       <Field label="Width">
         <Slider

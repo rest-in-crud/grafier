@@ -22,6 +22,8 @@ export class PenTool implements BaseTool {
         : this.createPencilBrush(canvas, s, brushColor, shadow);
 
     canvas.isDrawingMode = true;
+    canvas.defaultCursor = 'default';
+    canvas.hoverCursor = canvas.defaultCursor;
   }
 
   private createPencilBrush(canvas: Canvas, s: PenStyles, color: string, shadow: Shadow | null) {
@@ -54,7 +56,15 @@ export class PenTool implements BaseTool {
   deactivate(canvas: Canvas) {
     canvas.isDrawingMode = false;
   }
+
+  suspend(canvas: Canvas): void {
+    canvas.isDrawingMode = false;
+  }
+
+  resume(canvas: Canvas): void {
+    canvas.isDrawingMode = true;
+  }
 }
 
-const registration: ToolRegistration = { id: 'pencil', tool: new PenTool() };
+const registration: ToolRegistration = { id: 'pencil', tool: new PenTool(), behavior: 'draw' };
 export default registration;

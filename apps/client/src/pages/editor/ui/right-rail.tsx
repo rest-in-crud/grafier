@@ -1,10 +1,19 @@
 import { LayersPanel } from '@/features/layers/components/LayersPanel';
 import { PropertiesPanel } from './properties-panel';
-import { Separator } from './primitives';
+import { RailResizeHandle, Separator } from './primitives';
 
-export function RightRail() {
+type Props = {
+  width: number;
+  onResize: (next: number) => void;
+};
+
+export function RightRail({ width, onResize }: Props) {
   return (
-    <div className="flex flex-col w-70 overflow-hidden border-l border-hairline bg-chrome">
+    <div
+      className="relative flex flex-col overflow-hidden border-l border-hairline bg-chrome"
+      style={{ width }}
+    >
+      <RailResizeHandle currentWidth={width} onResize={onResize} />
       <div className="flex-1 min-h-[220px]">
         <LayersPanel />
       </div>

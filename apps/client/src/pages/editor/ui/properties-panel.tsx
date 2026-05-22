@@ -1,7 +1,15 @@
 import { useState } from 'react';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import type { SelectionPatch, SelectionSnapshot } from '@/features/canvas/store/canvas.store';
-import { Slider, Swatch, Panel, PanelHeader, PanelBody } from './primitives';
+import {
+  ColorField,
+  CollapsibleSection,
+  Slider,
+  Panel,
+  PanelHeader,
+  PanelBody,
+} from './primitives';
+import { MultiSelectionPlaceholder } from './multi-selection-placeholder';
 
 const TYPE_LABELS: Record<string, string> = {
   rect: 'RECT',
@@ -58,62 +66,13 @@ function NumberField({ symbol, value, suffix, onCommit }: NumberFieldProps) {
   );
 }
 
-type ColorFieldProps = {
-  value: string | null;
-  onCommit: (color: string) => void;
-};
-
-function ColorField({ value, onCommit }: ColorFieldProps) {
-  const display = value ?? 'NONE';
-  const [local, setLocal] = useState(display);
-  const [prevDisplay, setPrevDisplay] = useState(display);
-
-  if (display !== prevDisplay) {
-    setPrevDisplay(display);
-    setLocal(display);
-  }
-
-  const commit = () => {
-    const trimmed = local.trim();
-    if (trimmed !== (value ?? '') && trimmed.length > 0 && trimmed !== 'NONE') {
-      onCommit(trimmed);
-    } else {
-      setLocal(display);
-    }
-  };
-
-  return (
-    <div className="flex items-center gap-2">
-      <Swatch
-        interactive={false}
-        color={value ?? undefined}
-        style={value === null ? { background: 'transparent', borderStyle: 'dashed' } : undefined}
-      />
-      <input
-        className="flex-1 border border-hairline bg-field px-2 py-1.25 text-[11px] text-foreground focus:border-foreground focus:outline-none"
-        value={local}
-        onChange={(e) => setLocal(e.target.value)}
-        onBlur={commit}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') e.currentTarget.blur();
-          if (e.key === 'Escape') {
-            setLocal(display);
-            e.currentTarget.blur();
-          }
-        }}
-      />
-    </div>
-  );
-}
-
 function PropertiesBody({ selection }: { selection: SelectionSnapshot }) {
   const applyToSelection = useCanvasStore((s) => s.applyToSelection);
   const apply = (patch: SelectionPatch) => applyToSelection(patch);
 
   return (
     <div className="grid gap-3.5 p-3">
-      <div className="grid gap-2">
-        <div className="font-mono text-[9px] tracking-[0.2em] text-fg-dim uppercase">TRANSFORM</div>
+      <CollapsibleSection id="transform" title="TRANSFORM">
         <div className="grid grid-cols-2 gap-1.5">
           <NumberField symbol="X" value={selection.left} onCommit={(v) => apply({ left: v })} />
           <NumberField symbol="Y" value={selection.top} onCommit={(v) => apply({ top: v })} />
@@ -126,15 +85,13 @@ function PropertiesBody({ selection }: { selection: SelectionSnapshot }) {
             onCommit={(v) => apply({ angle: v })}
           />
         </div>
-      </div>
+      </CollapsibleSection>
 
-      <div className="grid gap-2">
-        <div className="font-mono text-[9px] tracking-[0.2em] text-fg-dim uppercase">FILL</div>
+      <CollapsibleSection id="fill" title="FILL">
         <ColorField value={selection.fill} onCommit={(v) => apply({ fill: v })} />
-      </div>
+      </CollapsibleSection>
 
-      <div className="grid gap-2">
-        <div className="font-mono text-[9px] tracking-[0.2em] text-fg-dim uppercase">STROKE</div>
+      <CollapsibleSection id="stroke" title="STROKE">
         <ColorField value={selection.stroke} onCommit={(v) => apply({ stroke: v })} />
         <Slider
           value={selection.strokeWidth}
@@ -143,12 +100,9 @@ function PropertiesBody({ selection }: { selection: SelectionSnapshot }) {
           max={20}
           suffix=" PX"
         />
-      </div>
+      </CollapsibleSection>
 
-      <div className="grid gap-2">
-        <div className="font-mono text-[9px] tracking-[0.2em] text-fg-dim uppercase">
-          APPEARANCE
-        </div>
+      <CollapsibleSection id="appearance" title="APPEARANCE">
         <div className="flex items-center gap-2">
           <span className="w-15 font-mono text-[9px] tracking-[0.2em] text-fg-dim uppercase">
             OPACITY
@@ -159,27 +113,47 @@ function PropertiesBody({ selection }: { selection: SelectionSnapshot }) {
             suffix="%"
           />
         </div>
-      </div>
+      </CollapsibleSection>
     </div>
   );
 }
 
-function EmptyState() {
+function CanvasProperties() {
+  const color = useCanvasStore((s) => s.canvasBgColor);
+  const setCanvasBgColor = useCanvasStore((s) => s.setCanvasBgColor);
   return (
-    <div className="flex h-full items-center justify-center px-3 py-6 text-center font-mono text-[10px] tracking-mono text-fg-dimmer uppercase">
-      Select an object to edit
+    <div className="grid gap-3.5 p-3">
+      <CollapsibleSection id="canvas" title="CANVAS">
+        <ColorField value={color} onCommit={setCanvasBgColor} />
+      </CollapsibleSection>
     </div>
   );
 }
 
 export function PropertiesPanel({ className }: { className?: string } = {}) {
   const selection = useCanvasStore((s) => s.selection);
-  const meta = selection ? (TYPE_LABELS[selection.type] ?? selection.type.toUpperCase()) : null;
+  const ids = selection.ids;
+  const meta =
+    ids.length === 1 && selection.primary
+      ? (TYPE_LABELS[selection.primary.type] ?? selection.primary.type.toUpperCase())
+      : null;
+
+  const body =
+    ids.length === 0 ? (
+      <CanvasProperties />
+    ) : ids.length === 1 && selection.primary ? (
+      <PropertiesBody selection={selection.primary} />
+    ) : (
+      <MultiSelectionPlaceholder count={ids.length} />
+    );
 
   return (
     <Panel className={className}>
-      <PanelHeader title="PROPERTIES" right={meta ? <span>{meta}</span> : null} />
-      <PanelBody>{selection ? <PropertiesBody selection={selection} /> : <EmptyState />}</PanelBody>
+      <PanelHeader
+        title="PROPERTIES"
+        right={ids.length === 1 && meta ? <span>{meta}</span> : null}
+      />
+      <PanelBody>{body}</PanelBody>
     </Panel>
   );
 }

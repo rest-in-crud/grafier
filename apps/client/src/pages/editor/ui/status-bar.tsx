@@ -23,7 +23,7 @@ const StatusBar: FC<StatusBarProps> = ({ cursor }) => {
       <span>RGB / 8</span>
       <span className="h-3 w-px bg-hairline" />
       <span>SAVED · 14:22</span>
-      <div className="ml-auto flex items-center gap-3.5">
+      <div className="ml-auto flex items-center gap-3.5 mr-10">
         <span>ZOOM</span>
         <Slider value={zoom} onChange={setZoom} min={10} max={400} suffix="%" />
       </div>

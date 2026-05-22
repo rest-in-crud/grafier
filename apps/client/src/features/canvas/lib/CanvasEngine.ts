@@ -1,4 +1,4 @@
-import { Canvas, Point } from 'fabric';
+import { ActiveSelection, Canvas, Point } from 'fabric';
 import type { FabricObject } from 'fabric';
 import type { ToolId } from '@/pages/editor/types';
 import type {
@@ -8,13 +8,13 @@ import type {
 } from '@/features/canvas/store/canvas.store';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import { useLayersStore } from '@/features/layers/store/layers.store';
+import { removeFromLayer } from './removeFromLayer';
 import type { BaseTool } from './tools/BaseTool';
 import { ToolRegistry } from './tools/ToolRegistry';
 
 interface CanvasConfig {
   width: number;
   height: number;
-  backgroundColor?: string;
 }
 
 const OBJECT_TYPE_LABELS: Record<string, string> = {
@@ -67,6 +67,7 @@ export class CanvasEngine {
   private activeToolId: ToolId | null = null;
   private activeToolStyles: Record<string, unknown> | undefined = undefined;
   private activeZoom: number = 100;
+  private activeCanvasBgColor: string = '#ffffff';
   private readonly unsubscribe: () => void;
   private readonly layersUnsubscribe: () => void;
   private removingLayerObjects = false;
@@ -87,7 +88,6 @@ export class CanvasEngine {
     this.canvas = new Canvas(canvasElement, {
       width: config.width,
       height: config.height,
-      backgroundColor: config.backgroundColor ?? 'transparent',
       selection: true,
     });
     ToolRegistry.init();
@@ -109,42 +109,75 @@ export class CanvasEngine {
 
     this.canvas.on('object:removed', (e) => {
       if (this.isRestoring) return;
-
-      const rawId: unknown = e.target?.data?.id;
-      const id = typeof rawId === 'string' ? rawId : undefined;
-      if (!id) return;
-      const { layers, removeObjectFromLayer } = useLayersStore.getState();
-      const owningLayer = layers.find((l) => l.objects.some((o) => o.id === id));
-      if (owningLayer) {
-        removeObjectFromLayer(owningLayer.id, id);
-      }
+      removeFromLayer(e.target);
     });
 
-    const refreshSelection = () => {
-      const objects = this.canvas.getActiveObjects();
-      if (objects.length !== 1) {
-        useCanvasStore.getState().setSelection(null);
-        return;
-      }
-      useCanvasStore.getState().setSelection(projectSelection(objects[0]));
-    };
-
-    this.canvas.on('selection:created', refreshSelection);
-    this.canvas.on('selection:updated', refreshSelection);
+    this.canvas.on('selection:created', () => this.refreshSelection());
+    this.canvas.on('selection:updated', () => this.refreshSelection());
     this.canvas.on('selection:cleared', () => {
-      useCanvasStore.getState().setSelection(null);
+      useCanvasStore.getState().setSelection({ ids: [], primary: null });
     });
     this.canvas.on('object:modified', (e) => {
       if (e.target && this.canvas.getActiveObject() === e.target) {
-        refreshSelection();
+        this.refreshSelection();
       }
     });
 
     useCanvasStore.getState().setApplyToSelection((patch) => this.applyPatchToSelection(patch));
 
+    useCanvasStore.getState().setSelectObjectById((id) => {
+      if (this.canvas.getActiveObject()?.data?.id === id) return;
+      const obj = this.canvas.getObjects().find((o) => o.data?.id === id);
+      if (!obj || obj.selectable === false) return;
+      this.canvas.setActiveObject(obj);
+      this.canvas.requestRenderAll();
+      const layersState = useLayersStore.getState();
+      const owningLayer = layersState.layers.find((l) => l.objects.some((o) => o.id === id));
+      if (owningLayer && layersState.activeLayerId !== owningLayer.id) {
+        layersState.setActiveLayer(owningLayer.id);
+      }
+    });
+
+    useCanvasStore.getState().setSelectObjectsByIds((ids) => {
+      const objects = this.canvas
+        .getObjects()
+        .filter(
+          (o) =>
+            typeof o.data?.id === 'string' && ids.includes(o.data.id) && o.selectable !== false,
+        );
+      if (objects.length === 0) {
+        this.canvas.discardActiveObject();
+      } else if (objects.length === 1) {
+        this.canvas.setActiveObject(objects[0]);
+      } else {
+        const sel = new ActiveSelection(objects, { canvas: this.canvas });
+        this.canvas.setActiveObject(sel);
+      }
+      this.canvas.requestRenderAll();
+    });
+
+    useCanvasStore.getState().setZoomToPoint((zoom, point) => {
+      this.applyZoom(zoom, point);
+      if (useCanvasStore.getState().zoom !== zoom) {
+        useCanvasStore.getState().setZoom(zoom);
+      }
+    });
+
+    useCanvasStore.getState().setDuplicateSelection(() => {
+      void this.duplicateActive();
+    });
+
+    useCanvasStore.getState().setRemoveObjectById((id) => {
+      const obj = this.canvas.getObjects().find((o) => o.data?.id === id);
+      if (!obj) return;
+      this.canvas.remove(obj);
+      this.canvas.requestRenderAll();
+    });
+
     const initial = useCanvasStore.getState();
     this.setTool(initial.activeTool, styleSliceFor(initial.activeTool, initial.toolStyles));
     this.applyZoom(initial.zoom);
+    this.applyCanvasBgColor(initial.canvasBgColor);
 
     this.unsubscribe = useCanvasStore.subscribe((state) => {
       const nextStyles = styleSliceFor(state.activeTool, state.toolStyles);
@@ -157,6 +190,9 @@ export class CanvasEngine {
       }
       if (state.zoom !== this.activeZoom) {
         this.applyZoom(state.zoom);
+      }
+      if (state.canvasBgColor !== this.activeCanvasBgColor) {
+        this.applyCanvasBgColor(state.canvasBgColor);
       }
     });
 
@@ -185,10 +221,63 @@ export class CanvasEngine {
     });
   }
 
-  private applyZoom(zoom: number) {
+  private refreshSelection(): void {
+    const objects = this.canvas.getActiveObjects();
+    const nextIds = objects
+      .map((o) => (typeof o.data?.id === 'string' ? o.data.id : null))
+      .filter((id): id is string => id !== null);
+    const prev = useCanvasStore.getState().selection.ids;
+    const idsUnchanged = prev.length === nextIds.length && prev.every((id, i) => id === nextIds[i]);
+    const ids = idsUnchanged ? prev : nextIds;
+    const primary = objects.length === 1 ? projectSelection(objects[0]) : null;
+    useCanvasStore.getState().setSelection({ ids, primary });
+    if (objects.length === 1) {
+      const id = nextIds[0];
+      const layersState = useLayersStore.getState();
+      const owningLayer = layersState.layers.find((l) => l.objects.some((o) => o.id === id));
+      if (owningLayer && layersState.activeLayerId !== owningLayer.id) {
+        layersState.setActiveLayer(owningLayer.id);
+      }
+    }
+  }
+
+  private async duplicateActive(): Promise<void> {
+    const active = this.canvas.getActiveObject();
+    if (!active) return;
+
+    if (!(active instanceof ActiveSelection)) {
+      const clone = await active.clone();
+      clone.set({ left: (active.left ?? 0) + 10, top: (active.top ?? 0) + 10 });
+      this.canvas.add(clone);
+      this.canvas.setActiveObject(clone);
+      this.canvas.requestRenderAll();
+      return;
+    }
+
+    const children = [...active.getObjects()];
+    this.canvas.discardActiveObject();
+    const clones: FabricObject[] = [];
+    for (const child of children) {
+      const clone = await child.clone();
+      clone.set({ left: (clone.left ?? 0) + 10, top: (clone.top ?? 0) + 10 });
+      this.canvas.add(clone);
+      clones.push(clone);
+    }
+    const next = new ActiveSelection(clones, { canvas: this.canvas });
+    this.canvas.setActiveObject(next);
+    this.canvas.requestRenderAll();
+  }
+
+  private applyCanvasBgColor(color: string) {
+    this.activeCanvasBgColor = color;
+    this.canvas.set('backgroundColor', color);
+    this.canvas.requestRenderAll();
+  }
+
+  private applyZoom(zoom: number, point?: Point) {
     this.activeZoom = zoom;
-    const center = new Point(this.canvas.getWidth() / 2, this.canvas.getHeight() / 2);
-    this.canvas.zoomToPoint(center, zoom / 100);
+    const focus = point ?? new Point(this.canvas.getWidth() / 2, this.canvas.getHeight() / 2);
+    this.canvas.zoomToPoint(focus, zoom / 100);
   }
 
   private applyPatchToSelection(patch: SelectionPatch) {
@@ -211,7 +300,7 @@ export class CanvasEngine {
 
     obj.setCoords();
     this.canvas.requestRenderAll();
-    useCanvasStore.getState().setSelection(projectSelection(obj));
+    this.refreshSelection();
   }
 
   private setTool(toolId: ToolId, styles: Record<string, unknown> | undefined) {
@@ -226,7 +315,12 @@ export class CanvasEngine {
     this.unsubscribe();
     this.layersUnsubscribe();
     useCanvasStore.getState().setApplyToSelection(() => {});
-    useCanvasStore.getState().setSelection(null);
+    useCanvasStore.getState().setSelectObjectById(() => {});
+    useCanvasStore.getState().setSelectObjectsByIds(() => {});
+    useCanvasStore.getState().setZoomToPoint(() => {});
+    useCanvasStore.getState().setDuplicateSelection(() => {});
+    useCanvasStore.getState().setRemoveObjectById(() => {});
+    useCanvasStore.getState().setSelection({ ids: [], primary: null });
     this.activeTool?.deactivate(this.canvas);
     await this.canvas.dispose();
   }

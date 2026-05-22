@@ -1,6 +1,6 @@
 import { EraserBrush } from '@erase2d/fabric';
 import type { Canvas, FabricObject } from 'fabric';
-import { useLayersStore } from '@/features/layers/store/layers.store';
+import { removeFromLayer } from '../../removeFromLayer';
 import type { BaseTool } from '../BaseTool';
 import type { ToolRegistration } from '../types';
 
@@ -24,12 +24,7 @@ export class EraserTool implements BaseTool {
         for (const target of targets) {
           if (this.isFullyErased(target)) {
             canvas.remove(target);
-            const id = typeof target.data?.id === 'string' ? target.data.id : undefined;
-            if (id) {
-              const { layers, removeObjectFromLayer } = useLayersStore.getState();
-              const owningLayer = layers.find((l) => l.objects.some((o) => o.id === id));
-              if (owningLayer) removeObjectFromLayer(owningLayer.id, id);
-            }
+            removeFromLayer(target);
           }
         }
         canvas.requestRenderAll();
@@ -37,6 +32,8 @@ export class EraserTool implements BaseTool {
     });
     canvas.freeDrawingBrush = brush;
     canvas.isDrawingMode = true;
+    canvas.defaultCursor = 'default';
+    canvas.hoverCursor = canvas.defaultCursor;
   }
 
   private isFullyErased(obj: FabricObject): boolean {
@@ -64,7 +61,15 @@ export class EraserTool implements BaseTool {
   deactivate(canvas: Canvas) {
     canvas.isDrawingMode = false;
   }
+
+  suspend(canvas: Canvas): void {
+    canvas.isDrawingMode = false;
+  }
+
+  resume(canvas: Canvas): void {
+    canvas.isDrawingMode = true;
+  }
 }
 
-const registration: ToolRegistration = { id: 'eraser', tool: new EraserTool() };
+const registration: ToolRegistration = { id: 'eraser', tool: new EraserTool(), behavior: 'draw' };
 export default registration;
