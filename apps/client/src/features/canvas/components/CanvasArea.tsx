@@ -5,6 +5,15 @@ import { useCanvas } from '@/features/canvas/hooks/useCanvas';
 import { useLayerSync } from '@/features/layers/hooks/useLayerSync';
 import { useHistory } from '@/features/canvas/hooks/useHistory';
 import { useLayersStore } from '@/features/layers/store/layers.store';
+import { useCanvasStore } from '@/features/canvas/store/canvas.store';
+
+const readSavedBgColor = (canvasJSON: Record<string, unknown>): string | null => {
+  const bg = canvasJSON.background;
+  if (typeof bg === 'string' && bg.length > 0) return bg;
+  const bgColor = canvasJSON.backgroundColor;
+  if (typeof bgColor === 'string' && bgColor.length > 0) return bgColor;
+  return null;
+};
 
 type Props = {
   engineRef: RefObject<CanvasEngine | null>;
@@ -34,6 +43,13 @@ export const CanvasArea = ({ engineRef, containerRef, initialProject, onHydrateE
           await engine.fabricCanvas.loadFromJSON(initialProject.canvasJSON);
         }
         if (cancelled) return;
+        if (initialProject.canvasJSON) {
+          const savedBg = readSavedBgColor(initialProject.canvasJSON);
+          if (savedBg !== null) {
+            engine.fabricCanvas.backgroundColor = savedBg;
+            useCanvasStore.setState({ canvasBgColor: savedBg });
+          }
+        }
         if (initialProject.layersJSON && initialProject.layersJSON.length > 0) {
           const flatLayerObjects = initialProject.layersJSON.flatMap((l) => l.objects);
           const canvasObjects = engine.fabricCanvas.getObjects();
