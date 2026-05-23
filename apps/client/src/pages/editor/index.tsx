@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { MouseEvent } from 'react';
+import { Navigate, useParams } from 'react-router';
+import { z } from 'zod';
 import type { CanvasEngine } from '@/features/canvas/lib/CanvasEngine';
 import { loadRailWidth, saveRailWidth } from './lib/preferences';
 import { useTempMoveOverride } from './hooks/useTempMoveOverride';
@@ -7,9 +9,13 @@ import { useViewport } from './hooks/useViewport';
 import { useEditorShortcuts } from './hooks/useEditorShortcuts';
 import { useUser } from '@/features/auth/queries';
 import { performLogout } from '@/features/auth/session';
+import { useProject } from '@/features/projects/queries';
+import { useSaveStatusStore } from '@/features/projects/store/save-status.store';
+import { useAutosave } from '@/features/projects/hooks/useAutosave';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import { CanvasArea } from '@/features/canvas/components/CanvasArea';
 import { ScreenBackground } from '@/shared/ui/screen-background';
+import { HttpError } from '@/shared/lib/api-client';
 import { Topbar } from './ui/topbar';
 import { OptionsBar } from './ui/options-bar';
 import { ToolRail } from './ui/tool-rail';
@@ -19,7 +25,22 @@ import { StatusBar } from './ui/status-bar';
 import { RadialMenu } from './ui/radial-menu';
 import { useToolShortcuts } from './hooks/useToolShortcuts';
 
+const idSchema = z.string().uuid();
+
 const EditorPage = () => {
+  const params = useParams<{ id: string }>();
+  const idCheck = idSchema.safeParse(params.id);
+
+  if (!idCheck.success) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <EditorPageForProject id={idCheck.data} />;
+};
+
+type EditorPageForProjectProps = { id: string };
+
+const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
   const engineRef = useRef<CanvasEngine | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   useTempMoveOverride(engineRef);
@@ -27,6 +48,30 @@ const EditorPage = () => {
   useEditorShortcuts(engineRef);
   useToolShortcuts();
   const { user } = useUser();
+  const { data: project, isPending, isError, error, refetch } = useProject(id);
+  const [hydrateError, setHydrateError] = useState(false);
+
+  const bindProject = useSaveStatusStore((s) => s.bindProject);
+  const unbindProject = useSaveStatusStore((s) => s.unbindProject);
+
+  useEffect(() => {
+    bindProject(id);
+    return () => unbindProject();
+  }, [id, bindProject, unbindProject]);
+
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      const tag = useSaveStatusStore.getState().status.tag;
+      if (tag === 'dirty' || tag === 'saving' || tag === 'error') {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, []);
+
+  useAutosave(id, engineRef);
 
   const tool = useCanvasStore((s) => s.activeTool);
   const setTool = useCanvasStore((s) => s.setActiveTool);
@@ -50,13 +95,66 @@ const EditorPage = () => {
     setCursor({ x: Math.round(e.clientX - r.left), y: Math.round(e.clientY - r.top) });
   }
 
+  if (isError) {
+    if (error instanceof HttpError && (error.status === 404 || error.status === 403)) {
+      return <Navigate to="/" replace />;
+    }
+    return (
+      <div className="fixed inset-0 flex items-center justify-center overflow-hidden bg-background">
+        <ScreenBackground />
+        <div className="relative z-10 flex flex-col items-center gap-4 text-center">
+          <p className="font-sans text-2xl">Failed to load this project.</p>
+          <button
+            type="button"
+            onClick={() => refetch()}
+            className="font-mono text-[11px] uppercase tracking-[0.2em] underline"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (hydrateError) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center overflow-hidden bg-background">
+        <ScreenBackground />
+        <div className="relative z-10 flex flex-col items-center gap-4 text-center">
+          <p className="font-sans text-2xl">This project failed to load.</p>
+          <a href="/" className="font-mono text-[11px] uppercase tracking-[0.2em] underline">
+            Go home
+          </a>
+        </div>
+      </div>
+    );
+  }
+
+  if (isPending || !project) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center overflow-hidden bg-background">
+        <ScreenBackground />
+        <span
+          aria-label="Loading project"
+          className="relative z-10 size-2 animate-pulse rounded-full bg-foreground"
+        />
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="fixed inset-0 flex flex-col overflow-hidden bg-background font-sans text-foreground">
         <ScreenBackground />
         <div className="relative z-10 flex h-full flex-col">
           <div className="h-9.5 shrink-0">
-            <Topbar avatarInitial={avatarInitial} onLogout={performLogout} />
+            <Topbar
+              avatarInitial={avatarInitial}
+              onLogout={performLogout}
+              projectName={project.name}
+              width={project.width}
+              height={project.height}
+            />
           </div>
           <OptionsBar tool={tool} />
           <div className="flex min-h-0 flex-1">
@@ -65,7 +163,12 @@ const EditorPage = () => {
             </div>
             <div className="min-w-0 flex-1">
               <CanvasStage onContextMenu={onCanvasContextMenu} onMouseMove={onCanvasMove}>
-                <CanvasArea engineRef={engineRef} containerRef={containerRef} />
+                <CanvasArea
+                  engineRef={engineRef}
+                  containerRef={containerRef}
+                  initialProject={project}
+                  onHydrateError={() => setHydrateError(true)}
+                />
               </CanvasStage>
             </div>
             <RightRail width={railWidth} onResize={setRailWidth} />
