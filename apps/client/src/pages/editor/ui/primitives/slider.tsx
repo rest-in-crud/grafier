@@ -19,13 +19,14 @@ const Slider = ({
   suffix = '',
   compact = false,
 }: SliderProps) => {
-  const ref = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
 
   const update = useCallback(
     (e: MouseEvent) => {
-      if (!ref.current) return;
-      const r = ref.current.getBoundingClientRect();
+      if (!trackRef.current) return;
+      const r = trackRef.current.getBoundingClientRect();
       const t = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
       let v = min + t * (max - min);
       v = Math.round(v / step) * step;
@@ -53,22 +54,24 @@ const Slider = ({
 
   return (
     <div
-      ref={ref}
+      ref={containerRef}
       className={`group relative cursor-pointer select-none ${compact ? 'w-22.5' : 'w-32.5'} h-5.5`}
       onMouseDown={(e) => {
         dragging.current = true;
         update(e.nativeEvent);
       }}
     >
-      <div className="absolute top-1/2 left-0 right-0 h-0.5 -translate-y-1/2 bg-hairline-strong" />
-      <div
-        className="absolute top-1/2 left-0 h-0.5 -translate-y-1/2 bg-foreground"
-        style={{ width: `${pct}%` }}
-      />
-      <div
-        className="absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border border-foreground bg-background transition-transform duration-100 group-hover:scale-[1.15]"
-        style={{ left: `${pct}%` }}
-      />
+      <div ref={trackRef} className="absolute inset-y-0 left-1.5 right-1.5">
+        <div className="absolute top-1/2 left-0 right-0 h-0.5 -translate-y-1/2 bg-hairline-strong" />
+        <div
+          className="absolute top-1/2 left-0 h-0.5 -translate-y-1/2 bg-foreground"
+          style={{ width: `${pct}%` }}
+        />
+        <div
+          className="absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border border-foreground bg-background transition-transform duration-100 group-hover:scale-[1.15]"
+          style={{ left: `${pct}%` }}
+        />
+      </div>
       <div
         className={`absolute top-1/2 -translate-y-1/2 font-mono text-[10px] text-fg-dim ${compact ? '-right-9 w-8' : '-right-10.5 w-9.5'}`}
       >

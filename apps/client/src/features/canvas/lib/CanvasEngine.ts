@@ -1,4 +1,5 @@
-import { ActiveSelection, Canvas, FabricObject, Point } from 'fabric';
+import { ActiveSelection, Canvas, FabricObject, InteractiveFabricObject, Point } from 'fabric';
+import { applySelectionControls } from './selectionControls';
 import type {
   SelectionPatch,
   SelectionSnapshot,
@@ -12,6 +13,14 @@ import type { BaseTool } from './tools/BaseTool';
 import { ToolRegistry } from './tools/ToolRegistry';
 
 FabricObject.customProperties = ['data'];
+
+InteractiveFabricObject.ownDefaults = {
+  ...InteractiveFabricObject.ownDefaults,
+  borderColor: 'rgba(0, 0, 0, 0.25)',
+  borderScaleFactor: 1,
+  padding: 5,
+};
+applySelectionControls();
 
 interface CanvasConfig {
   width: number;
@@ -110,6 +119,10 @@ export class CanvasEngine {
       width: config.width,
       height: config.height,
       selection: true,
+      selectionColor: 'rgba(0, 0, 0, 0.04)',
+      selectionBorderColor: 'rgba(0, 0, 0, 0.5)',
+      selectionLineWidth: 1,
+      selectionDashArray: [3, 3],
     });
     ToolRegistry.init();
 
