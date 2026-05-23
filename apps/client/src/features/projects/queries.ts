@@ -31,9 +31,13 @@ const useCreateProject = () => {
 };
 
 const useSaveCanvas = (projectId: string) => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: [...projectsKeys.detail(projectId), 'save-canvas'],
     mutationFn: (body: SaveCanvasRequest) => api.saveCanvas(projectId, body),
+    onSuccess: (saved: ProjectDetail) => {
+      queryClient.setQueryData(projectsKeys.detail(projectId), saved);
+    },
     retry: 3,
     retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30_000),
   });

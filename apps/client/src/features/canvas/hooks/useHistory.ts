@@ -6,7 +6,7 @@ import { removeFromLayer } from '@/features/canvas/lib/removeFromLayer';
 import { useLayersStore } from '@/features/layers/store/layers.store';
 import { useHistoryStore, HistorySnapshot } from '@/features/canvas/store/history.store';
 
-export const useHistory = (engineRef: RefObject<CanvasEngine | null>) => {
+export const useHistory = (engineRef: RefObject<CanvasEngine | null>, baselineKey = 0) => {
   const lastKnownSnapshot = useRef<HistorySnapshot | null>(null);
 
   const flushPending = useRef<(() => void) | null>(null);
@@ -180,5 +180,5 @@ export const useHistory = (engineRef: RefObject<CanvasEngine | null>) => {
   useEffect(() => {
     if (!engineRef.current) return;
     lastKnownSnapshot.current = takeSnapshot();
-  }, [engineRef, takeSnapshot]);
+  }, [engineRef, takeSnapshot, baselineKey]);
 };

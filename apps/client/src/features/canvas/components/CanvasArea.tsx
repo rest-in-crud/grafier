@@ -1,4 +1,4 @@
-import { useEffect, type RefObject } from 'react';
+import { useEffect, useState, type RefObject } from 'react';
 import type { CanvasEngine } from '@/features/canvas/lib/CanvasEngine';
 import type { ProjectDetail } from '@/features/projects/schema';
 import { useCanvas } from '@/features/canvas/hooks/useCanvas';
@@ -15,8 +15,9 @@ type Props = {
 
 export const CanvasArea = ({ engineRef, containerRef, initialProject, onHydrateError }: Props) => {
   const { canvasRef } = useCanvas(engineRef, containerRef);
+  const [baselineKey, setBaselineKey] = useState(0);
   useLayerSync(engineRef);
-  useHistory(engineRef);
+  useHistory(engineRef, baselineKey);
 
   useEffect(() => {
     if (!initialProject) return;
@@ -47,6 +48,7 @@ export const CanvasArea = ({ engineRef, containerRef, initialProject, onHydrateE
           });
         }
         engine.fabricCanvas.requestRenderAll();
+        if (!cancelled) setBaselineKey((k) => k + 1);
       } catch (err) {
         console.error('canvas hydrate failed', err);
         if (!cancelled) onHydrateError?.();
