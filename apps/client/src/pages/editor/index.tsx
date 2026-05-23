@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { MouseEvent } from 'react';
 import { Navigate, useParams } from 'react-router';
 import { z } from 'zod';
@@ -50,6 +50,7 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
   const { user } = useUser();
   const { data: project, isPending, isError, error, refetch } = useProject(id);
   const [hydrateError, setHydrateError] = useState(false);
+  const onHydrateError = useCallback(() => setHydrateError(true), []);
 
   const bindProject = useSaveStatusStore((s) => s.bindProject);
   const unbindProject = useSaveStatusStore((s) => s.unbindProject);
@@ -167,7 +168,7 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
                   engineRef={engineRef}
                   containerRef={containerRef}
                   initialProject={project}
-                  onHydrateError={() => setHydrateError(true)}
+                  onHydrateError={onHydrateError}
                 />
               </CanvasStage>
             </div>

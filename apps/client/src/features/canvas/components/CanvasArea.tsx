@@ -23,6 +23,7 @@ export const CanvasArea = ({ engineRef, containerRef, initialProject, onHydrateE
     if (!initialProject) return;
     const engine = engineRef.current;
     if (!engine) return;
+    if (engine.fabricCanvas.getObjects().length > 0) return;
 
     let cancelled = false;
 
