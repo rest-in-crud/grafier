@@ -9,6 +9,7 @@ import { useUser } from '@/features/auth/queries';
 import { performLogout } from '@/features/auth/session';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import { CanvasArea } from '@/features/canvas/components/CanvasArea';
+import { ScreenBackground } from '@/shared/ui/screen-background';
 import { Topbar } from './ui/topbar';
 import { OptionsBar } from './ui/options-bar';
 import { ToolRail } from './ui/tool-rail';
@@ -52,23 +53,26 @@ const EditorPage = () => {
   return (
     <>
       <div className="fixed inset-0 flex flex-col overflow-hidden bg-background font-sans text-foreground">
-        <div className="h-9.5 shrink-0">
-          <Topbar avatarInitial={avatarInitial} onLogout={performLogout} />
-        </div>
-        <OptionsBar tool={tool} />
-        <div className="flex min-h-0 flex-1">
-          <div className="w-14 shrink-0">
-            <ToolRail active={tool} setActive={setTool} />
+        <ScreenBackground />
+        <div className="relative z-10 flex h-full flex-col">
+          <div className="h-9.5 shrink-0">
+            <Topbar avatarInitial={avatarInitial} onLogout={performLogout} />
           </div>
-          <div className="min-w-0 flex-1">
-            <CanvasStage onContextMenu={onCanvasContextMenu} onMouseMove={onCanvasMove}>
-              <CanvasArea engineRef={engineRef} containerRef={containerRef} />
-            </CanvasStage>
+          <OptionsBar tool={tool} />
+          <div className="flex min-h-0 flex-1">
+            <div className="w-14 shrink-0">
+              <ToolRail active={tool} setActive={setTool} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <CanvasStage onContextMenu={onCanvasContextMenu} onMouseMove={onCanvasMove}>
+                <CanvasArea engineRef={engineRef} containerRef={containerRef} />
+              </CanvasStage>
+            </div>
+            <RightRail width={railWidth} onResize={setRailWidth} />
           </div>
-          <RightRail width={railWidth} onResize={setRailWidth} />
-        </div>
-        <div className="h-6.5 shrink-0">
-          <StatusBar cursor={cursor} />
+          <div className="h-6.5 shrink-0">
+            <StatusBar cursor={cursor} />
+          </div>
         </div>
       </div>
       {radial && <RadialMenu x={radial.x} y={radial.y} onClose={() => setRadial(null)} />}
