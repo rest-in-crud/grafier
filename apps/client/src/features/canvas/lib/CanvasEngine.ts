@@ -74,6 +74,8 @@ function projectSelection(obj: FabricObject): SelectionSnapshot {
 
 export class CanvasEngine {
   private readonly canvas: Canvas;
+  public readonly docWidth: number;
+  public readonly docHeight: number;
   private activeTool: BaseTool | null = null;
   private activeToolId: ToolId | null = null;
   private activeToolStyles: Record<string, unknown> | undefined = undefined;
@@ -115,6 +117,8 @@ export class CanvasEngine {
   }
 
   constructor(canvasElement: HTMLCanvasElement, config: CanvasConfig) {
+    this.docWidth = config.width;
+    this.docHeight = config.height;
     this.canvas = new Canvas(canvasElement, {
       width: config.width,
       height: config.height,
