@@ -21,13 +21,18 @@ export class EraserTool implements BaseTool {
     brush.on('end', (e) => {
       const { targets } = e.detail;
       requestAnimationFrame(() => {
+        let anyRemoved = false;
         for (const target of targets) {
           if (this.isFullyErased(target)) {
             canvas.remove(target);
             removeFromLayer(target);
+            anyRemoved = true;
           }
         }
         canvas.requestRenderAll();
+        if (!anyRemoved && targets.length > 0) {
+          canvas.fire('object:modified', { target: targets[0] });
+        }
       });
     });
     canvas.freeDrawingBrush = brush;
