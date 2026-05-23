@@ -271,6 +271,7 @@ export class CanvasEngine {
       this.canvas.add(clone);
       this.canvas.setActiveObject(clone);
       this.canvas.requestRenderAll();
+      this.canvas.fire('object:modified', { target: clone });
       return;
     }
 
@@ -286,12 +287,14 @@ export class CanvasEngine {
     const next = new ActiveSelection(clones, { canvas: this.canvas });
     this.canvas.setActiveObject(next);
     this.canvas.requestRenderAll();
+    if (clones[0]) this.canvas.fire('object:modified', { target: clones[0] });
   }
 
   private applyCanvasBgColor(color: string) {
     this.activeCanvasBgColor = color;
     this.canvas.set('backgroundColor', color);
     this.canvas.requestRenderAll();
+    this.canvas.fire('object:modified');
   }
 
   private applyZoom(zoom: number, point?: Point) {
