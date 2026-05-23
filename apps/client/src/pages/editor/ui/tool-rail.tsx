@@ -52,7 +52,7 @@ const TOOLS: ToolsEntry[] = [
   { id: 'image', name: 'Image', kbd: 'I', Icon: IImage, implemented: true },
   { id: 'dropper', name: 'Eyedropper', kbd: '', Icon: IDropper, implemented: true },
   { _div: true },
-  { id: 'hand', name: 'Hand', kbd: 'H', Icon: IHand, implemented: false },
+  { id: 'hand', name: 'Hand', kbd: 'H', Icon: IHand, implemented: true },
   { id: 'zoom', name: 'Zoom', kbd: 'Z', Icon: IZoom, implemented: false },
 ];
 

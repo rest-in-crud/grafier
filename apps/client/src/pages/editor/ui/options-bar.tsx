@@ -158,6 +158,16 @@ function TextOptions() {
   );
 }
 
+function HandOptions() {
+  return (
+    <>
+      <Label>Hand</Label>
+      <Separator />
+      <span className="text-fg-dimmer text-2xs">Drag to pan · Space works in any tool</span>
+    </>
+  );
+}
+
 function EyedropperOptions() {
   const eyedropperColor = useCanvasStore((s) => s.eyedropperColor);
 
@@ -205,6 +215,8 @@ export function OptionsBar({ tool }: Props) {
         <TextOptions />
       ) : tool === 'dropper' ? (
         <EyedropperOptions />
+      ) : tool === 'hand' ? (
+        <HandOptions />
       ) : (
         <SelectionOptions />
       )}
