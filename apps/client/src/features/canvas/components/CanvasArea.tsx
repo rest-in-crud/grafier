@@ -4,6 +4,7 @@ import type { ProjectDetail } from '@/features/projects/schema';
 import { useCanvas } from '@/features/canvas/hooks/useCanvas';
 import { useLayerSync } from '@/features/layers/hooks/useLayerSync';
 import { useHistory } from '@/features/canvas/hooks/useHistory';
+import { useViewport } from '@/pages/editor/hooks/useViewport';
 import { useLayersStore } from '@/features/layers/store/layers.store';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 
@@ -27,6 +28,7 @@ export const CanvasArea = ({ engineRef, containerRef, initialProject, onHydrateE
   const [baselineKey, setBaselineKey] = useState(0);
   useLayerSync(engineRef);
   useHistory(engineRef, baselineKey);
+  useViewport(containerRef, engineRef);
 
   useEffect(() => {
     if (!initialProject) return;

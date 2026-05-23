@@ -5,7 +5,6 @@ import { z } from 'zod';
 import type { CanvasEngine } from '@/features/canvas/lib/CanvasEngine';
 import { loadRailWidth, saveRailWidth } from './lib/preferences';
 import { useTempMoveOverride } from './hooks/useTempMoveOverride';
-import { useViewport } from './hooks/useViewport';
 import { useEditorShortcuts } from './hooks/useEditorShortcuts';
 import { useUser } from '@/features/auth/queries';
 import { performLogout } from '@/features/auth/session';
@@ -44,7 +43,6 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
   const engineRef = useRef<CanvasEngine | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   useTempMoveOverride(engineRef);
-  useViewport(containerRef, engineRef);
   useEditorShortcuts(engineRef);
   useToolShortcuts();
   const { user } = useUser();
