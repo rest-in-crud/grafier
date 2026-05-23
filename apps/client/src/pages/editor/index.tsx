@@ -34,7 +34,7 @@ const EditorPage = () => {
     return <Navigate to="/" replace />;
   }
 
-  return <EditorPageForProject id={idCheck.data} />;
+  return <EditorPageForProject key={idCheck.data} id={idCheck.data} />;
 };
 
 type EditorPageForProjectProps = { id: string };
