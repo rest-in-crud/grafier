@@ -320,6 +320,7 @@ export class CanvasEngine {
 
     obj.setCoords();
     this.canvas.requestRenderAll();
+    this.canvas.fire('object:modified', { target: obj });
     this.refreshSelection();
   }
 
