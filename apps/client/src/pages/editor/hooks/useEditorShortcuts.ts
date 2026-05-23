@@ -14,6 +14,11 @@ const collectAllIds = (canvas: Canvas): string[] =>
 export function useEditorShortcuts(engineRef: RefObject<CanvasEngine | null>) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (isPrimaryModifier(e) && e.code === 'KeyS' && !e.shiftKey && !e.altKey) {
+        e.preventDefault();
+        return;
+      }
+
       const tag = (document.activeElement?.tagName ?? '').toLowerCase();
       if (tag === 'input' || tag === 'textarea') return;
       const canvas = engineRef.current?.fabricCanvas;
