@@ -140,18 +140,18 @@ export class DesignsService {
         const design = await this.assertOwner(id, userId);
 
         if (design.type === 'template') {
-            const nonNameKeys = Object.keys(dto).filter((k) => k !== 'name');
-            if (nonNameKeys.length > 0) {
+            const frozenKeys = Object.keys(dto).filter((k) => k !== 'name' && k !== 'isPublic');
+            if (frozenKeys.length > 0) {
                 throw new ForbiddenException(
-                    'Template designs are frozen — only the name can be changed',
+                    'Template designs are frozen — only the name and visibility can be changed',
                 );
             }
 
-            if (dto.name === undefined) return design;
+            if (dto.name === undefined && dto.isPublic === undefined) return design;
 
             const [updated] = await this.db
                 .update(designs)
-                .set({ name: dto.name, updatedAt: new Date() })
+                .set({ name: dto.name, isPublic: dto.isPublic, updatedAt: new Date() })
                 .where(eq(designs.id, id))
                 .returning();
 
