@@ -1,0 +1,49 @@
+import { useNavigate } from 'react-router';
+import { placeholderThumb } from '@/pages/dashboard/lib/thumb-generators';
+import type { ProjectSummary } from '@/features/projects/schema';
+
+type ProjectCardProps = {
+  project: ProjectSummary;
+};
+
+const relativeTime = (iso: string): string => {
+  const then = new Date(iso).getTime();
+  const now = Date.now();
+  const minutes = Math.round((now - then) / 60_000);
+  if (minutes < 1) return 'Edited just now';
+  if (minutes < 60) return `Edited ${minutes} min ago`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `Edited ${hours} h ago`;
+  const days = Math.round(hours / 24);
+  if (days === 1) return 'Edited yesterday';
+  return `Edited ${days} d ago`;
+};
+
+const ProjectCard = ({ project }: ProjectCardProps) => {
+  const navigate = useNavigate();
+  const thumb = placeholderThumb();
+
+  return (
+    <button
+      type="button"
+      onClick={() => navigate(`/editor/${project.id}`)}
+      className="flex flex-col border border-hairline bg-black/30 text-left transition-colors hover:border-hairline-strong hover:bg-black/40"
+    >
+      <div className="relative flex h-[130px] items-center justify-center overflow-hidden border-b border-hairline">
+        <pre className="m-0 font-mono text-[6.5px] leading-[1.05] whitespace-pre text-foreground/90">
+          {thumb}
+        </pre>
+      </div>
+      <div className="px-3.5 py-3">
+        <div className="mb-1 truncate font-sans text-[13px] font-medium tracking-[-0.005em] text-foreground">
+          {project.name}
+        </div>
+        <div className="font-mono text-[9.5px] uppercase tracking-[0.14em] text-fg-dim">
+          {relativeTime(project.updatedAt)}
+        </div>
+      </div>
+    </button>
+  );
+};
+
+export { ProjectCard };
