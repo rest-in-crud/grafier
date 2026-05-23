@@ -1,7 +1,6 @@
-import { Outlet } from 'react-router';
 import { ScreenBackground } from '@/shared/ui/screen-background';
 
-const AuthShell = () => {
+const ProjectsListPage = () => {
   return (
     <div className="fixed inset-0 overflow-hidden bg-background">
       <ScreenBackground />
@@ -13,10 +12,12 @@ const AuthShell = () => {
       </header>
 
       <main className="relative z-10 flex h-full items-center justify-center overflow-y-auto px-8 py-24">
-        <Outlet />
+        <p className="font-mono text-sm uppercase tracking-[0.18em] text-fg-dim">
+          Projects list lands in the next release
+        </p>
       </main>
     </div>
   );
 };
 
-export { AuthShell };
+export { ProjectsListPage };

@@ -1,6 +1,7 @@
-import { createBrowserRouter, type RouteObject } from 'react-router';
+import { createBrowserRouter, Navigate, type RouteObject } from 'react-router';
 import { AuthShell } from '@/widgets/auth-shell';
 import { EditorPage } from '@/pages/editor';
+import { ProjectsListPage } from '@/pages/projects';
 import { SignInPage } from '@/pages/sign-in';
 import { SignUpPage } from '@/pages/sign-up';
 import { ForgotPage } from '@/pages/forgot';
@@ -14,7 +15,12 @@ import { RequireAuth, RequireAnon } from '@/app/guards';
 const routes: RouteObject[] = [
   {
     element: <RequireAuth />,
-    children: [{ path: '/', Component: EditorPage }],
+    children: [
+      { path: '/', Component: EditorPage },
+      { path: '/editor/:id', Component: EditorPage },
+      { path: '/editor', element: <Navigate to="/" replace /> },
+      { path: '/projects', Component: ProjectsListPage },
+    ],
   },
   {
     Component: AuthShell,

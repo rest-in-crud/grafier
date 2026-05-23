@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { MouseEvent } from 'react';
+import { Link } from 'react-router';
 import { Menubar } from './menubar';
 import { IconButton } from './primitives';
 import { IUndo, IRedo, ISettings, IExport } from '../icons';
@@ -25,9 +26,12 @@ function Topbar({ avatarInitial, onLogout }: TopbarProps) {
 
   return (
     <div className="flex h-full items-center gap-3.5 border-b border-hairline bg-chrome px-3">
-      <span className="flex h-full items-center border-r border-hairline pr-3.5 font-mono text-[11px] font-semibold tracking-[0.28em]">
+      <Link
+        to="/"
+        className="flex h-full items-center border-r border-hairline pr-3.5 font-mono text-[11px] font-semibold tracking-[0.28em] text-foreground hover:text-foreground"
+      >
         GRAFIER
-      </span>
+      </Link>
 
       <Menubar />
 
