@@ -3,6 +3,9 @@ declare module 'fabric' {
     erasable?: boolean;
     data?: { id?: string; [key: string]: unknown };
   }
+  interface SerializedObjectProps {
+    data?: { id?: string; [key: string]: unknown };
+  }
 }
 
 export {};

@@ -1,16 +1,17 @@
-import { ActiveSelection, Canvas, Point } from 'fabric';
-import type { FabricObject } from 'fabric';
-import type { ToolId } from '@/pages/editor/types';
+import { ActiveSelection, Canvas, FabricObject, Point } from 'fabric';
 import type {
   SelectionPatch,
   SelectionSnapshot,
   ToolStyles,
 } from '@/features/canvas/store/canvas.store';
+import type { ToolId } from '@/pages/editor/types';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import { useLayersStore } from '@/features/layers/store/layers.store';
 import { removeFromLayer } from './removeFromLayer';
 import type { BaseTool } from './tools/BaseTool';
 import { ToolRegistry } from './tools/ToolRegistry';
+
+FabricObject.customProperties = ['data'];
 
 interface CanvasConfig {
   width: number;

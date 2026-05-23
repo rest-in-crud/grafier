@@ -33,6 +33,14 @@ export const CanvasArea = ({ engineRef, containerRef, initialProject, onHydrateE
         }
         if (cancelled) return;
         if (initialProject.layersJSON && initialProject.layersJSON.length > 0) {
+          const flatLayerObjects = initialProject.layersJSON.flatMap((l) => l.objects);
+          const canvasObjects = engine.fabricCanvas.getObjects();
+          canvasObjects.forEach((obj, i) => {
+            if (obj.data?.id) return;
+            const layerObj = flatLayerObjects[i];
+            if (!layerObj) return;
+            obj.data = { ...obj.data, id: layerObj.id };
+          });
           useLayersStore.setState({
             layers: structuredClone(initialProject.layersJSON),
             activeLayerId: initialProject.layersJSON[0].id,
