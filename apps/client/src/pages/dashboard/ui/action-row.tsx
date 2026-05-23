@@ -1,14 +1,23 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router';
 import { ComingSoonModal } from '@/pages/dashboard/ui/coming-soon-modal';
 
 type ModalKind = 'import' | 'templates' | null;
 
 const ActionRow = () => {
+  const navigate = useNavigate();
   const [openModal, setOpenModal] = useState<ModalKind>(null);
 
   return (
     <>
       <div className="mb-16 flex flex-wrap gap-3">
+        <button
+          type="button"
+          onClick={() => navigate('/editor/new')}
+          className="inline-flex items-center gap-3.5 border border-foreground bg-foreground px-6 py-4 font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-background transition-colors hover:bg-white active:translate-y-px"
+        >
+          New Project
+        </button>
         <button
           type="button"
           onClick={() => setOpenModal('import')}
