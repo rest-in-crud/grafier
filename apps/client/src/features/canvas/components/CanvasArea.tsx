@@ -47,6 +47,22 @@ export const CanvasArea = ({ engineRef, containerRef, initialProject, onHydrateE
             layers: structuredClone(initialProject.layersJSON),
             activeLayerId: initialProject.layersJSON[0].id,
           });
+          engine.seedObjectCounterFromLayers(initialProject.layersJSON);
+        } else {
+          const defaultLayer = {
+            id: crypto.randomUUID(),
+            name: 'Layer 1',
+            visible: true,
+            locked: false,
+            opacity: 1,
+            objects: [],
+            collapsed: false,
+          };
+          useLayersStore.setState({
+            layers: [defaultLayer],
+            activeLayerId: defaultLayer.id,
+          });
+          engine.resetObjectCounter();
         }
         engine.fabricCanvas.requestRenderAll();
         if (!cancelled) setBaselineKey((k) => k + 1);

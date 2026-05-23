@@ -85,6 +85,25 @@ export class CanvasEngine {
     return `${label} ${this.objectCounter[label]}`;
   }
 
+  public seedObjectCounterFromLayers(layers: Array<{ objects: Array<{ name: string }> }>) {
+    for (const layer of layers) {
+      for (const obj of layer.objects) {
+        const match = obj.name.match(/^(.+?)\s+(\d+)$/);
+        if (!match) continue;
+        const label = match[1];
+        const num = Number.parseInt(match[2], 10);
+        if (Number.isNaN(num)) continue;
+        this.objectCounter[label] = Math.max(this.objectCounter[label] ?? 0, num);
+      }
+    }
+  }
+
+  public resetObjectCounter() {
+    for (const key of Object.keys(this.objectCounter)) {
+      delete this.objectCounter[key];
+    }
+  }
+
   constructor(canvasElement: HTMLCanvasElement, config: CanvasConfig) {
     this.canvas = new Canvas(canvasElement, {
       width: config.width,
