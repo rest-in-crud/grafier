@@ -35,8 +35,8 @@ const useAutosave = (projectId: string, engineRef: RefObject<CanvasEngine | null
   }, [engineRef, markDirty]);
 
   useEffect(() => {
-    return useSaveStatusStore.subscribe((s, prev) => {
-      if (s.status.tag !== 'dirty' || prev.status.tag === 'dirty') return;
+    return useSaveStatusStore.subscribe((s) => {
+      if (s.status.tag !== 'dirty') return;
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => {
         const engine = engineRef.current;
