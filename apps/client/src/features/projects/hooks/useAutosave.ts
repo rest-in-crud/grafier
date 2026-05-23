@@ -49,8 +49,12 @@ const useAutosave = (projectId: string, engineRef: RefObject<CanvasEngine | null
         saveMutation.mutate(
           { canvasJSON, layersJSON },
           {
-            onSuccess: () => markIdle(),
+            onSuccess: () => {
+              if (useSaveStatusStore.getState().projectId !== projectId) return;
+              markIdle();
+            },
             onError: (err) => {
+              if (useSaveStatusStore.getState().projectId !== projectId) return;
               if (err instanceof HttpError) {
                 if (err.status === 404) return markFatal('not-found');
                 if (err.status === 403) return markFatal('forbidden');
@@ -62,7 +66,7 @@ const useAutosave = (projectId: string, engineRef: RefObject<CanvasEngine | null
         );
       }, DEBOUNCE_MS);
     });
-  }, [engineRef, markSaving, markIdle, markError, markFatal, saveMutation]);
+  }, [engineRef, markSaving, markIdle, markError, markFatal, saveMutation, projectId]);
 
   useEffect(() => {
     return () => {
