@@ -53,6 +53,12 @@ interface CanvasState {
     toolId: K,
     patch: Partial<NonNullable<ToolStyles[K]>>,
   ) => void;
+  eyedropperColor: string | null;
+  setEyedropperColor: (color: string | null) => void;
+  lastShapeColorTarget: 'fill' | 'stroke';
+  toast: { message: string; id: number } | null;
+  showToast: (message: string) => void;
+  hideToast: () => void;
   selection: SelectionState;
   setSelection: (selection: SelectionState) => void;
   applyToSelection: (patch: SelectionPatch) => void;
@@ -73,9 +79,30 @@ interface CanvasState {
   setCanvasBgColor: (color: string) => void;
 }
 
+const COLORABLE_TOOLS = new Set<ToolId>(['pencil', 'text', 'shape']);
+
+const TOOL_COLOR_FIELD: Partial<Record<ToolId, string>> = {
+  pencil: 'color',
+  text: 'fill',
+} as const;
+
 export const useCanvasStore = create<CanvasState>((set) => ({
   activeTool: 'move',
-  setActiveTool: (tool) => set({ activeTool: tool }),
+  setActiveTool: (tool) =>
+    set((state) => {
+      if (state.eyedropperColor !== null && COLORABLE_TOOLS.has(tool)) {
+        const color = state.eyedropperColor;
+        const field = tool === 'shape' ? state.lastShapeColorTarget : TOOL_COLOR_FIELD[tool];
+        const toolKey = tool as keyof ToolStyles;
+        const nextStyles: ToolStyles = {
+          ...state.toolStyles,
+          [toolKey]: { ...state.toolStyles[toolKey], [field]: color },
+        };
+        saveToolStyles(nextStyles);
+        return { activeTool: tool, eyedropperColor: null, toolStyles: nextStyles };
+      }
+      return { activeTool: tool };
+    }),
   activeShape: DEFAULT_SHAPE_TYPE,
   setActiveShape: (shape) => set({ activeShape: shape }),
   toolStyles: loadToolStyles(),
@@ -86,8 +113,23 @@ export const useCanvasStore = create<CanvasState>((set) => ({
         [toolId]: { ...state.toolStyles[toolId], ...patch },
       };
       saveToolStyles(nextToolStyles);
+      if (toolId === 'shape') {
+        if ('fill' in patch) {
+          return { toolStyles: nextToolStyles, lastShapeColorTarget: 'fill' as const };
+        }
+        if ('stroke' in patch) {
+          return { toolStyles: nextToolStyles, lastShapeColorTarget: 'stroke' as const };
+        }
+      }
       return { toolStyles: nextToolStyles };
     }),
+  eyedropperColor: null,
+  setEyedropperColor: (color) => set({ eyedropperColor: color }),
+  lastShapeColorTarget: 'fill',
+  toast: null,
+  showToast: (message) =>
+    set((state) => ({ toast: { message, id: (state.toast?.id ?? 0) + 1 } })),
+  hideToast: () => set({ toast: null }),
   selection: { ids: [], primary: null },
   setSelection: (selection) => set({ selection }),
   applyToSelection: () => {},

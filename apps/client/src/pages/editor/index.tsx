@@ -26,6 +26,7 @@ import { CanvasStage } from './ui/canvas-stage';
 import { RightRail } from './ui/right-rail';
 import { StatusBar } from './ui/status-bar';
 import { RadialMenu } from './ui/radial-menu';
+import { PickToast } from './ui/pick-toast';
 import { useToolShortcuts } from './hooks/useToolShortcuts';
 import { usePasteImage } from './hooks/usePasteImage';
 
@@ -276,6 +277,7 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
         </div>
       </div>
       {radial && <RadialMenu x={radial.x} y={radial.y} onClose={() => setRadial(null)} />}
+      <PickToast />
     </>
   );
 };

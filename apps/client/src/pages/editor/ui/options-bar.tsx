@@ -158,6 +158,30 @@ function TextOptions() {
   );
 }
 
+function EyedropperOptions() {
+  const eyedropperColor = useCanvasStore((s) => s.eyedropperColor);
+
+  return (
+    <>
+      <Label>Eyedropper</Label>
+      <Separator />
+      {eyedropperColor ? (
+        <Field label="Picked">
+          <div className="flex items-center gap-2">
+            <div
+              className="size-3.5 shrink-0 border border-hairline-strong"
+              style={{ backgroundColor: eyedropperColor }}
+            />
+            <span className="font-mono text-[10px] text-fg-dim">{eyedropperColor.toUpperCase()}</span>
+          </div>
+        </Field>
+      ) : (
+        <span className="text-fg-dimmer text-2xs">Click on the canvas to pick a color</span>
+      )}
+    </>
+  );
+}
+
 function SelectionOptions() {
   return (
     <>
@@ -179,6 +203,8 @@ export function OptionsBar({ tool }: Props) {
         <ShapeOptions />
       ) : tool === 'text' ? (
         <TextOptions />
+      ) : tool === 'dropper' ? (
+        <EyedropperOptions />
       ) : (
         <SelectionOptions />
       )}
