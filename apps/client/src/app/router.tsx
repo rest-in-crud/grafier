@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate, type RouteObject } from 'react-router';
 import { AuthShell } from '@/widgets/auth-shell';
+import { DashboardPage } from '@/pages/dashboard';
 import { EditorPage } from '@/pages/editor';
 import { ProjectsListPage } from '@/pages/projects';
 import { SignInPage } from '@/pages/sign-in';
@@ -16,7 +17,7 @@ const routes: RouteObject[] = [
   {
     element: <RequireAuth />,
     children: [
-      { path: '/', Component: EditorPage },
+      { path: '/', Component: DashboardPage },
       { path: '/editor/:id', Component: EditorPage },
       { path: '/editor', element: <Navigate to="/" replace /> },
       { path: '/projects', Component: ProjectsListPage },
