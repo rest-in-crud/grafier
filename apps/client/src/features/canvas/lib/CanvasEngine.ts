@@ -55,7 +55,7 @@ function projectSelection(obj: FabricObject): SelectionSnapshot {
     width: Math.round(obj.getScaledWidth()),
     height: Math.round(obj.getScaledHeight()),
     angle: Math.round(obj.angle ?? 0),
-    opacity: obj.opacity ?? 1,
+    opacity: typeof obj.data?.ownOpacity === 'number' ? obj.data.ownOpacity : (obj.opacity ?? 1),
     fill: typeof obj.fill === 'string' ? obj.fill : null,
     stroke: typeof obj.stroke === 'string' ? obj.stroke : null,
     strokeWidth: obj.strokeWidth ?? 0,
