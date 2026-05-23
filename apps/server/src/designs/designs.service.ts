@@ -70,7 +70,11 @@ export class DesignsService {
             .orderBy(desc(designs.updatedAt));
     }
 
-    async listUserDesigns(targetUserId: string, requesterId: string | null, type?: 'project' | 'template') {
+    async listUserDesigns(
+        targetUserId: string,
+        requesterId: string | null,
+        type?: 'project' | 'template',
+    ) {
         const visibilityFilter =
             requesterId === targetUserId
                 ? eq(designs.userID, targetUserId)
@@ -121,7 +125,9 @@ export class DesignsService {
         if (design.type === 'template') {
             const nonNameKeys = Object.keys(dto).filter((k) => k !== 'name');
             if (nonNameKeys.length > 0) {
-                throw new ForbiddenException('Template designs are frozen — only the name can be changed');
+                throw new ForbiddenException(
+                    'Template designs are frozen — only the name can be changed',
+                );
             }
 
             if (dto.name === undefined) return design;
@@ -296,7 +302,12 @@ export class DesignsService {
         return entry;
     }
 
-    async updateCheckpoint(id: string, checkpointId: string, userId: string, dto: UpdateCheckpointDto) {
+    async updateCheckpoint(
+        id: string,
+        checkpointId: string,
+        userId: string,
+        dto: UpdateCheckpointDto,
+    ) {
         const design = await this.assertOwner(id, userId);
         this.assertNotFrozen(design);
 

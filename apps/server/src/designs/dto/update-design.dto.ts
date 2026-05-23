@@ -1,4 +1,12 @@
-import { IsBoolean, IsEnum, IsNumber, IsOptional, IsPositive, IsString, MaxLength } from 'class-validator';
+import {
+    IsBoolean,
+    IsEnum,
+    IsNumber,
+    IsOptional,
+    IsPositive,
+    IsString,
+    MaxLength,
+} from 'class-validator';
 
 export class UpdateDesignDto {
     @IsOptional()

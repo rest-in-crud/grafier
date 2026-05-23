@@ -1,4 +1,14 @@
-import { boolean, index, integer, jsonb, pgEnum, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import {
+    boolean,
+    index,
+    integer,
+    jsonb,
+    pgEnum,
+    pgTable,
+    text,
+    timestamp,
+    uuid,
+} from 'drizzle-orm/pg-core';
 import { users } from './users';
 
 export const designTypeEnum = pgEnum('design_type', ['project', 'template']);
