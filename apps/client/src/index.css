@@ -161,6 +161,27 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
   }
+
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--hairline-strong) transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--hairline-strong);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--fg-dim);
+  }
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
 }
 
 @layer utilities {
