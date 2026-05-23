@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { MouseEvent } from 'react';
+import { Link } from 'react-router';
 import { Menubar } from './menubar';
 import { IconButton } from './primitives';
 import { IUndo, IRedo, ISettings, IExport } from '../icons';
@@ -11,9 +12,12 @@ type TooltipState = { name: string; kbd: string; x: number; y: number } | null;
 export type TopbarProps = {
   avatarInitial: string;
   onLogout: () => void;
+  projectName?: string;
+  width?: number;
+  height?: number;
 };
 
-function Topbar({ avatarInitial, onLogout }: TopbarProps) {
+function Topbar({ avatarInitial, onLogout, projectName, width, height }: TopbarProps) {
   const [tooltip, setTooltip] = useState<TooltipState>(null);
   const undo = useHistoryStore((s) => s.undo);
   const redo = useHistoryStore((s) => s.redo);
@@ -25,16 +29,25 @@ function Topbar({ avatarInitial, onLogout }: TopbarProps) {
 
   return (
     <div className="flex h-full items-center gap-3.5 border-b border-hairline bg-chrome px-3">
-      <span className="flex h-full items-center border-r border-hairline pr-3.5 font-mono text-[11px] font-semibold tracking-[0.28em]">
+      <Link
+        to="/"
+        className="flex h-full items-center border-r border-hairline pr-3.5 font-mono text-[11px] font-semibold tracking-[0.28em] text-foreground hover:text-foreground"
+      >
         GRAFIER
-      </span>
+      </Link>
 
       <Menubar />
 
       <div className="flex flex-1 items-center justify-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.16em] text-fg-dim">
-        <span className="text-foreground">Untitled-01.graf</span>
-        <span>·</span>
-        <span className="text-fg-dimmer">1920 × 1080 PX · RGB / 8</span>
+        {projectName && width !== undefined && height !== undefined ? (
+          <>
+            <span className="max-w-[40ch] truncate text-foreground" title={projectName}>
+              {projectName}
+            </span>
+            <span>·</span>
+            <span className="text-fg-dimmer">{`${width} × ${height} PX · RGB / 8`}</span>
+          </>
+        ) : null}
       </div>
 
       <div className="flex h-full items-center gap-2">
