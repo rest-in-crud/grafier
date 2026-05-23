@@ -4,6 +4,7 @@ import type { ProjectDetail } from '@/features/projects/schema';
 import { useCanvas } from '@/features/canvas/hooks/useCanvas';
 import { useLayerSync } from '@/features/layers/hooks/useLayerSync';
 import { useHistory } from '@/features/canvas/hooks/useHistory';
+import { useHistoryStore } from '@/features/canvas/store/history.store';
 import { useViewport } from '@/pages/editor/hooks/useViewport';
 import { useLayersStore } from '@/features/layers/store/layers.store';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
@@ -83,6 +84,7 @@ export const CanvasArea = ({ engineRef, containerRef, initialProject, onHydrateE
           engine.resetObjectCounter();
         }
         engine.fabricCanvas.requestRenderAll();
+        useHistoryStore.setState({ past: [], future: [] });
         if (!cancelled) setBaselineKey((k) => k + 1);
       } catch (err) {
         console.error('canvas hydrate failed', err);
