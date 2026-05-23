@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router';
 import { ArrowLeftIcon, ArrowRightIcon, HouseIcon } from '@phosphor-icons/react';
-import { AsciiBackground } from '@/shared/ui/ascii-background';
+import { ScreenBackground } from '@/shared/ui/screen-background';
 import { Button } from '@/shared/ui/button';
 
 const NotFoundPage = () => {
@@ -8,10 +8,7 @@ const NotFoundPage = () => {
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-background">
-      <div aria-hidden className="pointer-events-none absolute inset-0 bg-shell-glow" />
-      <AsciiBackground />
-      <div aria-hidden className="pointer-events-none absolute inset-0 bg-shell-grid" />
-      <div aria-hidden className="pointer-events-none absolute inset-0 bg-shell-vignette" />
+      <ScreenBackground />
 
       <header className="pointer-events-none fixed inset-x-0 top-0 z-20 flex items-center justify-between px-7 py-4">
         <span className="font-mono text-xs font-semibold uppercase tracking-[0.3em] text-foreground">
