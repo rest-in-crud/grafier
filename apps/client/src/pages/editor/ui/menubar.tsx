@@ -1,41 +1,42 @@
 import { useState, useEffect } from 'react';
+import { formatHotkey } from '@/shared/lib/platform';
 
-type MenuItemRow = { label: string; kbd?: string };
+type MenuItemRow = { label: string; keys?: string[] };
 type MenuSepRow = { sep: true };
 type MenuRow = MenuItemRow | MenuSepRow;
 
 const MENUS: Record<string, MenuRow[]> = {
   File: [
-    { label: 'New…', kbd: '⌘N' },
-    { label: 'Open…', kbd: '⌘O' },
+    { label: 'New…', keys: ['Mod', 'N'] },
+    { label: 'Open…', keys: ['Mod', 'O'] },
     { sep: true },
-    { label: 'Save', kbd: '⌘S' },
-    { label: 'Save As…', kbd: '⇧⌘S' },
+    { label: 'Save', keys: ['Mod', 'S'] },
+    { label: 'Save As…', keys: ['Shift', 'Mod', 'S'] },
     { sep: true },
     { label: 'Import…' },
-    { label: 'Export…', kbd: '⇧⌘E' },
+    { label: 'Export…', keys: ['Shift', 'Mod', 'E'] },
     { sep: true },
-    { label: 'Close', kbd: '⌘W' },
+    { label: 'Close', keys: ['Mod', 'W'] },
   ],
   Edit: [
-    { label: 'Undo', kbd: '⌘Z' },
-    { label: 'Redo', kbd: '⇧⌘Z' },
+    { label: 'Undo', keys: ['Mod', 'Z'] },
+    { label: 'Redo', keys: ['Shift', 'Mod', 'Z'] },
     { sep: true },
-    { label: 'Cut', kbd: '⌘X' },
-    { label: 'Copy', kbd: '⌘C' },
-    { label: 'Paste', kbd: '⌘V' },
+    { label: 'Cut', keys: ['Mod', 'X'] },
+    { label: 'Copy', keys: ['Mod', 'C'] },
+    { label: 'Paste', keys: ['Mod', 'V'] },
     { sep: true },
-    { label: 'Select All', kbd: '⌘A' },
-    { label: 'Deselect', kbd: '⌘D' },
+    { label: 'Select All', keys: ['Mod', 'A'] },
+    { label: 'Deselect', keys: ['Mod', 'D'] },
   ],
   View: [
-    { label: 'Zoom In', kbd: '⌘+' },
-    { label: 'Zoom Out', kbd: '⌘−' },
-    { label: 'Fit on Screen', kbd: '⌘0' },
-    { label: '100%', kbd: '⌘1' },
+    { label: 'Zoom In', keys: ['Mod', '+'] },
+    { label: 'Zoom Out', keys: ['Mod', '−'] },
+    { label: 'Fit on Screen', keys: ['Mod', '0'] },
+    { label: '100%', keys: ['Mod', '1'] },
     { sep: true },
-    { label: 'Show Rulers', kbd: '⌘R' },
-    { label: 'Show Grid', kbd: "⌘'" },
+    { label: 'Show Rulers', keys: ['Mod', 'R'] },
+    { label: 'Show Grid', keys: ['Mod', "'"] },
   ],
   Window: [{ label: 'Layers' }, { label: 'Properties' }, { label: 'History' }, { label: 'Color' }],
   Help: [{ label: 'Documentation' }, { label: 'Keyboard Shortcuts' }, { label: 'About Grafier' }],
@@ -88,9 +89,9 @@ function Menubar() {
                     onClick={() => setOpen(null)}
                   >
                     <span>{row.label}</span>
-                    {row.kbd && (
+                    {row.keys && (
                       <kbd className="font-mono text-[10px] tracking-[0.06em] text-fg-dim">
-                        {row.kbd}
+                        {formatHotkey(row.keys)}
                       </kbd>
                     )}
                   </div>
