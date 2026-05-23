@@ -93,6 +93,7 @@ export const useCanvasStore = create<CanvasState>((set) => ({
       if (state.eyedropperColor !== null && COLORABLE_TOOLS.has(tool)) {
         const color = state.eyedropperColor;
         const field = tool === 'shape' ? state.lastShapeColorTarget : TOOL_COLOR_FIELD[tool];
+        if (!field) return { activeTool: tool };
         const toolKey = tool as keyof ToolStyles;
         const nextStyles: ToolStyles = {
           ...state.toolStyles,
