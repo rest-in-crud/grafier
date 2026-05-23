@@ -316,7 +316,10 @@ export class CanvasEngine {
     if (patch.left !== undefined) obj.set('left', patch.left);
     if (patch.top !== undefined) obj.set('top', patch.top);
     if (patch.angle !== undefined) obj.set('angle', patch.angle);
-    if (patch.opacity !== undefined) obj.set('opacity', patch.opacity);
+    if (patch.opacity !== undefined) {
+      obj.set('opacity', patch.opacity);
+      obj.data = { ...obj.data, ownOpacity: patch.opacity };
+    }
     if (patch.fill !== undefined) obj.set('fill', patch.fill);
     if (patch.stroke !== undefined) obj.set('stroke', patch.stroke);
     if (patch.strokeWidth !== undefined) obj.set('strokeWidth', patch.strokeWidth);
