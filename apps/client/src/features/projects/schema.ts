@@ -9,9 +9,26 @@ const projectSummarySchema = z.object({
   updatedAt: z.string(),
 });
 
+const layerObjectSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  visible: z.boolean(),
+  locked: z.boolean(),
+});
+
+const layerSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  visible: z.boolean(),
+  locked: z.boolean(),
+  opacity: z.number(),
+  objects: z.array(layerObjectSchema),
+  collapsed: z.boolean(),
+});
+
 const projectDetailSchema = projectSummarySchema.extend({
   canvasJSON: z.record(z.string(), z.unknown()).nullable(),
-  layersJSON: z.array(z.unknown()).nullable(),
+  layersJSON: z.array(layerSchema).nullable(),
 });
 
 const projectsListResponseSchema = z.array(projectSummarySchema);
@@ -24,7 +41,7 @@ const createProjectRequestSchema = z.object({
 
 const saveCanvasRequestSchema = z.object({
   canvasJSON: z.record(z.string(), z.unknown()),
-  layersJSON: z.array(z.unknown()),
+  layersJSON: z.array(layerSchema),
 });
 
 type ProjectSummary = z.infer<typeof projectSummarySchema>;

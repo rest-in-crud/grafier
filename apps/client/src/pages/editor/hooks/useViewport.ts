@@ -16,12 +16,45 @@ export function useViewport(
   const isSpacePressed = useRef(false);
   const isPanning = useRef(false);
   const panStart = useRef<{ x: number; y: number; vt: TMat2D } | null>(null);
+  const spaceSnapshot = useRef<{
+    isDrawingMode: boolean;
+    selection: boolean;
+    skipTargetFind: boolean;
+  } | null>(null);
 
   useEffect(() => {
     const wrapper = wrapperRef.current;
     if (!wrapper) return;
 
     const getCanvas = () => engineRef.current?.fabricCanvas ?? null;
+
+    const enterSpacePan = () => {
+      const canvas = getCanvas();
+      if (!canvas || spaceSnapshot.current) return;
+      spaceSnapshot.current = {
+        isDrawingMode: canvas.isDrawingMode,
+        selection: canvas.selection,
+        skipTargetFind: canvas.skipTargetFind,
+      };
+      canvas.isDrawingMode = false;
+      canvas.selection = false;
+      canvas.skipTargetFind = true;
+      canvas.defaultCursor = 'grab';
+    };
+
+    const exitSpacePan = () => {
+      const canvas = getCanvas();
+      const snap = spaceSnapshot.current;
+      if (!canvas || !snap) {
+        spaceSnapshot.current = null;
+        return;
+      }
+      canvas.isDrawingMode = snap.isDrawingMode;
+      canvas.selection = snap.selection;
+      canvas.skipTargetFind = snap.skipTargetFind;
+      canvas.defaultCursor = 'default';
+      spaceSnapshot.current = null;
+    };
 
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
@@ -58,8 +91,7 @@ export function useViewport(
       e.preventDefault();
       if (!isSpacePressed.current) {
         isSpacePressed.current = true;
-        const canvas = getCanvas();
-        if (canvas) canvas.defaultCursor = 'grab';
+        enterSpacePan();
       }
     };
 
@@ -68,8 +100,7 @@ export function useViewport(
       isSpacePressed.current = false;
       isPanning.current = false;
       panStart.current = null;
-      const canvas = getCanvas();
-      if (canvas) canvas.defaultCursor = 'default';
+      exitSpacePan();
     };
 
     const handleMouseDown = (e: MouseEvent) => {
@@ -111,8 +142,7 @@ export function useViewport(
       isSpacePressed.current = false;
       isPanning.current = false;
       panStart.current = null;
-      const canvas = getCanvas();
-      if (canvas) canvas.defaultCursor = 'default';
+      exitSpacePan();
     };
 
     wrapper.addEventListener('wheel', handleWheel, { passive: false });

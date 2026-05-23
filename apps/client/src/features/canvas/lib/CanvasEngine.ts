@@ -1,16 +1,17 @@
-import { ActiveSelection, Canvas, Point } from 'fabric';
-import type { FabricObject } from 'fabric';
-import type { ToolId } from '@/pages/editor/types';
+import { ActiveSelection, Canvas, FabricObject, Point } from 'fabric';
 import type {
   SelectionPatch,
   SelectionSnapshot,
   ToolStyles,
 } from '@/features/canvas/store/canvas.store';
+import type { ToolId } from '@/pages/editor/types';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import { useLayersStore } from '@/features/layers/store/layers.store';
 import { removeFromLayer } from './removeFromLayer';
 import type { BaseTool } from './tools/BaseTool';
 import { ToolRegistry } from './tools/ToolRegistry';
+
+FabricObject.customProperties = ['data'];
 
 interface CanvasConfig {
   width: number;
@@ -54,7 +55,7 @@ function projectSelection(obj: FabricObject): SelectionSnapshot {
     width: Math.round(obj.getScaledWidth()),
     height: Math.round(obj.getScaledHeight()),
     angle: Math.round(obj.angle ?? 0),
-    opacity: obj.opacity ?? 1,
+    opacity: typeof obj.data?.ownOpacity === 'number' ? obj.data.ownOpacity : (obj.opacity ?? 1),
     fill: typeof obj.fill === 'string' ? obj.fill : null,
     stroke: typeof obj.stroke === 'string' ? obj.stroke : null,
     strokeWidth: obj.strokeWidth ?? 0,
@@ -82,6 +83,25 @@ export class CanvasEngine {
     const label = OBJECT_TYPE_LABELS[type] ?? 'Object';
     this.objectCounter[label] = (this.objectCounter[label] ?? 0) + 1;
     return `${label} ${this.objectCounter[label]}`;
+  }
+
+  public seedObjectCounterFromLayers(layers: Array<{ objects: Array<{ name: string }> }>) {
+    for (const layer of layers) {
+      for (const obj of layer.objects) {
+        const match = obj.name.match(/^(.+?)\s+(\d+)$/);
+        if (!match) continue;
+        const label = match[1];
+        const num = Number.parseInt(match[2], 10);
+        if (Number.isNaN(num)) continue;
+        this.objectCounter[label] = Math.max(this.objectCounter[label] ?? 0, num);
+      }
+    }
+  }
+
+  public resetObjectCounter() {
+    for (const key of Object.keys(this.objectCounter)) {
+      delete this.objectCounter[key];
+    }
   }
 
   constructor(canvasElement: HTMLCanvasElement, config: CanvasConfig) {
@@ -251,6 +271,7 @@ export class CanvasEngine {
       this.canvas.add(clone);
       this.canvas.setActiveObject(clone);
       this.canvas.requestRenderAll();
+      this.canvas.fire('object:modified', { target: clone });
       return;
     }
 
@@ -266,12 +287,14 @@ export class CanvasEngine {
     const next = new ActiveSelection(clones, { canvas: this.canvas });
     this.canvas.setActiveObject(next);
     this.canvas.requestRenderAll();
+    if (clones[0]) this.canvas.fire('object:modified', { target: clones[0] });
   }
 
   private applyCanvasBgColor(color: string) {
     this.activeCanvasBgColor = color;
     this.canvas.set('backgroundColor', color);
     this.canvas.requestRenderAll();
+    this.canvas.fire('object:modified');
   }
 
   private applyZoom(zoom: number, point?: Point) {
@@ -293,13 +316,17 @@ export class CanvasEngine {
     if (patch.left !== undefined) obj.set('left', patch.left);
     if (patch.top !== undefined) obj.set('top', patch.top);
     if (patch.angle !== undefined) obj.set('angle', patch.angle);
-    if (patch.opacity !== undefined) obj.set('opacity', patch.opacity);
+    if (patch.opacity !== undefined) {
+      obj.set('opacity', patch.opacity);
+      obj.data = { ...obj.data, ownOpacity: patch.opacity };
+    }
     if (patch.fill !== undefined) obj.set('fill', patch.fill);
     if (patch.stroke !== undefined) obj.set('stroke', patch.stroke);
     if (patch.strokeWidth !== undefined) obj.set('strokeWidth', patch.strokeWidth);
 
     obj.setCoords();
     this.canvas.requestRenderAll();
+    this.canvas.fire('object:modified', { target: obj });
     this.refreshSelection();
   }
 

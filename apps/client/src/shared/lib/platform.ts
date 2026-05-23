@@ -22,5 +22,12 @@ export const isPrimaryModifier = (e: KeyboardEvent | MouseEvent): boolean =>
 
 export const formatHotkey = (parts: string[]): string => {
   const mac = isMac();
-  return parts.map((p) => (p === 'Mod' ? (mac ? '⌘' : 'Ctrl') : p)).join(mac ? '' : '+');
+  const map: Record<string, string> = mac
+    ? { Mod: '⌘', Shift: '⇧', Alt: '⌥', Ctrl: '⌃' }
+    : { Mod: 'Ctrl', Shift: 'Shift', Alt: 'Alt' };
+  const order: Record<string, number> = mac
+    ? { Ctrl: 0, Alt: 1, Shift: 2, Mod: 3 }
+    : { Mod: 0, Alt: 1, Shift: 2 };
+  const sorted = [...parts].sort((a, b) => (order[a] ?? 99) - (order[b] ?? 99));
+  return sorted.map((p) => map[p] ?? p).join(mac ? '' : '+');
 };

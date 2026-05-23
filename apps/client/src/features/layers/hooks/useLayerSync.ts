@@ -23,8 +23,13 @@ export function useLayerSync(engineRef: RefObject<CanvasEngine | null>) {
           object.visible = layer.visible && ownVisible;
           object.selectable = !layer.locked && !ownLocked;
           object.evented = !layer.locked && !ownLocked;
-          const ownOpacity =
-            typeof object.data?.ownOpacity === 'number' ? object.data.ownOpacity : 1;
+          let ownOpacity: number;
+          if (typeof object.data?.ownOpacity === 'number') {
+            ownOpacity = object.data.ownOpacity;
+          } else {
+            ownOpacity = object.opacity ?? 1;
+            object.data = { ...object.data, ownOpacity };
+          }
           object.opacity = layer.opacity * ownOpacity;
           object.dirty = true;
         }

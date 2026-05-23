@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
 import { ComingSoonModal } from '@/pages/dashboard/ui/coming-soon-modal';
+import { NewProjectModal } from '@/pages/dashboard/ui/new-project-modal';
 
-type ModalKind = 'import' | 'templates' | null;
+type ModalKind = 'new' | 'import' | 'templates' | null;
 
 const ActionRow = () => {
-  const navigate = useNavigate();
   const [openModal, setOpenModal] = useState<ModalKind>(null);
 
   return (
@@ -13,7 +12,7 @@ const ActionRow = () => {
       <div className="mb-16 flex flex-wrap gap-3">
         <button
           type="button"
-          onClick={() => navigate('/editor/new')}
+          onClick={() => setOpenModal('new')}
           className="inline-flex items-center gap-3.5 border border-foreground bg-foreground px-6 py-4 font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-background transition-colors hover:bg-white active:translate-y-px"
         >
           New Project
@@ -34,6 +33,10 @@ const ActionRow = () => {
         </button>
       </div>
 
+      <NewProjectModal
+        open={openModal === 'new'}
+        onOpenChange={(o) => setOpenModal(o ? 'new' : null)}
+      />
       <ComingSoonModal
         open={openModal === 'import'}
         onOpenChange={(o) => setOpenModal(o ? 'import' : null)}
