@@ -1,6 +1,5 @@
 import { Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
-import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { AuthUser } from '../types/auth.types';
 import { DesignsService } from './designs.service';
@@ -9,10 +8,9 @@ import { DesignsService } from './designs.service';
 export class TemplatesAliasController {
     constructor(private readonly designsService: DesignsService) {}
 
-    @UseGuards(OptionalJwtAuthGuard)
     @Get()
-    list(@CurrentUser() user: AuthUser | null) {
-        return this.designsService.listDesigns(user?.id ?? null, 'template');
+    list() {
+        return this.designsService.listDesigns('template');
     }
 
     @UseGuards(JwtAuthGuard)

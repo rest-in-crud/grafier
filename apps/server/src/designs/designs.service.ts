@@ -1,9 +1,9 @@
 import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { and, asc, count, desc, eq, or } from 'drizzle-orm';
+import { and, asc, count, desc, eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { DRIZZLE } from '../database/database.module';
 import * as schema from '../database/schema';
-import { designHistory, designs } from '../database/schema';
+import { designHistory, designs, users } from '../database/schema';
 import { CreateDesignDto } from './dto/create-design.dto';
 import { SaveCanvasDto } from './dto/save-canvas.dto';
 import { SaveCheckpointDto } from './dto/save-checkpoint.dto';
@@ -13,6 +13,19 @@ import { UpdateDesignDto } from './dto/update-design.dto';
 const HISTORY_CAP = 50;
 
 type Design = typeof designs.$inferSelect;
+
+const designListFields = {
+    id: designs.id,
+    userID: designs.userID,
+    userName: users.name,
+    name: designs.name,
+    width: designs.width,
+    height: designs.height,
+    isPublic: designs.isPublic,
+    type: designs.type,
+    createdAt: designs.createdAt,
+    updatedAt: designs.updatedAt,
+} as const;
 
 @Injectable()
 export class DesignsService {
@@ -45,36 +58,20 @@ export class DesignsService {
         }
     }
 
-    async listDesigns(userId: string | null, type?: 'project' | 'template') {
-        const accessFilter =
-            userId !== null
-                ? or(eq(designs.isPublic, true), eq(designs.userID, userId))
-                : eq(designs.isPublic, true);
-
-        const conditions = type ? and(accessFilter, eq(designs.type, type)) : accessFilter;
+    async listDesigns(type?: 'project' | 'template') {
+        const conditions = type
+            ? and(eq(designs.isPublic, true), eq(designs.type, type))
+            : eq(designs.isPublic, true);
 
         return this.db
-            .select({
-                id: designs.id,
-                userID: designs.userID,
-                name: designs.name,
-                width: designs.width,
-                height: designs.height,
-                isPublic: designs.isPublic,
-                type: designs.type,
-                createdAt: designs.createdAt,
-                updatedAt: designs.updatedAt,
-            })
+            .select(designListFields)
             .from(designs)
+            .innerJoin(users, eq(designs.userID, users.id))
             .where(conditions)
             .orderBy(desc(designs.updatedAt));
     }
 
-    async listUserDesigns(
-        targetUserId: string,
-        requesterId: string | null,
-        type?: 'project' | 'template',
-    ) {
+    async listUserDesigns(targetUserId: string, requesterId: string | null, type?: 'project' | 'template') {
         const visibilityFilter =
             requesterId === targetUserId
                 ? eq(designs.userID, targetUserId)
@@ -83,18 +80,9 @@ export class DesignsService {
         const conditions = type ? and(visibilityFilter, eq(designs.type, type)) : visibilityFilter;
 
         return this.db
-            .select({
-                id: designs.id,
-                userID: designs.userID,
-                name: designs.name,
-                width: designs.width,
-                height: designs.height,
-                isPublic: designs.isPublic,
-                type: designs.type,
-                createdAt: designs.createdAt,
-                updatedAt: designs.updatedAt,
-            })
+            .select(designListFields)
             .from(designs)
+            .innerJoin(users, eq(designs.userID, users.id))
             .where(conditions)
             .orderBy(desc(designs.updatedAt));
     }
@@ -116,7 +104,32 @@ export class DesignsService {
     }
 
     async getDesign(id: string, userId: string | null) {
-        return this.assertAccessible(id, userId);
+        const [result] = await this.db
+            .select({
+                id: designs.id,
+                userID: designs.userID,
+                userName: users.name,
+                name: designs.name,
+                width: designs.width,
+                height: designs.height,
+                isPublic: designs.isPublic,
+                type: designs.type,
+                canvasJSON: designs.canvasJSON,
+                layersJSON: designs.layersJSON,
+                createdAt: designs.createdAt,
+                updatedAt: designs.updatedAt,
+            })
+            .from(designs)
+            .innerJoin(users, eq(designs.userID, users.id))
+            .where(eq(designs.id, id));
+
+        if (!result) throw new NotFoundException('Design not found');
+
+        if (!result.isPublic && result.userID !== userId) {
+            throw new ForbiddenException('Access denied');
+        }
+
+        return result;
     }
 
     async updateDesign(id: string, userId: string, dto: UpdateDesignDto) {
@@ -125,9 +138,7 @@ export class DesignsService {
         if (design.type === 'template') {
             const nonNameKeys = Object.keys(dto).filter((k) => k !== 'name');
             if (nonNameKeys.length > 0) {
-                throw new ForbiddenException(
-                    'Template designs are frozen — only the name can be changed',
-                );
+                throw new ForbiddenException('Template designs are frozen — only the name can be changed');
             }
 
             if (dto.name === undefined) return design;
@@ -302,12 +313,7 @@ export class DesignsService {
         return entry;
     }
 
-    async updateCheckpoint(
-        id: string,
-        checkpointId: string,
-        userId: string,
-        dto: UpdateCheckpointDto,
-    ) {
+    async updateCheckpoint(id: string, checkpointId: string, userId: string, dto: UpdateCheckpointDto) {
         const design = await this.assertOwner(id, userId);
         this.assertNotFrozen(design);
 

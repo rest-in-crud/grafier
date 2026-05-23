@@ -25,10 +25,9 @@ import { UpdateCheckpointDto } from './dto/update-checkpoint.dto';
 export class DesignsController {
     constructor(private readonly designsService: DesignsService) {}
 
-    @UseGuards(OptionalJwtAuthGuard)
     @Get()
-    list(@CurrentUser() user: AuthUser | null) {
-        return this.designsService.listDesigns(user?.id ?? null);
+    list() {
+        return this.designsService.listDesigns();
     }
 
     @UseGuards(JwtAuthGuard)
