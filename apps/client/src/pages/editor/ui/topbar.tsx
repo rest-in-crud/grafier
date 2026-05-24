@@ -79,7 +79,7 @@ function Topbar({
               </>
             ) : null}
             <span>·</span>
-            <span className="text-fg-dimmer">{`${width} × ${height} PX · RGB / 8`}</span>
+            <span className="text-fg-dimmer">{`${width} × ${height} PX`}</span>
           </>
         ) : null}
       </div>
