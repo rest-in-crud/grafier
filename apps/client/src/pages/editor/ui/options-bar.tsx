@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import { PEN_DEFAULT_STYLES } from '@/features/canvas/lib/tools/PenTool/PenTool.styles';
 import {
@@ -11,10 +12,17 @@ import {
   GOOGLE_TEXT_FONTS,
   GOOGLE_TEXT_FONT_WEIGHTS,
 } from '@/features/canvas/lib/tools/TextTool/googleFonts';
+import {
+  useCustomFontStore,
+  saveCustomFont,
+  MAX_FONT_FILE_SIZE,
+} from '@/features/canvas/lib/tools/TextTool/customFontStorage';
+import { BRUSH_DEFAULT_STYLES } from '@/features/canvas/lib/tools/BrushTool/BrushTool.styles';
 import { TEXT_DEFAULT_STYLES } from '@/features/canvas/lib/tools/TextTool/TextTool';
 import { ERASER_DEFAULT_STYLES } from '@/features/canvas/lib/tools/EraserTool/EraserTool';
 import type { ToolId } from '../types';
-import { ColorField, Field, Label, Select, Separator, Slider, TogglePill } from './primitives';
+import { IUpload } from '../icons';
+import { ColorField, Field, IconButton, Label, Select, Separator, Slider, TogglePill } from './primitives';
 import type { ToggleOption } from './primitives';
 
 type Props = { tool: ToolId };
@@ -53,6 +61,53 @@ function PencilOptions() {
           value={opacity}
           onChange={(v) => setToolStyle('pencil', { opacity: v })}
           suffix="%"
+        />
+      </Field>
+    </>
+  );
+}
+
+function BrushOptions() {
+  const styles = useCanvasStore((s) => s.toolStyles.brush);
+  const setToolStyle = useCanvasStore((s) => s.setToolStyle);
+
+  const color = styles?.color ?? BRUSH_DEFAULT_STYLES.color;
+  const width = styles?.width ?? BRUSH_DEFAULT_STYLES.width;
+  const opacity = styles?.opacity ?? BRUSH_DEFAULT_STYLES.opacity;
+  const smoothing = styles?.smoothing ?? BRUSH_DEFAULT_STYLES.smoothing;
+
+  return (
+    <>
+      <Label>Brush</Label>
+      <Separator />
+      <Field label="Color">
+        <ColorField value={color} onCommit={(v) => setToolStyle('brush', { color: v })} />
+      </Field>
+      <Separator />
+      <Field label="Size">
+        <Slider
+          value={width}
+          onChange={(v) => setToolStyle('brush', { width: v })}
+          min={1}
+          max={200}
+          suffix=" PX"
+        />
+      </Field>
+      <Separator />
+      <Field label="Opacity">
+        <Slider
+          value={opacity}
+          onChange={(v) => setToolStyle('brush', { opacity: v })}
+          suffix="%"
+        />
+      </Field>
+      <Separator />
+      <Field label="Smooth">
+        <Slider
+          value={smoothing}
+          onChange={(v) => setToolStyle('brush', { smoothing: v })}
+          min={0}
+          max={5}
         />
       </Field>
     </>
@@ -115,28 +170,80 @@ function ShapeOptions() {
   );
 }
 
-const FONT_FAMILY_OPTIONS: string[] = [...GOOGLE_TEXT_FONTS];
 const FONT_WEIGHT_OPTIONS: string[] = [...GOOGLE_TEXT_FONT_WEIGHTS];
+const GOOGLE_FONTS_LIST: string[] = [...GOOGLE_TEXT_FONTS];
 
 function TextOptions() {
   const styles = useCanvasStore((s) => s.toolStyles.text);
   const setToolStyle = useCanvasStore((s) => s.setToolStyle);
+  const customFamilies = useCustomFontStore((s) => s.families);
 
   const fontFamily = styles?.fontFamily ?? DEFAULT_TEXT_FONT_FAMILY;
   const fontWeight = styles?.fontWeight ?? DEFAULT_TEXT_FONT_WEIGHT;
   const fontSize = styles?.fontSize ?? TEXT_DEFAULT_STYLES.fontSize;
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const fontGroups =
+    customFamilies.length > 0
+      ? [
+          { group: 'Custom', items: customFamilies as string[] },
+          { group: 'Google Fonts', items: GOOGLE_FONTS_LIST },
+        ]
+      : undefined;
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+
+    const ext = file.name.split('.').pop()?.toLowerCase();
+    if (ext !== 'ttf' && ext !== 'otf') {
+      setUploadError('Only TTF / OTF');
+      return;
+    }
+    if (file.size > MAX_FONT_FILE_SIZE) {
+      setUploadError('Max 5 MB');
+      return;
+    }
+
+    setUploadError(null);
+    try {
+      const stored = await saveCustomFont(file);
+      setToolStyle('text', { fontFamily: stored.family });
+    } catch {
+      setUploadError('Upload failed');
+    }
+  }
 
   return (
     <>
       <Label>Type</Label>
       <Separator />
       <Field label="Font">
-        <Select
-          options={FONT_FAMILY_OPTIONS}
-          value={fontFamily}
-          onChange={(v) => setToolStyle('text', { fontFamily: v })}
-        />
+        <div className="flex items-center gap-1">
+          <Select
+            groups={fontGroups}
+            options={fontGroups ? undefined : GOOGLE_FONTS_LIST}
+            value={fontFamily}
+            onChange={(v) => setToolStyle('text', { fontFamily: v })}
+          />
+          <IconButton title="Upload font (TTF / OTF, max 5 MB)" onClick={() => fileInputRef.current?.click()}>
+            <IUpload />
+          </IconButton>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".ttf,.otf"
+            className="hidden"
+            onChange={handleFileChange}
+          />
+        </div>
       </Field>
+      {uploadError && (
+        <span className="font-mono text-[10px] text-destructive">{uploadError}</span>
+      )}
       <Field label="Weight">
         <Select
           options={FONT_WEIGHT_OPTIONS}
@@ -207,6 +314,8 @@ export function OptionsBar({ tool }: Props) {
     <div className={optionsBar}>
       {tool === 'pencil' ? (
         <PencilOptions />
+      ) : tool === 'brush' ? (
+        <BrushOptions />
       ) : tool === 'eraser' ? (
         <EraserOptions />
       ) : tool === 'shape' ? (

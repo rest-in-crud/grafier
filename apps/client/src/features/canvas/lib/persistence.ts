@@ -14,6 +14,16 @@ const narrowPencil = (raw: unknown): ToolStyles['pencil'] => {
   return out;
 };
 
+const narrowBrush = (raw: unknown): ToolStyles['brush'] => {
+  if (!isPlainObject(raw)) return undefined;
+  const out: NonNullable<ToolStyles['brush']> = {};
+  if (typeof raw.color === 'string') out.color = raw.color;
+  if (typeof raw.width === 'number') out.width = raw.width;
+  if (typeof raw.opacity === 'number') out.opacity = raw.opacity;
+  if (typeof raw.smoothing === 'number') out.smoothing = raw.smoothing;
+  return out;
+};
+
 const narrowEraser = (raw: unknown): ToolStyles['eraser'] => {
   if (!isPlainObject(raw)) return undefined;
   const out: NonNullable<ToolStyles['eraser']> = {};
@@ -49,10 +59,12 @@ export const loadToolStyles = (): ToolStyles => {
     if (!isPlainObject(parsed)) return {};
     const out: ToolStyles = {};
     const pencil = narrowPencil(parsed.pencil);
+    const brush = narrowBrush(parsed.brush);
     const eraser = narrowEraser(parsed.eraser);
     const text = narrowText(parsed.text);
     const shape = narrowShape(parsed.shape);
     if (pencil) out.pencil = pencil;
+    if (brush) out.brush = brush;
     if (eraser) out.eraser = eraser;
     if (text) out.text = text;
     if (shape) out.shape = shape;

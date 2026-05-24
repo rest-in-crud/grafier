@@ -7,6 +7,7 @@ import { loadToolStyles, saveToolStyles } from '@/features/canvas/lib/persistenc
 
 export type ToolStyles = {
   pencil?: { width?: number; opacity?: number; color?: string };
+  brush?: { color?: string; width?: number; opacity?: number; smoothing?: number };
   eraser?: { size?: number };
   text?: { fontSize?: number; fontFamily?: string; fontWeight?: string; fill?: string };
   shape?: { strokeWidth?: number; fill?: string; stroke?: string; opacity?: number };
@@ -79,10 +80,11 @@ interface CanvasState {
   setCanvasBgColor: (color: string) => void;
 }
 
-const COLORABLE_TOOLS = new Set<ToolId>(['pencil', 'text', 'shape']);
+const COLORABLE_TOOLS = new Set<ToolId>(['pencil', 'brush', 'text', 'shape']);
 
 const TOOL_COLOR_FIELD: Partial<Record<ToolId, string>> = {
   pencil: 'color',
+  brush: 'color',
   text: 'fill',
 } as const;
 

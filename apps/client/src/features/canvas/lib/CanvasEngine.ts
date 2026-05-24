@@ -34,6 +34,7 @@ const OBJECT_TYPE_LABELS: Record<string, string> = {
   triangle: 'Triangle',
   line: 'Line',
   path: 'Pen Stroke',
+  'brush-path': 'Brush Stroke',
   'i-text': 'Text',
   image: 'Image',
 };
@@ -45,6 +46,8 @@ function styleSliceFor(
   switch (toolId) {
     case 'pencil':
       return toolStyles.pencil;
+    case 'brush':
+      return toolStyles.brush;
     case 'eraser':
       return toolStyles.eraser;
     case 'text':
@@ -136,7 +139,9 @@ export class CanvasEngine {
       if (this.isRestoring || obj.data?.id) return;
 
       const id = crypto.randomUUID();
-      const name = this.generateObjectName(obj.type);
+      const typeKey =
+        obj.type === 'path' && this.activeToolId === 'brush' ? 'brush-path' : obj.type;
+      const name = this.generateObjectName(typeKey);
       obj.data = { ...obj.data, id };
 
       const { activeLayerId, addObjectToLayer } = useLayersStore.getState();

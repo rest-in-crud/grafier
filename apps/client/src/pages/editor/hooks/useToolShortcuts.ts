@@ -14,7 +14,6 @@ const SHORTCUT_MAP: Record<string, ToolId> = {
   KeyT: 'text',
   KeyI: 'image',
   KeyH: 'hand',
-  KeyZ: 'zoom',
 };
 
 export function useToolShortcuts() {

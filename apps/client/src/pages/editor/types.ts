@@ -11,5 +11,4 @@ export type ToolId =
   | 'text'
   | 'image'
   | 'dropper'
-  | 'hand'
-  | 'zoom';
+  | 'hand';
