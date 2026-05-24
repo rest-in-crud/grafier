@@ -3,6 +3,8 @@ import { AuthShell } from '@/widgets/auth-shell';
 import { DashboardPage } from '@/pages/dashboard';
 import { EditorPage } from '@/pages/editor';
 import { ProjectsListPage } from '@/pages/projects';
+import { TemplatesPage } from '@/pages/templates';
+import { CommunityPage } from '@/pages/community';
 import { SignInPage } from '@/pages/sign-in';
 import { SignUpPage } from '@/pages/sign-up';
 import { ForgotPage } from '@/pages/forgot';
@@ -21,6 +23,8 @@ const routes: RouteObject[] = [
       { path: '/editor/:id', Component: EditorPage },
       { path: '/editor', element: <Navigate to="/" replace /> },
       { path: '/projects', Component: ProjectsListPage },
+      { path: '/templates', Component: TemplatesPage },
+      { path: '/community', Component: CommunityPage },
     ],
   },
   {
