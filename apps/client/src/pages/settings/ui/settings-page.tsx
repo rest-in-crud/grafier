@@ -8,7 +8,26 @@ import { Input } from '@/shared/ui/input';
 import { PasswordInput } from '@/shared/ui/password-input';
 import { Button } from '@/shared/ui/button';
 import { PasswordStrength } from '@/shared/ui/password-strength';
-import '../settings.css';
+
+/* ── Shared class strings ── */
+const section =
+  'grid grid-cols-[200px_1fr] gap-12 border-t border-hairline py-9 last-of-type:border-b last-of-type:border-hairline max-[720px]:grid-cols-1 max-[720px]:gap-4 max-[720px]:py-7';
+const label =
+  'pt-1 font-mono text-[10px] uppercase tracking-[0.22em] text-fg-dim max-[720px]:pt-0';
+const num = 'mt-1.5 block text-[9px] tracking-[0.1em] text-fg-dimmer';
+const h2 = 'mb-1.5 text-lg font-medium tracking-[-0.005em] text-foreground';
+const desc = 'mb-5 max-w-[44ch] text-[13px] leading-relaxed text-fg-dim';
+const field = 'mb-4';
+const fieldLabel =
+  'mb-1.5 flex items-baseline justify-between font-mono text-[10px] uppercase tracking-[0.18em] text-fg-dim';
+const fieldError =
+  'mt-1 min-h-[14px] font-mono text-[10px] uppercase tracking-[0.08em] text-danger';
+const readout =
+  'flex items-center justify-between break-all border border-dashed border-hairline-strong bg-white/[0.015] px-[14px] py-3 font-mono text-[11px] tracking-[0.08em] text-fg-dim';
+const readoutCopy =
+  'ml-3 shrink-0 cursor-pointer border-none bg-transparent p-0 font-mono text-[9px] uppercase tracking-[0.2em] text-fg-dim transition-colors hover:text-foreground';
+const btnDanger =
+  'inline-flex cursor-pointer items-center gap-2.5 border border-danger bg-transparent px-[22px] py-[11px] font-mono text-[11px] uppercase tracking-[0.2em] text-danger transition-colors hover:bg-danger hover:text-black disabled:cursor-not-allowed disabled:opacity-40 disabled:pointer-events-none';
 
 /* ── Save state ── */
 type SaveState = 'idle' | 'saving' | 'saved' | 'error';
@@ -39,27 +58,33 @@ function useSaveState() {
 function SaveBar({
   state,
   errorMsg,
-  label = 'SAVE CHANGES',
+  label: labelText = 'SAVE CHANGES',
 }: {
   state: SaveState;
   errorMsg: string;
   label?: string;
 }) {
   return (
-    <div className="section-foot">
+    <div className="mt-5 flex items-center gap-3.5">
       <Button type="submit" disabled={state === 'saving'}>
-        {state === 'saving' ? 'SAVING…' : label}
+        {state === 'saving' ? 'SAVING…' : labelText}
       </Button>
       {state === 'saved' && (
-        <span className="s-status s-saved">
-          <span className="s-ok-dot" />
+        <span className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-fg-dim">
+          <span className="h-[5px] w-[5px] shrink-0 rounded-full bg-foreground" />
           SAVED · JUST NOW
         </span>
       )}
       {state === 'error' && (
-        <span className="s-status s-error">· {errorMsg || 'COULD NOT SAVE'}</span>
+        <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-danger">
+          · {errorMsg || 'COULD NOT SAVE'}
+        </span>
       )}
-      {state === 'idle' && <span className="s-status">· UNSAVED CHANGES WILL BE LOST</span>}
+      {state === 'idle' && (
+        <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-fg-dimmer">
+          · UNSAVED CHANGES WILL BE LOST
+        </span>
+      )}
     </div>
   );
 }
@@ -81,24 +106,24 @@ function ProfileSection({ userId, initialName }: { userId: string; initialName: 
   };
 
   return (
-    <section className="settings-section">
-      <div className="s-label">
+    <section className={section}>
+      <div className={label}>
         · PROFILE
-        <span className="s-num">01 / 04</span>
+        <span className={num}>01 / 03</span>
       </div>
-      <div className="settings-body-col">
-        <h2>Display name</h2>
-        <p className="s-desc">How you appear to collaborators and on shared work.</p>
+      <div>
+        <h2 className={h2}>Display name</h2>
+        <p className={desc}>How you appear to collaborators and on shared work.</p>
         <form onSubmit={onSubmit}>
-          <div className="s-field">
-            <div className="s-field-label">DISPLAY NAME</div>
+          <div className={field}>
+            <div className={fieldLabel}>DISPLAY NAME</div>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Your name"
               aria-invalid={!!error}
             />
-            {error && <div className="s-field-error">{error}</div>}
+            {error && <div className={fieldError}>{error}</div>}
           </div>
           <SaveBar state={state} errorMsg={errorMsg} />
         </form>
@@ -119,19 +144,17 @@ function EmailSection({ email }: { email: string }) {
   };
 
   return (
-    <section className="settings-section">
-      <div className="s-label">
+    <section className={section}>
+      <div className={label}>
         · EMAIL
-        <span className="s-num">02 / 04</span>
+        <span className={num}>02 / 03</span>
       </div>
-      <div className="settings-body-col">
-        <h2>Email address</h2>
-        <p className="s-desc">
-          Used for sign-in and account recovery. Email changes are not yet supported.
-        </p>
-        <div className="s-readout">
+      <div>
+        <h2 className={h2}>Email address</h2>
+        <p className={desc}>Used for sign-in and account recovery. Email changes are not yet supported.</p>
+        <div className={readout}>
           <span>{email}</span>
-          <button type="button" className="s-readout-copy" onClick={copy}>
+          <button type="button" className={readoutCopy} onClick={copy}>
             {copied ? 'COPIED' : 'COPY'}
           </button>
         </div>
@@ -166,32 +189,34 @@ function PasswordSection({ userId }: { userId: string }) {
   };
 
   return (
-    <section className="settings-section">
-      <div className="s-label">
+    <section className={section}>
+      <div className={label}>
         · PASSWORD
-        <span className="s-num">03 / 03</span>
+        <span className={num}>03 / 03</span>
       </div>
-      <div className="settings-body-col">
-        <h2>Password</h2>
-        <p className="s-desc">
+      <div>
+        <h2 className={h2}>Password</h2>
+        <p className={desc}>
           Choose something memorable but not obvious. We'll sign you out of other devices after a
           successful change.
         </p>
         <form onSubmit={onSubmit}>
-          <div className="s-field">
-            <div className="s-field-label">CURRENT PASSWORD</div>
+          <div className={field}>
+            <div className={fieldLabel}>CURRENT PASSWORD</div>
             <PasswordInput
               value={current}
               onChange={(e) => setCurrent(e.target.value)}
               placeholder="••••••••••••"
               aria-invalid={!!errors.current}
             />
-            {errors.current && <div className="s-field-error">{errors.current}</div>}
+            {errors.current && <div className={fieldError}>{errors.current}</div>}
           </div>
-          <div className="s-field">
-            <div className="s-field-label">
+          <div className={field}>
+            <div className={fieldLabel}>
               NEW PASSWORD
-              <span className="s-hint">6+ CHARACTERS</span>
+              <span className="text-[9px] normal-case tracking-[0.05em] text-fg-dimmer">
+                6+ CHARACTERS
+              </span>
             </div>
             <PasswordInput
               value={next}
@@ -200,17 +225,17 @@ function PasswordSection({ userId }: { userId: string }) {
               aria-invalid={!!errors.next}
             />
             <PasswordStrength value={next} />
-            {errors.next && <div className="s-field-error">{errors.next}</div>}
+            {errors.next && <div className={fieldError}>{errors.next}</div>}
           </div>
-          <div className="s-field">
-            <div className="s-field-label">CONFIRM NEW PASSWORD</div>
+          <div className={field}>
+            <div className={fieldLabel}>CONFIRM NEW PASSWORD</div>
             <PasswordInput
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
               placeholder="••••••••••••"
               aria-invalid={!!errors.confirm}
             />
-            {errors.confirm && <div className="s-field-error">{errors.confirm}</div>}
+            {errors.confirm && <div className={fieldError}>{errors.confirm}</div>}
           </div>
           <SaveBar state={state} errorMsg={errorMsg} label="UPDATE PASSWORD" />
         </form>
@@ -222,12 +247,12 @@ function PasswordSection({ userId }: { userId: string }) {
 /* ── OAuth password note ── */
 function OAuthPasswordNote({ provider }: { provider: string }) {
   return (
-    <section className="settings-section">
-      <div className="s-label">· PASSWORD</div>
-      <div className="settings-body-col">
-        <h2>Password</h2>
-        <p className="s-desc">Password management is handled by your sign-in provider.</p>
-        <div className="s-oauth-note">
+    <section className={section}>
+      <div className={label}>· PASSWORD</div>
+      <div>
+        <h2 className={h2}>Password</h2>
+        <p className={desc}>Password management is handled by your sign-in provider.</p>
+        <div className="border border-hairline bg-white/[0.01] px-[14px] py-3 font-mono text-[10px] uppercase tracking-[0.14em] text-fg-dimmer">
           SIGNED IN VIA {provider.toUpperCase()} · PASSWORD NOT MANAGED HERE
         </div>
       </div>
@@ -238,14 +263,14 @@ function OAuthPasswordNote({ provider }: { provider: string }) {
 /* ── Danger section ── */
 function DangerSection({ onDelete }: { onDelete: () => void }) {
   return (
-    <section className="settings-section danger-zone">
-      <div className="s-label">· DANGER</div>
-      <div className="settings-body-col">
-        <h2>Delete account</h2>
-        <p className="s-desc">
+    <section className={section}>
+      <div className={label}>· DANGER</div>
+      <div>
+        <h2 className={`${h2} text-danger`}>Delete account</h2>
+        <p className={desc}>
           Permanently remove your account and all associated projects. This action is irreversible.
         </p>
-        <button type="button" className="btn-danger" onClick={onDelete}>
+        <button type="button" className={btnDanger} onClick={onDelete}>
           DELETE ACCOUNT
         </button>
       </div>
@@ -259,16 +284,27 @@ function DeleteModal({ onClose, onConfirm }: { onClose: () => void; onConfirm: (
   const ready = phrase.trim().toUpperCase() === 'DELETE MY ACCOUNT';
 
   return (
-    <div className="modal-back" onClick={onClose}>
-      <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-        <button type="button" className="modal-close" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 p-6 backdrop-blur-[4px]"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-[460px] border border-hairline-strong bg-[rgba(10,10,10,0.97)] p-8"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          type="button"
+          className="absolute right-3.5 top-3.5 flex h-[26px] w-[26px] cursor-pointer items-center justify-center border border-hairline-strong bg-transparent font-mono text-sm text-fg-dim transition-colors hover:border-foreground hover:text-foreground"
+          onClick={onClose}
+        >
           ×
         </button>
-        <h2>Are you sure?</h2>
-        <p>
+        <h2 className="mb-2.5 text-[22px] font-medium tracking-[-0.015em] text-danger">
+          Are you sure?
+        </h2>
+        <p className="mb-[22px] text-[13px] leading-[1.55] text-fg-dim">
           This permanently deletes your account, projects and shared work. Type{' '}
-          <span style={{ color: 'var(--fg)', fontFamily: 'var(--mono)' }}>DELETE MY ACCOUNT</span>{' '}
-          below to confirm.
+          <span className="font-mono text-foreground">DELETE MY ACCOUNT</span> below to confirm.
         </p>
         <Input
           value={phrase}
@@ -277,18 +313,15 @@ function DeleteModal({ onClose, onConfirm }: { onClose: () => void; onConfirm: (
           autoFocus
           spellCheck={false}
         />
-        <div className="modal-btn-row">
+        <div className="mt-[22px] flex gap-2.5 [&>*]:flex-1">
           <Button type="button" variant="ghost" onClick={onClose}>
             CANCEL
           </Button>
           <button
             type="button"
-            className="btn-danger"
-            style={{ justifyContent: 'center' }}
+            className={`${btnDanger} justify-center`}
             disabled={!ready}
-            onClick={() => {
-              if (ready) onConfirm();
-            }}
+            onClick={() => { if (ready) onConfirm(); }}
           >
             DELETE PERMANENTLY
           </button>
@@ -312,25 +345,29 @@ function SettingsPage() {
 
   if (isPending) {
     return (
-      <div className="flex min-h-dvh items-center justify-center bg-background text-fg-dim font-mono text-xs uppercase tracking-widest">
+      <div className="flex min-h-dvh items-center justify-center bg-background font-mono text-xs uppercase tracking-widest text-fg-dim">
         Loading…
       </div>
     );
   }
 
-  if (!user) {
-    return null;
-  }
+  if (!user) return null;
 
   return (
     <div className="min-h-dvh bg-background text-foreground">
       <ScreenBackground />
       <TopBar />
 
-      <main className="settings-stage" data-screen-label="settings / account">
-        <Link to="/" className="settings-back">
+      <main
+        className="relative z-10 mx-auto max-w-[720px] px-10 pb-24 pt-14 max-[720px]:px-6 max-[720px]:pb-20 max-[720px]:pt-10"
+        data-screen-label="settings / account"
+      >
+        <Link
+          to="/"
+          className="group mb-7 inline-flex items-center gap-2.5 font-mono text-[10px] uppercase tracking-[0.18em] text-fg-dim no-underline transition-colors hover:text-foreground"
+        >
           <svg
-            className="settings-back-arr"
+            className="transition-transform duration-150 group-hover:-translate-x-[3px]"
             width="10"
             height="10"
             viewBox="0 0 10 10"
@@ -343,9 +380,13 @@ function SettingsPage() {
           Back to Dashboard
         </Link>
 
-        <header className="settings-header">
-          <h1>Settings.</h1>
-          <div className="settings-sub">Account · Email · Password</div>
+        <header className="mb-14">
+          <h1 className="mb-3 font-sans text-[40px] font-medium leading-none tracking-[-0.025em] text-foreground max-[720px]:text-[30px]">
+            Settings.
+          </h1>
+          <div className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-dim">
+            Account · Email · Password
+          </div>
         </header>
 
         <ProfileSection userId={user.id} initialName={user.name} />

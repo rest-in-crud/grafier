@@ -119,6 +119,7 @@
   --color-chrome: var(--bg-chrome);
   --color-fg-dim: var(--fg-dim);
   --color-fg-dimmer: var(--fg-dimmer);
+  --color-danger: var(--danger);
   --color-field: var(--field-bg);
   --color-field-hover: var(--field-bg-hover);
   --color-field-focus: var(--field-bg-focus);
