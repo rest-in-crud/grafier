@@ -54,7 +54,7 @@ const api = {
     return projectDetailSchema.parse(data);
   },
   saveCanvas: async (id: string, body: SaveCanvasRequest): Promise<ProjectDetail> => {
-    const data = await apiClient.put(`/designs/${id}/canvas`, body);
+    const data = await apiClient.post(`/designs/${id}/canvas`, body);
     return projectDetailSchema.parse(data);
   },
   forkAsProject: async (id: string): Promise<ProjectDetail> => {
