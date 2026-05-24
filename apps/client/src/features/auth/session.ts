@@ -60,6 +60,19 @@ const performConfirmEmail = async (token: string): Promise<void> => {
   await api.confirmEmail(token);
 };
 
+const performUpdateUser = async (
+  id: string,
+  body: { name?: string; password?: string },
+): Promise<void> => {
+  await api.updateUser(id, body);
+  await queryClient.invalidateQueries({ queryKey: userQueryKey });
+};
+
+const performDeleteAccount = async (id: string): Promise<void> => {
+  await api.deleteUser(id);
+  performLogout();
+};
+
 export {
   performSignIn,
   performSignUp,
@@ -70,4 +83,6 @@ export {
   performResetPassword,
   performResendVerification,
   performConfirmEmail,
+  performUpdateUser,
+  performDeleteAccount,
 };

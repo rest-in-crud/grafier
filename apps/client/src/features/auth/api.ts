@@ -65,6 +65,12 @@ const api = {
       skipAuthRefresh: true,
     });
   },
+  updateUser: async (id: string, body: { name?: string; password?: string }): Promise<void> => {
+    await apiClient.patch(`/users/${id}`, body);
+  },
+  deleteUser: async (id: string): Promise<void> => {
+    await apiClient.delete(`/users/${id}`);
+  },
 };
 
 export { api };

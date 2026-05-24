@@ -83,6 +83,8 @@ const createApiClient = (options: CreateApiClientOptions) => {
       request('PUT', path, body, requestOptions),
     patch: (path: string, body?: unknown, requestOptions?: RequestOptions) =>
       request('PATCH', path, body, requestOptions),
+    delete: (path: string, requestOptions?: RequestOptions) =>
+      request('DELETE', path, undefined, requestOptions),
   };
 };
 
