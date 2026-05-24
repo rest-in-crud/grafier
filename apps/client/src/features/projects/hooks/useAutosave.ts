@@ -3,6 +3,7 @@ import type { RefObject } from 'react';
 import { useHistoryStore } from '@/features/canvas/store/history.store';
 import { useLayersStore } from '@/features/layers/store/layers.store';
 import { useSaveStatusStore } from '@/features/projects/store/save-status.store';
+import { useReadOnlyStore } from '@/features/projects/store/read-only.store';
 import { useSaveCanvas } from '@/features/projects/queries';
 import { HttpError } from '@/shared/lib/api-client';
 import { saveCanvasRequestSchema } from '@/features/projects/schema';
@@ -21,10 +22,12 @@ const useAutosave = (projectId: string, engineRef: RefObject<CanvasEngine | null
 
   useEffect(() => {
     const unsubHistory = useHistoryStore.subscribe((s, prev) => {
+      if (useReadOnlyStore.getState().isReadOnly) return;
       if (engineRef.current?.isRestoring) return;
       if (s.past !== prev.past) markDirty();
     });
     const unsubLayers = useLayersStore.subscribe((s, prev) => {
+      if (useReadOnlyStore.getState().isReadOnly) return;
       if (engineRef.current?.isRestoring) return;
       if (s.layers !== prev.layers) markDirty();
     });
