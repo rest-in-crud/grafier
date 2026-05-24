@@ -3,7 +3,7 @@ import { z } from 'zod';
 const projectSummarySchema = z.object({
   id: z.string().uuid(),
   userID: z.string().uuid(),
-  userName: z.string(),
+  userName: z.string().optional(),
   name: z.string(),
   width: z.number().int().positive(),
   height: z.number().int().positive(),
