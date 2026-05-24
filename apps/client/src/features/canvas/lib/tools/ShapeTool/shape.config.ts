@@ -187,7 +187,12 @@ export function createShapeObject(
     }
     case 'diamond': {
       return new Polygon(
-        [{ x: 0, y: -50 }, { x: 50, y: 0 }, { x: 0, y: 50 }, { x: -50, y: 0 }],
+        [
+          { x: 0, y: -50 },
+          { x: 50, y: 0 },
+          { x: 0, y: 50 },
+          { x: -50, y: 0 },
+        ],
         closedOptions(point, style),
       );
     }
@@ -198,7 +203,10 @@ export function createShapeObject(
       return new Polygon(regularPolygon(6, 50), closedOptions(point, style));
     }
     case 'star': {
-      return new Path(buildStarPath(50, 20), { ...closedOptions(point, style), strokeLineJoin: 'miter' as const });
+      return new Path(buildStarPath(50, 20), {
+        ...closedOptions(point, style),
+        strokeLineJoin: 'miter' as const,
+      });
     }
     case 'line': {
       if (!('length' in dims)) throw new Error(`expected length dims for line`);
@@ -333,7 +341,12 @@ export const applyDimensions = (
   } else if (SCALE_SHAPES.has(type)) {
     const baseW = shape.width || POLYGON_BASE_SIZE;
     const baseH = shape.height || POLYGON_BASE_SIZE;
-    shape.set({ left: origin.x, top: origin.y, scaleX: dims.width / baseW, scaleY: dims.height / baseH });
+    shape.set({
+      left: origin.x,
+      top: origin.y,
+      scaleX: dims.width / baseW,
+      scaleY: dims.height / baseH,
+    });
   } else {
     shape.set({ left: origin.x, top: origin.y, width: dims.width, height: dims.height });
   }

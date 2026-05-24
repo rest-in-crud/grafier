@@ -130,8 +130,7 @@ export const useCanvasStore = create<CanvasState>((set) => ({
   setEyedropperColor: (color) => set({ eyedropperColor: color }),
   lastShapeColorTarget: 'fill',
   toast: null,
-  showToast: (message) =>
-    set((state) => ({ toast: { message, id: (state.toast?.id ?? 0) + 1 } })),
+  showToast: (message) => set((state) => ({ toast: { message, id: (state.toast?.id ?? 0) + 1 } })),
   hideToast: () => set({ toast: null }),
   selection: { ids: [], primary: null },
   setSelection: (selection) => set({ selection }),

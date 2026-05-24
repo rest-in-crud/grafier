@@ -19,7 +19,14 @@ const optSelect = [
   'focus:outline-none focus:border-foreground',
 ].join(' ');
 
-export function Select({ options, groups, value, defaultValue, onChange, className }: EditorSelectProps) {
+export function Select({
+  options,
+  groups,
+  value,
+  defaultValue,
+  onChange,
+  className,
+}: EditorSelectProps) {
   const controlled = value !== undefined;
 
   return (
@@ -37,9 +44,7 @@ export function Select({ options, groups, value, defaultValue, onChange, classNa
               ))}
             </optgroup>
           ))
-        : (options ?? []).map((opt) => (
-            <option key={opt}>{opt}</option>
-          ))}
+        : (options ?? []).map((opt) => <option key={opt}>{opt}</option>)}
     </select>
   );
 }

@@ -22,7 +22,16 @@ import { TEXT_DEFAULT_STYLES } from '@/features/canvas/lib/tools/TextTool/TextTo
 import { ERASER_DEFAULT_STYLES } from '@/features/canvas/lib/tools/EraserTool/EraserTool';
 import type { ToolId } from '../types';
 import { IUpload } from '../icons';
-import { ColorField, Field, IconButton, Label, Select, Separator, Slider, TogglePill } from './primitives';
+import {
+  ColorField,
+  Field,
+  IconButton,
+  Label,
+  Select,
+  Separator,
+  Slider,
+  TogglePill,
+} from './primitives';
 import type { ToggleOption } from './primitives';
 
 type Props = { tool: ToolId };
@@ -229,7 +238,10 @@ function TextOptions() {
             value={fontFamily}
             onChange={(v) => setToolStyle('text', { fontFamily: v })}
           />
-          <IconButton title="Upload font (TTF / OTF, max 5 MB)" onClick={() => fileInputRef.current?.click()}>
+          <IconButton
+            title="Upload font (TTF / OTF, max 5 MB)"
+            onClick={() => fileInputRef.current?.click()}
+          >
             <IUpload />
           </IconButton>
           <input
@@ -241,9 +253,7 @@ function TextOptions() {
           />
         </div>
       </Field>
-      {uploadError && (
-        <span className="font-mono text-[10px] text-destructive">{uploadError}</span>
-      )}
+      {uploadError && <span className="font-mono text-[10px] text-destructive">{uploadError}</span>}
       <Field label="Weight">
         <Select
           options={FONT_WEIGHT_OPTIONS}
@@ -289,7 +299,9 @@ function EyedropperOptions() {
               className="size-3.5 shrink-0 border border-hairline-strong"
               style={{ backgroundColor: eyedropperColor }}
             />
-            <span className="font-mono text-[10px] text-fg-dim">{eyedropperColor.toUpperCase()}</span>
+            <span className="font-mono text-[10px] text-fg-dim">
+              {eyedropperColor.toUpperCase()}
+            </span>
           </div>
         </Field>
       ) : (

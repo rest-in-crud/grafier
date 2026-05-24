@@ -10,13 +10,7 @@ const MAX_ZOOM = 400;
 const ZOOM_STEP = 1.1;
 const CLAMP_MARGIN = 100;
 
-function clampVT(
-  vt: TMat2D,
-  docW: number,
-  docH: number,
-  vpW: number,
-  vpH: number,
-): TMat2D {
+function clampVT(vt: TMat2D, docW: number, docH: number, vpW: number, vpH: number): TMat2D {
   const scale = vt[0];
   const next: TMat2D = [...vt];
   next[4] = Math.min(vpW - CLAMP_MARGIN, Math.max(CLAMP_MARGIN - docW * scale, vt[4]));
@@ -154,7 +148,8 @@ export function useViewport(
       isPanning.current = false;
       panStart.current = null;
       const canvas = getCanvas();
-      if (canvas) canvas.defaultCursor = (isSpacePressed.current || isHandTool()) ? 'grab' : 'default';
+      if (canvas)
+        canvas.defaultCursor = isSpacePressed.current || isHandTool() ? 'grab' : 'default';
     };
 
     const handleBlur = () => {

@@ -7,7 +7,12 @@ function sampleHex(canvas: Canvas, viewportX: number, viewportY: number): string
   const dpr = canvas.getRetinaScaling();
   const ctx = canvas.lowerCanvasEl.getContext('2d');
   if (!ctx) return '#000000';
-  const data = ctx.getImageData(Math.round(viewportX * dpr), Math.round(viewportY * dpr), 1, 1).data;
+  const data = ctx.getImageData(
+    Math.round(viewportX * dpr),
+    Math.round(viewportY * dpr),
+    1,
+    1,
+  ).data;
   const r = data[0] ?? 0;
   const g = data[1] ?? 0;
   const b = data[2] ?? 0;
