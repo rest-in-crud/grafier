@@ -3,6 +3,7 @@ import type { MouseEvent } from 'react';
 import { Link } from 'react-router';
 import { Menubar } from './menubar';
 import { PublishPopover } from './publish-popover';
+import { ReadOnlyAuthorLabel, ReadOnlyActions } from './read-only-banner';
 import { IconButton } from './primitives';
 import { IUndo, IRedo, ISettings, IExport } from '../icons';
 import { useHistoryStore } from '@/features/canvas/store/history.store';
@@ -62,6 +63,12 @@ function Topbar({
                 Public
               </span>
             ) : null}
+            {designId ? (
+              <>
+                <span>·</span>
+                <ReadOnlyAuthorLabel designId={designId} />
+              </>
+            ) : null}
             <span>·</span>
             <span className="text-fg-dimmer">{`${width} × ${height} PX · RGB / 8`}</span>
           </>
@@ -96,6 +103,8 @@ function Topbar({
             Export
           </span>
         </span>
+
+        {designId ? <ReadOnlyActions designId={designId} /> : null}
 
         {isOwner && designId ? <PublishPopover designId={designId} /> : null}
 
