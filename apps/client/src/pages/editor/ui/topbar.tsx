@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { MouseEvent } from 'react';
 import { Link } from 'react-router';
 import { Menubar } from './menubar';
+import { PublishPopover } from './publish-popover';
 import { IconButton } from './primitives';
 import { IUndo, IRedo, ISettings, IExport } from '../icons';
 import { useHistoryStore } from '@/features/canvas/store/history.store';
@@ -15,9 +16,21 @@ export type TopbarProps = {
   projectName?: string;
   width?: number;
   height?: number;
+  designId?: string;
+  isPublic?: boolean;
+  isOwner?: boolean;
 };
 
-function Topbar({ avatarInitial, onLogout, projectName, width, height }: TopbarProps) {
+function Topbar({
+  avatarInitial,
+  onLogout,
+  projectName,
+  width,
+  height,
+  designId,
+  isPublic,
+  isOwner,
+}: TopbarProps) {
   const [tooltip, setTooltip] = useState<TooltipState>(null);
   const undo = useHistoryStore((s) => s.undo);
   const redo = useHistoryStore((s) => s.redo);
@@ -44,6 +57,11 @@ function Topbar({ avatarInitial, onLogout, projectName, width, height }: TopbarP
             <span className="max-w-[40ch] truncate text-foreground" title={projectName}>
               {projectName}
             </span>
+            {isPublic ? (
+              <span className="border border-hairline-strong px-1.5 py-0.5 text-[9px] tracking-[0.16em] text-foreground">
+                Public
+              </span>
+            ) : null}
             <span>·</span>
             <span className="text-fg-dimmer">{`${width} × ${height} PX · RGB / 8`}</span>
           </>
@@ -78,6 +96,8 @@ function Topbar({ avatarInitial, onLogout, projectName, width, height }: TopbarP
             Export
           </span>
         </span>
+
+        {isOwner && designId ? <PublishPopover designId={designId} /> : null}
 
         <button
           type="button"

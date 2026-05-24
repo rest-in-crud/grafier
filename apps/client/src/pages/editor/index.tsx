@@ -170,6 +170,9 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
               projectName={project.name}
               width={project.width}
               height={project.height}
+              designId={id}
+              isPublic={project.isPublic}
+              isOwner={user?.id === project.userID}
             />
           </div>
           <ReadOnlyBanner designId={id} />
