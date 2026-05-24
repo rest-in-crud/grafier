@@ -356,4 +356,17 @@ export class CanvasEngine {
     this.canvas.setDimensions({ width, height });
     this.canvas.requestRenderAll();
   }
+
+  public setReadOnly(readOnly: boolean): void {
+    this.canvas.selection = !readOnly;
+    this.canvas.skipTargetFind = readOnly;
+    for (const obj of this.canvas.getObjects()) {
+      obj.selectable = !readOnly;
+      obj.evented = !readOnly;
+    }
+    if (readOnly) {
+      this.canvas.isDrawingMode = false;
+    }
+    this.canvas.requestRenderAll();
+  }
 }

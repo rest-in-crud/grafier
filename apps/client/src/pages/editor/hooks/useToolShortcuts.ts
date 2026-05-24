@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import type { ToolId } from '../types';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
+import { useReadOnlyStore } from '@/features/projects/store/read-only.store';
 
 const SHORTCUT_MAP: Record<string, ToolId> = {
   KeyV: 'move',
@@ -19,6 +20,7 @@ const SHORTCUT_MAP: Record<string, ToolId> = {
 export function useToolShortcuts() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (useReadOnlyStore.getState().isReadOnly) return;
       if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
       const tag = (document.activeElement?.tagName ?? '').toLowerCase();
       if (tag === 'input' || tag === 'textarea') return;

@@ -1,8 +1,9 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import type { RefObject } from 'react';
 import { useHistoryStore } from '@/features/canvas/store/history.store';
 import { useLayersStore } from '@/features/layers/store/layers.store';
 import { useSaveStatusStore } from '@/features/projects/store/save-status.store';
+import { useReadOnlyStore } from '@/features/projects/store/read-only.store';
 import { useSaveCanvas } from '@/features/projects/queries';
 import { HttpError } from '@/shared/lib/api-client';
 import { saveCanvasRequestSchema } from '@/features/projects/schema';
@@ -17,14 +18,42 @@ const useAutosave = (projectId: string, engineRef: RefObject<CanvasEngine | null
   const markIdle = useSaveStatusStore((s) => s.markIdle);
   const markError = useSaveStatusStore((s) => s.markError);
   const markFatal = useSaveStatusStore((s) => s.markFatal);
+  const setPendingFlush = useSaveStatusStore((s) => s.setPendingFlush);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const doSave = useCallback(async () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    const engine = engineRef.current;
+    if (!engine) return;
+    markSaving();
+    const canvasJSON = saveCanvasRequestSchema.shape.canvasJSON.parse(engine.fabricCanvas.toJSON());
+    const layersJSON = useLayersStore.getState().layers;
+    try {
+      await saveMutation.mutateAsync({ canvasJSON, layersJSON });
+      if (useSaveStatusStore.getState().projectId !== projectId) return;
+      markIdle();
+    } catch (err) {
+      if (useSaveStatusStore.getState().projectId !== projectId) return;
+      if (err instanceof HttpError) {
+        if (err.status === 404) return markFatal('not-found');
+        if (err.status === 403) return markFatal('forbidden');
+        return markError(err);
+      }
+      markError(new HttpError(0, null));
+    }
+  }, [engineRef, markSaving, markIdle, markError, markFatal, saveMutation, projectId]);
 
   useEffect(() => {
     const unsubHistory = useHistoryStore.subscribe((s, prev) => {
+      if (useReadOnlyStore.getState().isReadOnly) return;
       if (engineRef.current?.isRestoring) return;
       if (s.past !== prev.past) markDirty();
     });
     const unsubLayers = useLayersStore.subscribe((s, prev) => {
+      if (useReadOnlyStore.getState().isReadOnly) return;
       if (engineRef.current?.isRestoring) return;
       if (s.layers !== prev.layers) markDirty();
     });
@@ -39,34 +68,20 @@ const useAutosave = (projectId: string, engineRef: RefObject<CanvasEngine | null
       if (s.status.tag !== 'dirty') return;
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => {
-        const engine = engineRef.current;
-        if (!engine) return;
-        markSaving();
-        const canvasJSON = saveCanvasRequestSchema.shape.canvasJSON.parse(
-          engine.fabricCanvas.toJSON(),
-        );
-        const layersJSON = useLayersStore.getState().layers;
-        saveMutation.mutate(
-          { canvasJSON, layersJSON },
-          {
-            onSuccess: () => {
-              if (useSaveStatusStore.getState().projectId !== projectId) return;
-              markIdle();
-            },
-            onError: (err) => {
-              if (useSaveStatusStore.getState().projectId !== projectId) return;
-              if (err instanceof HttpError) {
-                if (err.status === 404) return markFatal('not-found');
-                if (err.status === 403) return markFatal('forbidden');
-                return markError(err);
-              }
-              return markError(new HttpError(0, null));
-            },
-          },
-        );
+        void doSave();
       }, DEBOUNCE_MS);
     });
-  }, [engineRef, markSaving, markIdle, markError, markFatal, saveMutation, projectId]);
+  }, [doSave]);
+
+  useEffect(() => {
+    const flush = async () => {
+      const tag = useSaveStatusStore.getState().status.tag;
+      if (tag === 'idle' || tag === 'fatal') return;
+      await doSave();
+    };
+    setPendingFlush(flush);
+    return () => setPendingFlush(null);
+  }, [doSave, setPendingFlush]);
 
   useEffect(() => {
     return () => {

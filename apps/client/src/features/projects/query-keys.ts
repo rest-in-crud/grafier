@@ -1,7 +1,10 @@
-const projectsKeys = {
-  all: ['projects'] as const,
-  list: () => [...projectsKeys.all, 'list'] as const,
-  detail: (id: string) => [...projectsKeys.all, 'detail', id] as const,
+const designsKeys = {
+  all: ['designs'] as const,
+  myProjects: () => [...designsKeys.all, 'mine', 'projects'] as const,
+  myTemplates: () => [...designsKeys.all, 'mine', 'templates'] as const,
+  publicTemplates: () => [...designsKeys.all, 'templates'] as const,
+  community: () => [...designsKeys.all, 'community'] as const,
+  detail: (id: string) => [...designsKeys.all, 'detail', id] as const,
 };
 
-export { projectsKeys };
+export { designsKeys };

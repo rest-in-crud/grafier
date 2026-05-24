@@ -5,6 +5,7 @@ import type { CanvasEngine } from '@/features/canvas/lib/CanvasEngine';
 import { removeFromLayer } from '@/features/canvas/lib/removeFromLayer';
 import { useLayersStore } from '@/features/layers/store/layers.store';
 import { useHistoryStore, HistorySnapshot } from '@/features/canvas/store/history.store';
+import { useReadOnlyStore } from '@/features/projects/store/read-only.store';
 
 export const useHistory = (engineRef: RefObject<CanvasEngine | null>, baselineKey = 0) => {
   const lastKnownSnapshot = useRef<HistorySnapshot | null>(null);
@@ -139,6 +140,7 @@ export const useHistory = (engineRef: RefObject<CanvasEngine | null>, baselineKe
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (useReadOnlyStore.getState().isReadOnly) return;
       if (e.code === 'Delete' || e.code === 'Backspace') {
         if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
         const tag = (document.activeElement?.tagName ?? '').toLowerCase();

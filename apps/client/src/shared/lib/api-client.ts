@@ -81,6 +81,8 @@ const createApiClient = (options: CreateApiClientOptions) => {
       request('POST', path, body, requestOptions),
     put: (path: string, body?: unknown, requestOptions?: RequestOptions) =>
       request('PUT', path, body, requestOptions),
+    patch: (path: string, body?: unknown, requestOptions?: RequestOptions) =>
+      request('PATCH', path, body, requestOptions),
   };
 };
 

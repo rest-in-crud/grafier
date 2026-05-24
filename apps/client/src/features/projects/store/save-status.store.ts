@@ -8,9 +8,12 @@ type SaveStatus =
   | { tag: 'error'; attempt: number; lastError: HttpError }
   | { tag: 'fatal'; reason: 'not-found' | 'forbidden' };
 
+type FlushFn = () => Promise<void>;
+
 type SaveStatusState = {
   projectId: string | null;
   status: SaveStatus;
+  pendingFlush: FlushFn | null;
 };
 
 type SaveStatusActions = {
@@ -21,14 +24,16 @@ type SaveStatusActions = {
   markIdle: () => void;
   markError: (error: HttpError) => void;
   markFatal: (reason: 'not-found' | 'forbidden') => void;
+  setPendingFlush: (fn: FlushFn | null) => void;
 };
 
 const useSaveStatusStore = create<SaveStatusState & SaveStatusActions>((set, get) => ({
   projectId: null,
   status: { tag: 'idle' },
+  pendingFlush: null,
 
-  bindProject: (projectId) => set({ projectId, status: { tag: 'idle' } }),
-  unbindProject: () => set({ projectId: null, status: { tag: 'idle' } }),
+  bindProject: (projectId) => set({ projectId, status: { tag: 'idle' }, pendingFlush: null }),
+  unbindProject: () => set({ projectId: null, status: { tag: 'idle' }, pendingFlush: null }),
   markDirty: () => {
     const s = get().status;
     if (s.tag === 'fatal') return;
@@ -42,6 +47,7 @@ const useSaveStatusStore = create<SaveStatusState & SaveStatusActions>((set, get
     set({ status: { tag: 'error', attempt, lastError: error } });
   },
   markFatal: (reason) => set({ status: { tag: 'fatal', reason } }),
+  setPendingFlush: (fn) => set({ pendingFlush: fn }),
 }));
 
 export { useSaveStatusStore };

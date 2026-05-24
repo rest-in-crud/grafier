@@ -10,6 +10,7 @@ import { useUser } from '@/features/auth/queries';
 import { performLogout } from '@/features/auth/session';
 import { useProject } from '@/features/projects/queries';
 import { useSaveStatusStore } from '@/features/projects/store/save-status.store';
+import { useReadOnlyStore } from '@/features/projects/store/read-only.store';
 import { useAutosave } from '@/features/projects/hooks/useAutosave';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import { CanvasArea } from '@/features/canvas/components/CanvasArea';
@@ -52,6 +53,9 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
 
   const bindProject = useSaveStatusStore((s) => s.bindProject);
   const unbindProject = useSaveStatusStore((s) => s.unbindProject);
+  const setReadOnlyOnce = useReadOnlyStore((s) => s.setReadOnlyOnce);
+  const resetReadOnly = useReadOnlyStore((s) => s.reset);
+  const isReadOnly = useReadOnlyStore((s) => s.isReadOnly);
 
   useEffect(() => {
     bindProject(id);
@@ -59,7 +63,20 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
   }, [id, bindProject, unbindProject]);
 
   useEffect(() => {
+    if (!project || !user) return;
+    if (project.type === 'template') {
+      setReadOnlyOnce({ isReadOnly: true, source: 'template' });
+    } else if (project.userID !== user.id) {
+      setReadOnlyOnce({ isReadOnly: true, source: 'non-owner-project' });
+    } else {
+      setReadOnlyOnce({ isReadOnly: false });
+    }
+    return () => resetReadOnly();
+  }, [project, user, setReadOnlyOnce, resetReadOnly]);
+
+  useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
+      if (useReadOnlyStore.getState().isReadOnly) return;
       const tag = useSaveStatusStore.getState().status.tag;
       if (tag === 'dirty' || tag === 'saving' || tag === 'error') {
         e.preventDefault();
@@ -153,11 +170,22 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
               projectName={project.name}
               width={project.width}
               height={project.height}
+              designId={id}
+              isPublic={project.isPublic}
+              isOwner={user?.id === project.userID}
             />
           </div>
-          <OptionsBar tool={tool} />
+          <div
+            className={isReadOnly ? 'pointer-events-none opacity-40' : ''}
+            {...(isReadOnly ? { inert: true } : {})}
+          >
+            <OptionsBar tool={tool} />
+          </div>
           <div className="flex min-h-0 flex-1">
-            <div className="w-14 shrink-0">
+            <div
+              className={`w-14 shrink-0 ${isReadOnly ? 'pointer-events-none opacity-40' : ''}`}
+              {...(isReadOnly ? { inert: true } : {})}
+            >
               <ToolRail active={tool} setActive={setTool} />
             </div>
             <div className="min-w-0 flex-1">
@@ -170,7 +198,12 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
                 />
               </CanvasStage>
             </div>
-            <RightRail width={railWidth} onResize={setRailWidth} />
+            <div
+              className={isReadOnly ? 'pointer-events-none opacity-40' : ''}
+              {...(isReadOnly ? { inert: true } : {})}
+            >
+              <RightRail width={railWidth} onResize={setRailWidth} />
+            </div>
           </div>
           <div className="h-6.5 shrink-0">
             <StatusBar cursor={cursor} />

@@ -2,8 +2,11 @@ import { useState } from 'react';
 import type { MouseEvent } from 'react';
 import { Link } from 'react-router';
 import { Menubar } from './menubar';
+import { PublishToggleButton, SaveAsTemplateButton } from './publish-popover';
+import { ReadOnlyAuthorLabel, ReadOnlyActions } from './read-only-banner';
 import { IconButton } from './primitives';
-import { IUndo, IRedo, ISettings, IExport } from '../icons';
+import { PublicIcon, PrivateIcon } from '@/shared/ui/visibility-icons';
+import { IUndo, IRedo, IExport } from '../icons';
 import { useHistoryStore } from '@/features/canvas/store/history.store';
 import { formatHotkey } from '@/shared/lib/platform';
 
@@ -15,9 +18,21 @@ export type TopbarProps = {
   projectName?: string;
   width?: number;
   height?: number;
+  designId?: string;
+  isPublic?: boolean;
+  isOwner?: boolean;
 };
 
-function Topbar({ avatarInitial, onLogout, projectName, width, height }: TopbarProps) {
+function Topbar({
+  avatarInitial,
+  onLogout,
+  projectName,
+  width,
+  height,
+  designId,
+  isPublic,
+  isOwner,
+}: TopbarProps) {
   const [tooltip, setTooltip] = useState<TooltipState>(null);
   const undo = useHistoryStore((s) => s.undo);
   const redo = useHistoryStore((s) => s.redo);
@@ -44,6 +59,19 @@ function Topbar({ avatarInitial, onLogout, projectName, width, height }: TopbarP
             <span className="max-w-[40ch] truncate text-foreground" title={projectName}>
               {projectName}
             </span>
+            {isPublic !== undefined ? (
+              isPublic ? (
+                <PublicIcon className="size-3.5 text-fg-dim" />
+              ) : (
+                <PrivateIcon className="size-3.5 text-fg-dim" />
+              )
+            ) : null}
+            {designId ? (
+              <>
+                <span>·</span>
+                <ReadOnlyAuthorLabel designId={designId} />
+              </>
+            ) : null}
             <span>·</span>
             <span className="text-fg-dimmer">{`${width} × ${height} PX · RGB / 8`}</span>
           </>
@@ -68,16 +96,21 @@ function Topbar({ avatarInitial, onLogout, projectName, width, height }: TopbarP
 
         <div className="mx-1 h-[18px] w-px bg-hairline" />
 
-        <IconButton>
-          <ISettings size={14} />
-        </IconButton>
-
         <span role="button" className="editor-gradient-btn">
           <span className="editor-gradient-btn-label">
             <IExport size={11} />
             Export
           </span>
         </span>
+
+        {designId ? <ReadOnlyActions designId={designId} /> : null}
+
+        {isOwner && designId ? (
+          <>
+            <SaveAsTemplateButton designId={designId} />
+            <PublishToggleButton designId={designId} />
+          </>
+        ) : null}
 
         <button
           type="button"

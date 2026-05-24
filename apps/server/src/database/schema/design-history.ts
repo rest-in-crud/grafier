@@ -1,12 +1,12 @@
 import { index, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
-import { projects } from './projects';
+import { designs } from './designs';
 
-export const projectHistory = pgTable(
-    'project_history',
+export const designHistory = pgTable(
+    'design_history',
     {
         id: uuid('id').primaryKey().defaultRandom(),
-        projectID: uuid('project_id')
-            .references(() => projects.id, { onDelete: 'cascade' })
+        designID: uuid('design_id')
+            .references(() => designs.id, { onDelete: 'cascade' })
             .notNull(),
         label: text('label'),
         canvasJSON: jsonb('canvas_json').notNull(),
@@ -14,7 +14,7 @@ export const projectHistory = pgTable(
         createdAt: timestamp('created_at').defaultNow().notNull(),
     },
     (table) => [
-        index('history_project_id_idx').on(table.projectID),
-        index('history_project_created_idx').on(table.projectID, table.createdAt),
+        index('history_design_id_idx').on(table.designID),
+        index('history_design_created_idx').on(table.designID, table.createdAt),
     ],
 );

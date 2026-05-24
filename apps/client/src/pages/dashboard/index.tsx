@@ -3,7 +3,8 @@ import { TopBar } from '@/pages/dashboard/ui/top-bar';
 import { Greeting } from '@/pages/dashboard/ui/greeting';
 import { ActionRow } from '@/pages/dashboard/ui/action-row';
 import { RecentSection } from '@/pages/dashboard/ui/recent-section';
-import { ComingSoonSection } from '@/pages/dashboard/ui/coming-soon-section';
+import { TemplatesSection } from '@/pages/dashboard/ui/templates-section';
+import { CommunitySection } from '@/pages/dashboard/ui/community-section';
 
 const DashboardPage = () => {
   return (
@@ -16,8 +17,8 @@ const DashboardPage = () => {
         <Greeting />
         <ActionRow />
         <RecentSection />
-        <ComingSoonSection title="Templates" body="Templates coming soon" />
-        <ComingSoonSection title="Community" subTitle="· REMIXABLE" body="Community coming soon" />
+        <TemplatesSection />
+        <CommunitySection />
       </main>
     </div>
   );
