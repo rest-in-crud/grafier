@@ -3,6 +3,7 @@ import type { RefObject } from 'react';
 import type { Canvas } from 'fabric';
 import type { CanvasEngine } from '@/features/canvas/lib/CanvasEngine';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
+import { useReadOnlyStore } from '@/features/projects/store/read-only.store';
 import { isPrimaryModifier } from '@/shared/lib/platform';
 
 const collectAllIds = (canvas: Canvas): string[] =>
@@ -18,6 +19,8 @@ export function useEditorShortcuts(engineRef: RefObject<CanvasEngine | null>) {
         e.preventDefault();
         return;
       }
+
+      if (useReadOnlyStore.getState().isReadOnly) return;
 
       const tag = (document.activeElement?.tagName ?? '').toLowerCase();
       if (tag === 'input' || tag === 'textarea') return;

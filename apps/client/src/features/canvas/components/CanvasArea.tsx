@@ -8,6 +8,7 @@ import { useHistoryStore } from '@/features/canvas/store/history.store';
 import { useViewport } from '@/pages/editor/hooks/useViewport';
 import { useLayersStore } from '@/features/layers/store/layers.store';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
+import { useReadOnlyStore } from '@/features/projects/store/read-only.store';
 
 const readSavedBgColor = (canvasJSON: Record<string, unknown>): string | null => {
   const bg = canvasJSON.background;
@@ -27,9 +28,16 @@ type Props = {
 export const CanvasArea = ({ engineRef, containerRef, initialProject, onHydrateError }: Props) => {
   const { canvasRef } = useCanvas(engineRef, containerRef);
   const [baselineKey, setBaselineKey] = useState(0);
+  const isReadOnly = useReadOnlyStore((s) => s.isReadOnly);
   useLayerSync(engineRef);
   useHistory(engineRef, baselineKey);
   useViewport(containerRef, engineRef);
+
+  useEffect(() => {
+    const engine = engineRef.current;
+    if (!engine) return;
+    engine.setReadOnly(isReadOnly);
+  }, [engineRef, isReadOnly]);
 
   useEffect(() => {
     if (!initialProject) return;
