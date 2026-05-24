@@ -55,6 +55,7 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
   const unbindProject = useSaveStatusStore((s) => s.unbindProject);
   const setReadOnlyOnce = useReadOnlyStore((s) => s.setReadOnlyOnce);
   const resetReadOnly = useReadOnlyStore((s) => s.reset);
+  const isReadOnly = useReadOnlyStore((s) => s.isReadOnly);
 
   useEffect(() => {
     bindProject(id);
@@ -174,9 +175,17 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
               isOwner={user?.id === project.userID}
             />
           </div>
-          <OptionsBar tool={tool} />
+          <div
+            className={isReadOnly ? 'pointer-events-none opacity-40' : ''}
+            {...(isReadOnly ? { inert: true } : {})}
+          >
+            <OptionsBar tool={tool} />
+          </div>
           <div className="flex min-h-0 flex-1">
-            <div className="w-14 shrink-0">
+            <div
+              className={`w-14 shrink-0 ${isReadOnly ? 'pointer-events-none opacity-40' : ''}`}
+              {...(isReadOnly ? { inert: true } : {})}
+            >
               <ToolRail active={tool} setActive={setTool} />
             </div>
             <div className="min-w-0 flex-1">
@@ -189,7 +198,12 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
                 />
               </CanvasStage>
             </div>
-            <RightRail width={railWidth} onResize={setRailWidth} />
+            <div
+              className={isReadOnly ? 'pointer-events-none opacity-40' : ''}
+              {...(isReadOnly ? { inert: true } : {})}
+            >
+              <RightRail width={railWidth} onResize={setRailWidth} />
+            </div>
           </div>
           <div className="h-6.5 shrink-0">
             <StatusBar cursor={cursor} />
