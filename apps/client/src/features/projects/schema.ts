@@ -2,9 +2,13 @@ import { z } from 'zod';
 
 const projectSummarySchema = z.object({
   id: z.string().uuid(),
+  userID: z.string().uuid(),
+  userName: z.string(),
   name: z.string(),
   width: z.number().int().positive(),
   height: z.number().int().positive(),
+  isPublic: z.boolean(),
+  type: z.enum(['project', 'template']),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
