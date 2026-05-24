@@ -5,7 +5,7 @@ import { Menubar } from './menubar';
 import { PublishPopover } from './publish-popover';
 import { ReadOnlyAuthorLabel, ReadOnlyActions } from './read-only-banner';
 import { IconButton } from './primitives';
-import { IUndo, IRedo, ISettings, IExport } from '../icons';
+import { IUndo, IRedo, IExport } from '../icons';
 import { useHistoryStore } from '@/features/canvas/store/history.store';
 import { formatHotkey } from '@/shared/lib/platform';
 
@@ -92,10 +92,6 @@ function Topbar({
         </IconButton>
 
         <div className="mx-1 h-[18px] w-px bg-hairline" />
-
-        <IconButton>
-          <ISettings size={14} />
-        </IconButton>
 
         <span role="button" className="editor-gradient-btn">
           <span className="editor-gradient-btn-label">
