@@ -2,9 +2,10 @@ import { useState } from 'react';
 import type { MouseEvent } from 'react';
 import { Link } from 'react-router';
 import { Menubar } from './menubar';
-import { PublishPopover } from './publish-popover';
+import { PublishToggleButton, SaveAsTemplateButton } from './publish-popover';
 import { ReadOnlyAuthorLabel, ReadOnlyActions } from './read-only-banner';
 import { IconButton } from './primitives';
+import { PublicIcon, PrivateIcon } from '@/shared/ui/visibility-icons';
 import { IUndo, IRedo, IExport } from '../icons';
 import { useHistoryStore } from '@/features/canvas/store/history.store';
 import { formatHotkey } from '@/shared/lib/platform';
@@ -58,10 +59,12 @@ function Topbar({
             <span className="max-w-[40ch] truncate text-foreground" title={projectName}>
               {projectName}
             </span>
-            {isPublic ? (
-              <span className="border border-hairline-strong px-1.5 py-0.5 text-[9px] tracking-[0.16em] text-foreground">
-                Public
-              </span>
+            {isPublic !== undefined ? (
+              isPublic ? (
+                <PublicIcon className="size-3.5 text-fg-dim" />
+              ) : (
+                <PrivateIcon className="size-3.5 text-fg-dim" />
+              )
             ) : null}
             {designId ? (
               <>
@@ -102,7 +105,12 @@ function Topbar({
 
         {designId ? <ReadOnlyActions designId={designId} /> : null}
 
-        {isOwner && designId ? <PublishPopover designId={designId} /> : null}
+        {isOwner && designId ? (
+          <>
+            <SaveAsTemplateButton designId={designId} />
+            <PublishToggleButton designId={designId} />
+          </>
+        ) : null}
 
         <button
           type="button"
