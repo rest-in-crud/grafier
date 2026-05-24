@@ -24,7 +24,7 @@ const relativeTime = (iso: string): string => {
 const ProjectCard = ({ project }: ProjectCardProps) => {
   const navigate = useNavigate();
   const { user } = useUser();
-  const thumb = placeholderThumb();
+  const thumb = placeholderThumb(project.id);
   const showAuthor = project.userID !== user?.id && Boolean(project.userName);
 
   return (
