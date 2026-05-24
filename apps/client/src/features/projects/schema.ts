@@ -41,6 +41,8 @@ const createProjectRequestSchema = z.object({
   name: z.string().min(1),
   width: z.number().int().positive().optional(),
   height: z.number().int().positive().optional(),
+  type: z.enum(['project', 'template']).optional(),
+  isPublic: z.boolean().optional(),
 });
 
 const saveCanvasRequestSchema = z.object({

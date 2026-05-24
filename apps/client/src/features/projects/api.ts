@@ -29,20 +29,44 @@ const apiClient = createApiClient({
 });
 
 const api = {
-  list: async (): Promise<ProjectSummary[]> => {
+  listMyProjects: async (userId: string): Promise<ProjectSummary[]> => {
+    const data = await apiClient.get(`/users/${userId}/projects`);
+    return projectsListResponseSchema.parse(data);
+  },
+  listMyTemplates: async (userId: string): Promise<ProjectSummary[]> => {
+    const data = await apiClient.get(`/users/${userId}/templates`);
+    return projectsListResponseSchema.parse(data);
+  },
+  listPublicTemplates: async (): Promise<ProjectSummary[]> => {
+    const data = await apiClient.get('/templates');
+    return projectsListResponseSchema.parse(data);
+  },
+  listCommunityProjects: async (): Promise<ProjectSummary[]> => {
     const data = await apiClient.get('/projects');
     return projectsListResponseSchema.parse(data);
   },
   get: async (id: string): Promise<ProjectDetail> => {
-    const data = await apiClient.get(`/projects/${id}`);
+    const data = await apiClient.get(`/designs/${id}`);
     return projectDetailSchema.parse(data);
   },
   create: async (body: CreateProjectRequest): Promise<ProjectDetail> => {
-    const data = await apiClient.post('/projects', body);
+    const data = await apiClient.post('/designs', body);
     return projectDetailSchema.parse(data);
   },
   saveCanvas: async (id: string, body: SaveCanvasRequest): Promise<ProjectDetail> => {
-    const data = await apiClient.put(`/projects/${id}/canvas`, body);
+    const data = await apiClient.put(`/designs/${id}/canvas`, body);
+    return projectDetailSchema.parse(data);
+  },
+  forkAsProject: async (id: string): Promise<ProjectDetail> => {
+    const data = await apiClient.post(`/projects/${id}/fork`, undefined);
+    return projectDetailSchema.parse(data);
+  },
+  forkAsTemplate: async (id: string): Promise<ProjectDetail> => {
+    const data = await apiClient.post(`/templates/${id}/fork`, undefined);
+    return projectDetailSchema.parse(data);
+  },
+  setVisibility: async (id: string, isPublic: boolean): Promise<ProjectDetail> => {
+    const data = await apiClient.patch(`/designs/${id}`, { isPublic });
     return projectDetailSchema.parse(data);
   },
 };

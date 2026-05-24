@@ -1,12 +1,53 @@
 import { queryOptions, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/features/projects/api';
 import { designsKeys } from '@/features/projects/query-keys';
-import type { ProjectDetail, SaveCanvasRequest } from '@/features/projects/schema';
+import type { ProjectDetail, ProjectSummary, SaveCanvasRequest } from '@/features/projects/schema';
+import { useUser } from '@/features/auth/queries';
 
-const projectsListQueryOptions = queryOptions({
-  queryKey: designsKeys.myProjects(),
-  queryFn: () => api.list(),
-});
+const useMyProjects = () => {
+  const { user } = useUser();
+  return useQuery({
+    queryKey: designsKeys.myProjects(),
+    queryFn: () => api.listMyProjects(user?.id ?? ''),
+    enabled: Boolean(user?.id),
+  });
+};
+
+const useMyTemplates = () => {
+  const { user } = useUser();
+  return useQuery({
+    queryKey: designsKeys.myTemplates(),
+    queryFn: () => api.listMyTemplates(user?.id ?? ''),
+    enabled: Boolean(user?.id),
+  });
+};
+
+const usePublicTemplates = () =>
+  useQuery({
+    queryKey: designsKeys.publicTemplates(),
+    queryFn: () => api.listPublicTemplates(),
+  });
+
+const useAllTemplates = () => {
+  const mine = useMyTemplates();
+  const pub = usePublicTemplates();
+  const isPending = mine.isPending || pub.isPending;
+  const merged: ProjectSummary[] = [];
+  if (!isPending) {
+    const map = new Map<string, ProjectSummary>();
+    for (const row of pub.data ?? []) map.set(row.id, row);
+    for (const row of mine.data ?? []) map.set(row.id, row);
+    merged.push(...map.values());
+    merged.sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
+  }
+  return { data: isPending ? undefined : merged, isPending };
+};
+
+const useCommunityProjects = () =>
+  useQuery({
+    queryKey: designsKeys.community(),
+    queryFn: () => api.listCommunityProjects(),
+  });
 
 const projectQueryOptions = (id: string) =>
   queryOptions({
@@ -16,13 +57,12 @@ const projectQueryOptions = (id: string) =>
     refetchOnWindowFocus: false,
   });
 
-const useProjectsList = () => useQuery(projectsListQueryOptions);
 const useProject = (id: string) => useQuery(projectQueryOptions(id));
 
 const useCreateProject = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (name: string) => api.create({ name }),
+    mutationFn: (name: string) => api.create({ name, type: 'project' }),
     onSuccess: (created: ProjectDetail) => {
       queryClient.setQueryData(designsKeys.detail(created.id), created);
       queryClient.invalidateQueries({ queryKey: designsKeys.myProjects() });
@@ -43,4 +83,52 @@ const useSaveCanvas = (projectId: string) => {
   });
 };
 
-export { useProjectsList, useProject, useCreateProject, useSaveCanvas };
+const useForkAsProject = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (sourceId: string) => api.forkAsProject(sourceId),
+    onSuccess: (created: ProjectDetail) => {
+      queryClient.setQueryData(designsKeys.detail(created.id), created);
+      queryClient.invalidateQueries({ queryKey: designsKeys.myProjects() });
+    },
+  });
+};
+
+const useForkAsTemplate = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (sourceId: string) => api.forkAsTemplate(sourceId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: designsKeys.myTemplates() });
+    },
+  });
+};
+
+const useSetVisibility = (designId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (isPublic: boolean) => api.setVisibility(designId, isPublic),
+    onSuccess: (updated: ProjectDetail) => {
+      queryClient.setQueryData(designsKeys.detail(designId), updated);
+      if (updated.type === 'project') {
+        queryClient.invalidateQueries({ queryKey: designsKeys.community() });
+      } else {
+        queryClient.invalidateQueries({ queryKey: designsKeys.publicTemplates() });
+      }
+    },
+  });
+};
+
+export {
+  useMyProjects,
+  useMyTemplates,
+  usePublicTemplates,
+  useAllTemplates,
+  useCommunityProjects,
+  useProject,
+  useCreateProject,
+  useSaveCanvas,
+  useForkAsProject,
+  useForkAsTemplate,
+  useSetVisibility,
+};

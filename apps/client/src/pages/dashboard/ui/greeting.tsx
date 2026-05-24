@@ -1,5 +1,5 @@
 import { useUser } from '@/features/auth/queries';
-import { useProjectsList } from '@/features/projects/queries';
+import { useMyProjects } from '@/features/projects/queries';
 
 const greetingFor = (hour: number): 'morning' | 'afternoon' | 'evening' => {
   if (hour < 12) return 'morning';
@@ -9,7 +9,7 @@ const greetingFor = (hour: number): 'morning' | 'afternoon' | 'evening' => {
 
 const Greeting = () => {
   const { user } = useUser();
-  const { data: projects } = useProjectsList();
+  const { data: projects } = useMyProjects();
 
   const firstName = (user?.name ?? user?.email ?? '').split(/[ @]/)[0] || 'there';
   const timeOfDay = greetingFor(new Date().getHours());
