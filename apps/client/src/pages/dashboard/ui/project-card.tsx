@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router';
 import { placeholderThumb } from '@/pages/dashboard/lib/thumb-generators';
 import type { ProjectSummary } from '@/features/projects/schema';
 import { useUser } from '@/features/auth/queries';
+import { PublicIcon, PrivateIcon } from '@/shared/ui/visibility-icons';
 
 type ProjectCardProps = {
   project: ProjectSummary;
@@ -23,7 +24,7 @@ const relativeTime = (iso: string): string => {
 const ProjectCard = ({ project }: ProjectCardProps) => {
   const navigate = useNavigate();
   const { user } = useUser();
-  const thumb = placeholderThumb();
+  const thumb = placeholderThumb(project.id);
   const showAuthor = project.userID !== user?.id && Boolean(project.userName);
 
   return (
@@ -36,6 +37,18 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
         <pre className="m-0 font-mono text-[6.5px] leading-[1.05] whitespace-pre text-foreground/90">
           {thumb}
         </pre>
+        {project.type === 'template' ? (
+          <span className="absolute top-2 left-2 border border-hairline-strong bg-black/60 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.16em] text-foreground">
+            Template
+          </span>
+        ) : null}
+        <span className="absolute top-2 right-2 flex size-5 items-center justify-center border border-hairline-strong bg-black/60 text-fg-dim">
+          {project.isPublic ? (
+            <PublicIcon className="size-3" />
+          ) : (
+            <PrivateIcon className="size-3" />
+          )}
+        </span>
       </div>
       <div className="px-3.5 py-3">
         <div className="mb-1 truncate font-sans text-[13px] font-medium tracking-[-0.005em] text-foreground">
