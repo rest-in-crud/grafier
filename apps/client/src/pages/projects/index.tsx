@@ -1,10 +1,10 @@
 import { ScreenBackground } from '@/shared/ui/screen-background';
-import { useProjectsList } from '@/features/projects/queries';
+import { useMyProjects } from '@/features/projects/queries';
 import { TopBar } from '@/pages/dashboard/ui/top-bar';
 import { ProjectCard } from '@/pages/dashboard/ui/project-card';
 
 const ProjectsListPage = () => {
-  const { data: projects, isPending } = useProjectsList();
+  const { data: projects, isPending } = useMyProjects();
 
   return (
     <div className="min-h-dvh overflow-x-hidden bg-background text-foreground">

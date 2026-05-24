@@ -1,9 +1,9 @@
 import { Link } from 'react-router';
-import { useProjectsList } from '@/features/projects/queries';
+import { useMyProjects } from '@/features/projects/queries';
 import { ProjectCard } from '@/pages/dashboard/ui/project-card';
 
 const RecentSection = () => {
-  const { data: projects, isPending } = useProjectsList();
+  const { data: projects, isPending } = useMyProjects();
 
   if (isPending) return null;
 

@@ -2,9 +2,13 @@ import { z } from 'zod';
 
 const projectSummarySchema = z.object({
   id: z.string().uuid(),
+  userID: z.string().uuid(),
+  userName: z.string().optional(),
   name: z.string(),
   width: z.number().int().positive(),
   height: z.number().int().positive(),
+  isPublic: z.boolean(),
+  type: z.enum(['project', 'template']),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
@@ -37,6 +41,8 @@ const createProjectRequestSchema = z.object({
   name: z.string().min(1),
   width: z.number().int().positive().optional(),
   height: z.number().int().positive().optional(),
+  type: z.enum(['project', 'template']).optional(),
+  isPublic: z.boolean().optional(),
 });
 
 const saveCanvasRequestSchema = z.object({
