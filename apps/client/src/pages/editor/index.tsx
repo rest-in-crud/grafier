@@ -17,6 +17,7 @@ import { CanvasArea } from '@/features/canvas/components/CanvasArea';
 import { ScreenBackground } from '@/shared/ui/screen-background';
 import { HttpError } from '@/shared/lib/api-client';
 import { Topbar } from './ui/topbar';
+import { ReadOnlyBanner } from './ui/read-only-banner';
 import { OptionsBar } from './ui/options-bar';
 import { ToolRail } from './ui/tool-rail';
 import { CanvasStage } from './ui/canvas-stage';
@@ -171,6 +172,7 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
               height={project.height}
             />
           </div>
+          <ReadOnlyBanner designId={id} />
           <OptionsBar tool={tool} />
           <div className="flex min-h-0 flex-1">
             <div className="w-14 shrink-0">
