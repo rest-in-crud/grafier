@@ -29,6 +29,7 @@ import { RadialMenu } from './ui/radial-menu';
 import { PickToast } from './ui/pick-toast';
 import { useToolShortcuts } from './hooks/useToolShortcuts';
 import { usePasteImage } from './hooks/usePasteImage';
+import { loadAllCustomFonts } from '@/features/canvas/lib/tools/TextTool/customFontStorage';
 
 const idSchema = z.string().uuid();
 
@@ -52,6 +53,10 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
   useEditorShortcuts(engineRef);
   useToolShortcuts();
   usePasteImage(engineRef);
+
+  useEffect(() => {
+    void loadAllCustomFonts();
+  }, []);
   const { user } = useUser();
   const { data: project, isPending, isError, error, refetch } = useProject(id);
   const [hydrateError, setHydrateError] = useState(false);

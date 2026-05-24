@@ -1,7 +1,10 @@
 import { cn } from '@/shared/lib/utils';
 
+export type SelectOptionGroup = { group: string; items: readonly string[] };
+
 export type EditorSelectProps = {
-  options: readonly string[];
+  options?: readonly string[];
+  groups?: readonly SelectOptionGroup[];
   value?: string;
   defaultValue?: string;
   onChange?: (v: string) => void;
@@ -16,7 +19,7 @@ const optSelect = [
   'focus:outline-none focus:border-foreground',
 ].join(' ');
 
-export function Select({ options, value, defaultValue, onChange, className }: EditorSelectProps) {
+export function Select({ options, groups, value, defaultValue, onChange, className }: EditorSelectProps) {
   const controlled = value !== undefined;
 
   return (
@@ -26,9 +29,17 @@ export function Select({ options, value, defaultValue, onChange, className }: Ed
         ? { value, onChange: (e) => onChange?.(e.target.value) }
         : { defaultValue, onChange: (e) => onChange?.(e.target.value) })}
     >
-      {options.map((opt) => (
-        <option key={opt}>{opt}</option>
-      ))}
+      {groups
+        ? groups.map((g) => (
+            <optgroup key={g.group} label={g.group}>
+              {g.items.map((item) => (
+                <option key={item}>{item}</option>
+              ))}
+            </optgroup>
+          ))
+        : (options ?? []).map((opt) => (
+            <option key={opt}>{opt}</option>
+          ))}
     </select>
   );
 }

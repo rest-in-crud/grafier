@@ -88,10 +88,10 @@ const IHand = makeIcon(
   </>,
 );
 
-const IZoom = makeIcon(
+const IUpload = makeIcon(
   <>
-    <circle cx="7" cy="7" r="4" />
-    <path d="M10 10l4 4M5 7h4M7 5v4" />
+    <path d="M8 10V4M5 7l3-3 3 3" />
+    <path d="M3 12v1a1 1 0 001 1h8a1 1 0 001-1v-1" />
   </>,
 );
 
@@ -228,7 +228,7 @@ export {
   IImage,
   IDropper,
   IHand,
-  IZoom,
+  IUpload,
   IUndo,
   IRedo,
   IClose,
