@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router';
 import { placeholderThumb } from '@/pages/dashboard/lib/thumb-generators';
 import type { ProjectSummary } from '@/features/projects/schema';
+import { useUser } from '@/features/auth/queries';
 
 type ProjectCardProps = {
   project: ProjectSummary;
@@ -21,7 +22,9 @@ const relativeTime = (iso: string): string => {
 
 const ProjectCard = ({ project }: ProjectCardProps) => {
   const navigate = useNavigate();
+  const { user } = useUser();
   const thumb = placeholderThumb();
+  const showAuthor = project.userID !== user?.id && Boolean(project.userName);
 
   return (
     <button
@@ -41,6 +44,11 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
         <div className="font-mono text-[9.5px] uppercase tracking-[0.14em] text-fg-dim">
           {relativeTime(project.updatedAt)}
         </div>
+        {showAuthor ? (
+          <div className="mt-0.5 font-mono text-[9.5px] uppercase tracking-[0.14em] text-fg-dimmer">
+            @{project.userName}
+          </div>
+        ) : null}
       </div>
     </button>
   );
