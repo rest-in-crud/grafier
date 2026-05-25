@@ -6,7 +6,9 @@ import { PublishToggleButton, SaveAsTemplateButton } from './publish-popover';
 import { ReadOnlyAuthorLabel, ReadOnlyActions } from './read-only-banner';
 import { IconButton } from './primitives';
 import { PublicIcon, PrivateIcon } from '@/shared/ui/visibility-icons';
-import { IUndo, IRedo, IExport } from '../icons';
+import type { Canvas } from 'fabric';
+import { IUndo, IRedo } from '../icons';
+import { ExportMenu } from './export-menu';
 import { useHistoryStore } from '@/features/canvas/store/history.store';
 import { formatHotkey } from '@/shared/lib/platform';
 
@@ -21,6 +23,8 @@ export type TopbarProps = {
   designId?: string;
   isPublic?: boolean;
   isOwner?: boolean;
+  getCanvas?: () => Canvas | null;
+  exportProjectName?: string;
 };
 
 function Topbar({
@@ -32,6 +36,8 @@ function Topbar({
   designId,
   isPublic,
   isOwner,
+  getCanvas,
+  exportProjectName,
 }: TopbarProps) {
   const [tooltip, setTooltip] = useState<TooltipState>(null);
   const undo = useHistoryStore((s) => s.undo);
@@ -96,12 +102,10 @@ function Topbar({
 
         <div className="mx-1 h-[18px] w-px bg-hairline" />
 
-        <span role="button" className="editor-gradient-btn">
-          <span className="editor-gradient-btn-label">
-            <IExport size={11} />
-            Export
-          </span>
-        </span>
+        <ExportMenu
+          getCanvas={getCanvas ?? (() => null)}
+          projectName={exportProjectName ?? 'design'}
+        />
 
         {designId ? <ReadOnlyActions designId={designId} /> : null}
 
