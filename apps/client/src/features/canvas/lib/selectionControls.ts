@@ -55,8 +55,8 @@ export function applySelectionControls(): void {
     c.bl = new Control({ ...c.bl, render: squareHandle() });
     c.br = new Control({ ...c.br, render: squareHandle() });
 
-    c.ml.visible = false;
-    c.mr.visible = false;
+    c.ml = new Control({ ...c.ml, render: squareHandle() });
+    c.mr = new Control({ ...c.mr, render: squareHandle() });
     c.mt = new Control({ ...c.mt, render: squareHandle() });
     c.mb = new Control({ ...c.mb, render: squareHandle() });
 
