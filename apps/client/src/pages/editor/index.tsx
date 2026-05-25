@@ -27,6 +27,7 @@ import { RightRail } from './ui/right-rail';
 import { StatusBar } from './ui/status-bar';
 import { RadialMenu } from './ui/radial-menu';
 import { useToolShortcuts } from './hooks/useToolShortcuts';
+import { usePasteImage } from './hooks/usePasteImage';
 
 const idSchema = z.string().uuid();
 
@@ -49,6 +50,7 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
   useTempMoveOverride(engineRef);
   useEditorShortcuts(engineRef);
   useToolShortcuts();
+  usePasteImage(engineRef);
   const { user } = useUser();
   const { data: project, isPending, isError, error, refetch } = useProject(id);
   const [hydrateError, setHydrateError] = useState(false);
