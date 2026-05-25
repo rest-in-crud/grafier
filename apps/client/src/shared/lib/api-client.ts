@@ -3,7 +3,15 @@ class HttpError extends Error {
     public status: number,
     public body?: unknown,
   ) {
-    super(`HTTP ${status}`);
+    super(HttpError.extractMessage(body) ?? `HTTP ${status}`);
+  }
+
+  private static extractMessage(body: unknown): string | null {
+    if (!body || typeof body !== 'object') return null;
+    const msg = (body as Record<string, unknown>).message;
+    if (typeof msg === 'string' && msg.length > 0) return msg;
+    if (Array.isArray(msg) && typeof msg[0] === 'string') return msg[0];
+    return null;
   }
 }
 

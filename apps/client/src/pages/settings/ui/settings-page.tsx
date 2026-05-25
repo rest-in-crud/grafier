@@ -70,7 +70,7 @@ function SaveBar({
   label?: string;
 }) {
   return (
-    <div className="mt-5 flex items-center gap-3.5">
+    <div className="mt-5 flex min-w-0 items-center gap-3.5 overflow-hidden">
       <Button type="submit" disabled={state === 'saving'}>
         {state === 'saving' ? 'SAVING…' : labelText}
       </Button>

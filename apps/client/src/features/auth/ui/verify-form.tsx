@@ -1,13 +1,14 @@
 import { useState } from 'react';
-import { useSearchParams } from 'react-router';
-import { performConfirmEmail } from '@/features/auth/session';
+import { useSearchParams, useNavigate } from 'react-router';
+import { performConfirmEmail, performLogout } from '@/features/auth/session';
 import { HttpError } from '@/shared/lib/api-client';
 import { Button } from '@/shared/ui/button';
 
-type Status = 'idle' | 'confirming' | 'success' | 'invalid';
+type Status = 'idle' | 'confirming' | 'invalid';
 
 const VerifyForm = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const token = searchParams.get('token');
 
   const [status, setStatus] = useState<Status>(token ? 'idle' : 'invalid');
@@ -19,7 +20,8 @@ const VerifyForm = () => {
     setStatus('confirming');
     try {
       await performConfirmEmail(token);
-      setStatus('success');
+      performLogout();
+      navigate('/signin', { replace: true });
     } catch (err) {
       if (err instanceof HttpError && err.status === 401) {
         setStatus('invalid');
@@ -34,14 +36,6 @@ const VerifyForm = () => {
     return (
       <div role="status" className="max-w-[36ch] text-body text-muted-foreground">
         This verification link is invalid or has expired. Sign in to request a new one.
-      </div>
-    );
-  }
-
-  if (status === 'success') {
-    return (
-      <div role="status" className="max-w-[36ch] text-body text-muted-foreground">
-        Email verified. Sign in to continue.
       </div>
     );
   }
