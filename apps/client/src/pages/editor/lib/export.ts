@@ -1,5 +1,7 @@
 import type { Canvas } from 'fabric';
 
+import { blobToDataUrl } from '@/shared/lib/blob';
+
 type ExportFormat = 'png' | 'jpg' | 'svg' | 'pdf';
 
 class ExportError extends Error {
@@ -78,21 +80,6 @@ const withWhiteBgIfTransparent = async <T>(
     canvas.renderAll();
   }
 };
-
-const blobToDataUrl = (blob: Blob): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result;
-      if (typeof result !== 'string') {
-        reject(new Error('FileReader returned non-string for blob'));
-        return;
-      }
-      resolve(result);
-    };
-    reader.onerror = () => reject(reader.error ?? new Error('FileReader failed'));
-    reader.readAsDataURL(blob);
-  });
 
 const toPng = async (canvas: Canvas): Promise<Blob> => {
   const blob = await canvas.toBlob({ format: 'png', multiplier: 1 });

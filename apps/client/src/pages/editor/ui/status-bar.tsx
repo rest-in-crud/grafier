@@ -14,9 +14,14 @@ const labelFor = (status: SaveStatus): string => {
     case 'error':
       return 'Save failed · retrying';
     case 'fatal':
-      return status.reason === 'not-found'
-        ? 'Project deleted · autosave off'
-        : 'Access denied · autosave off';
+      switch (status.reason) {
+        case 'not-found':
+          return 'Project deleted · autosave off';
+        case 'forbidden':
+          return 'Access denied · autosave off';
+        case 'too-large':
+          return 'Design too large · autosave off';
+      }
   }
 };
 

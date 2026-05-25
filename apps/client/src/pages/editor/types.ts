@@ -9,6 +9,7 @@ export type ToolId =
   | 'eraser'
   | 'shape'
   | 'text'
+  | 'image'
   | 'dropper'
   | 'hand'
   | 'zoom';
