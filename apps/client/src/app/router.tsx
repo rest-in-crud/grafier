@@ -5,6 +5,7 @@ import { EditorPage } from '@/pages/editor';
 import { ProjectsListPage } from '@/pages/projects';
 import { TemplatesPage } from '@/pages/templates';
 import { CommunityPage } from '@/pages/community';
+import { SettingsPage } from '@/pages/settings';
 import { SignInPage } from '@/pages/sign-in';
 import { SignUpPage } from '@/pages/sign-up';
 import { ForgotPage } from '@/pages/forgot';
@@ -25,6 +26,7 @@ const routes: RouteObject[] = [
       { path: '/projects', Component: ProjectsListPage },
       { path: '/templates', Component: TemplatesPage },
       { path: '/community', Component: CommunityPage },
+      { path: '/settings', Component: SettingsPage },
     ],
   },
   {
@@ -37,9 +39,9 @@ const routes: RouteObject[] = [
           { path: '/signup', Component: SignUpPage },
           { path: '/forgot', Component: ForgotPage },
           { path: '/reset', Component: ResetPage },
-          { path: '/verify', Component: VerifyPage },
         ],
       },
+      { path: '/verify', Component: VerifyPage },
       { path: '/callback', loader: completeOAuth, Component: CallbackPage },
     ],
   },
