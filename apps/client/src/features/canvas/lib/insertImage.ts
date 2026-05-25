@@ -5,11 +5,20 @@ import { blobToDataUrl } from '@/shared/lib/blob';
 const ALLOWED_TYPES: ReadonlyArray<string> = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
 
 const MAX_BYTES = 2 * 1024 * 1024;
+const MAX_PAYLOAD_BYTES = 9.5 * 1024 * 1024;
+const BASE64_INFLATION = 4 / 3;
+const NEW_OBJECT_OVERHEAD = 500;
 const FIT_RATIO = 0.95;
 
-type InsertImageReason = 'unsupported-format' | 'too-large' | 'decode-failed';
+type InsertImageReason = 'unsupported-format' | 'too-large' | 'canvas-too-large' | 'decode-failed';
 
 type InsertImageResult = { ok: true } | { ok: false; reason: InsertImageReason };
+
+const projectedJsonSize = (canvas: Canvas, blob: Blob): number => {
+  const current = JSON.stringify(canvas.toJSON()).length;
+  const image = Math.ceil(blob.size * BASE64_INFLATION) + NEW_OBJECT_OVERHEAD;
+  return current + image;
+};
 
 const insertImageFromBlob = async (canvas: Canvas, blob: Blob): Promise<InsertImageResult> => {
   if (!ALLOWED_TYPES.includes(blob.type)) {
@@ -17,6 +26,9 @@ const insertImageFromBlob = async (canvas: Canvas, blob: Blob): Promise<InsertIm
   }
   if (blob.size > MAX_BYTES) {
     return { ok: false, reason: 'too-large' };
+  }
+  if (projectedJsonSize(canvas, blob) > MAX_PAYLOAD_BYTES) {
+    return { ok: false, reason: 'canvas-too-large' };
   }
 
   let dataUrl: string;
@@ -65,6 +77,8 @@ const noticeForInsertImageReason = (reason: InsertImageReason): string => {
       return '✕  UNSUPPORTED FORMAT';
     case 'too-large':
       return '✕  IMAGE TOO LARGE (MAX 2 MB)';
+    case 'canvas-too-large':
+      return '✕  DESIGN WOULD EXCEED 10 MB SAVE LIMIT';
     case 'decode-failed':
       return '✕  COULD NOT DECODE IMAGE';
   }
