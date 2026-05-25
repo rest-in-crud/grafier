@@ -173,6 +173,8 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
               designId={id}
               isPublic={project.isPublic}
               isOwner={user?.id === project.userID}
+              getCanvas={() => engineRef.current?.fabricCanvas ?? null}
+              exportProjectName={project.name}
             />
           </div>
           <div
