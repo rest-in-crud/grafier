@@ -1,12 +1,14 @@
 import { create } from 'zustand';
 import { HttpError } from '@/shared/lib/api-client';
 
+type FatalReason = 'not-found' | 'forbidden' | 'too-large';
+
 type SaveStatus =
   | { tag: 'idle' }
   | { tag: 'dirty' }
   | { tag: 'saving'; startedAt: number }
   | { tag: 'error'; attempt: number; lastError: HttpError }
-  | { tag: 'fatal'; reason: 'not-found' | 'forbidden' };
+  | { tag: 'fatal'; reason: FatalReason };
 
 type FlushFn = () => Promise<void>;
 
@@ -23,7 +25,7 @@ type SaveStatusActions = {
   markSaving: () => void;
   markIdle: () => void;
   markError: (error: HttpError) => void;
-  markFatal: (reason: 'not-found' | 'forbidden') => void;
+  markFatal: (reason: FatalReason) => void;
   setPendingFlush: (fn: FlushFn | null) => void;
 };
 
@@ -36,7 +38,8 @@ const useSaveStatusStore = create<SaveStatusState & SaveStatusActions>((set, get
   unbindProject: () => set({ projectId: null, status: { tag: 'idle' }, pendingFlush: null }),
   markDirty: () => {
     const s = get().status;
-    if (s.tag === 'fatal') return;
+    /* fatal too-large is recoverable: a remove brings the canvas back under the limit, so let the user retry; not-found and forbidden are permanent. */
+    if (s.tag === 'fatal' && s.reason !== 'too-large') return;
     set({ status: { tag: 'dirty' } });
   },
   markSaving: () => set({ status: { tag: 'saving', startedAt: Date.now() } }),
@@ -51,4 +54,4 @@ const useSaveStatusStore = create<SaveStatusState & SaveStatusActions>((set, get
 }));
 
 export { useSaveStatusStore };
-export type { SaveStatus };
+export type { SaveStatus, FatalReason };

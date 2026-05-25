@@ -3,6 +3,12 @@ import { api } from '@/features/projects/api';
 import { designsKeys } from '@/features/projects/query-keys';
 import type { ProjectDetail, ProjectSummary, SaveCanvasRequest } from '@/features/projects/schema';
 import { useUser } from '@/features/auth/queries';
+import { HttpError } from '@/shared/lib/api-client';
+
+const isPermanentSaveFailure = (error: unknown): boolean => {
+  if (!(error instanceof HttpError)) return false;
+  return error.status === 404 || error.status === 403 || error.status === 413;
+};
 
 const useMyProjects = () => {
   const { user } = useUser();
@@ -78,7 +84,10 @@ const useSaveCanvas = (projectId: string) => {
     onSuccess: (saved: ProjectDetail) => {
       queryClient.setQueryData(designsKeys.detail(projectId), saved);
     },
-    retry: 3,
+    retry: (failureCount, error) => {
+      if (isPermanentSaveFailure(error)) return false;
+      return failureCount < 3;
+    },
     retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30_000),
   });
 };
