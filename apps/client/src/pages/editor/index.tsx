@@ -16,6 +16,8 @@ import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import { CanvasArea } from '@/features/canvas/components/CanvasArea';
 import { ScreenBackground } from '@/shared/ui/screen-background';
 import { HttpError } from '@/shared/lib/api-client';
+import { insertImageFromBlob, noticeForInsertImageReason } from '@/features/canvas/lib/insertImage';
+import { useNoticeStore } from '@/features/notice/store/notice.store';
 import { NoticeBanner } from '@/features/notice/ui/notice-banner';
 import { Topbar } from './ui/topbar';
 import { OptionsBar } from './ui/options-bar';
@@ -92,6 +94,34 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
 
   const tool = useCanvasStore((s) => s.activeTool);
   const setTool = useCanvasStore((s) => s.setActiveTool);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const showNotice = useNoticeStore((s) => s.show);
+
+  useEffect(() => {
+    if (tool !== 'image') return;
+    /* Defense-in-depth: useToolShortcuts and the rail's inert wrapper already gate read-only; this catches any future path that sets tool='image' directly. */
+    if (useReadOnlyStore.getState().isReadOnly) {
+      setTool('move');
+      return;
+    }
+    const input = fileInputRef.current;
+    if (!input) return;
+    input.click();
+    setTool('move');
+  }, [tool, setTool]);
+
+  const onFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const input = event.target;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+    const canvas = engineRef.current?.fabricCanvas;
+    if (!canvas) return;
+    const result = await insertImageFromBlob(canvas, file);
+    if (!result.ok) showNotice(noticeForInsertImageReason(result.reason));
+  };
+
   const [radial, setRadial] = useState<{ x: number; y: number } | null>(null);
   const [cursor, setCursor] = useState<{ x: number; y: number }>({ x: 412, y: 268 });
   const [railWidth, setRailWidth] = useState<number>(() => loadRailWidth());
@@ -164,6 +194,13 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
       <div className="fixed inset-0 flex flex-col overflow-hidden bg-background font-sans text-foreground">
         <ScreenBackground />
         <NoticeBanner />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/png,image/jpeg,image/gif,image/webp"
+          className="hidden"
+          onChange={onFileChange}
+        />
         <div className="relative z-10 flex h-full flex-col">
           <div className="h-9.5 shrink-0">
             <Topbar
