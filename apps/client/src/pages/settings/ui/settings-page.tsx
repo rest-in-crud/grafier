@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { useUser } from '@/features/auth/queries';
-import { performUpdateUser, performDeleteAccount } from '@/features/auth/session';
+import {
+  performUpdateName,
+  performChangePassword,
+  performInitiateEmailChange,
+  performDeleteAccount,
+  performLogout,
+} from '@/features/auth/session';
 import { ScreenBackground } from '@/shared/ui/screen-background';
 import { TopBar } from '@/pages/dashboard/ui/top-bar';
 import { Input } from '@/shared/ui/input';
@@ -21,7 +27,7 @@ const field = 'mb-4';
 const fieldLabel =
   'mb-1.5 flex items-baseline justify-between font-mono text-[10px] uppercase tracking-[0.18em] text-fg-dim';
 const fieldError =
-  'mt-1 min-h-[14px] font-mono text-[10px] uppercase tracking-[0.08em] text-danger';
+  'mt-1 min-h-[14px] truncate font-mono text-[10px] uppercase tracking-[0.08em] text-danger';
 const readout =
   'flex items-center justify-between break-all border border-dashed border-hairline-strong bg-white/[0.015] px-[14px] py-3 font-mono text-[11px] tracking-[0.08em] text-fg-dim';
 const readoutCopy =
@@ -76,13 +82,13 @@ function SaveBar({
         </span>
       )}
       {state === 'error' && (
-        <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-danger">
+        <span className="min-w-0 truncate font-mono text-[10px] uppercase tracking-[0.16em] text-danger">
           · {errorMsg || 'COULD NOT SAVE'}
         </span>
       )}
       {state === 'idle' && (
-        <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-fg-dimmer">
-          · UNSAVED CHANGES WILL BE LOST
+        <span className="whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.16em] text-fg-dimmer">
+          · UNSAVED
         </span>
       )}
     </div>
@@ -102,7 +108,7 @@ function ProfileSection({ userId, initialName }: { userId: string; initialName: 
       return;
     }
     setError('');
-    trigger(() => performUpdateUser(userId, { name: name.trim() }));
+    trigger(() => performUpdateName(userId, name.trim()));
   };
 
   return (
@@ -133,13 +139,42 @@ function ProfileSection({ userId, initialName }: { userId: string; initialName: 
 }
 
 /* ── Email section ── */
-function EmailSection({ email }: { email: string }) {
+function EmailSection({
+  userId,
+  email,
+  pendingEmail,
+}: {
+  userId: string;
+  email: string;
+  pendingEmail?: string | null;
+}) {
   const [copied, setCopied] = useState(false);
+  const [newEmail, setNewEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const { state, errorMsg, trigger } = useSaveState();
 
   const copy = () => {
     navigator.clipboard.writeText(email).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
+    });
+  };
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = newEmail.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      setEmailError('VALID EMAIL REQUIRED');
+      return;
+    }
+    if (trimmed === email.toLowerCase()) {
+      setEmailError('NEW EMAIL MUST DIFFER FROM CURRENT');
+      return;
+    }
+    setEmailError('');
+    trigger(async () => {
+      await performInitiateEmailChange(userId, trimmed);
+      setNewEmail('');
     });
   };
 
@@ -151,13 +186,35 @@ function EmailSection({ email }: { email: string }) {
       </div>
       <div>
         <h2 className={h2}>Email address</h2>
-        <p className={desc}>Used for sign-in and account recovery. Email changes are not yet supported.</p>
+        <p className={desc}>Used for sign-in and account recovery.</p>
         <div className={readout}>
           <span>{email}</span>
           <button type="button" className={readoutCopy} onClick={copy}>
             {copied ? 'COPIED' : 'COPY'}
           </button>
         </div>
+
+        {pendingEmail && (
+          <div className="mt-3 border border-dashed border-hairline-strong px-[14px] py-3 font-mono text-[10px] uppercase tracking-[0.12em] text-fg-dim">
+            VERIFICATION PENDING · CHECK INBOX FOR{' '}
+            <span className="text-foreground">{pendingEmail}</span>
+          </div>
+        )}
+
+        <form onSubmit={onSubmit} className="mt-6">
+          <div className={field}>
+            <div className={fieldLabel}>NEW EMAIL ADDRESS</div>
+            <Input
+              type="email"
+              value={newEmail}
+              onChange={(e) => setNewEmail(e.target.value)}
+              placeholder="new@example.com"
+              aria-invalid={!!emailError}
+            />
+            {emailError && <div className={fieldError}>{emailError}</div>}
+          </div>
+          <SaveBar state={state} errorMsg={errorMsg} label="SEND VERIFICATION" />
+        </form>
       </div>
     </section>
   );
@@ -165,6 +222,7 @@ function EmailSection({ email }: { email: string }) {
 
 /* ── Password section ── */
 function PasswordSection({ userId }: { userId: string }) {
+  const navigate = useNavigate();
   const [current, setCurrent] = useState('');
   const [next, setNext] = useState('');
   const [confirm, setConfirm] = useState('');
@@ -181,10 +239,14 @@ function PasswordSection({ userId }: { userId: string }) {
     if (Object.keys(errs).length) return;
 
     trigger(async () => {
-      await performUpdateUser(userId, { password: next });
+      await performChangePassword(userId, current, next);
       setCurrent('');
       setNext('');
       setConfirm('');
+      setTimeout(() => {
+        performLogout();
+        navigate('/signin', { replace: true });
+      }, 1600);
     });
   };
 
@@ -390,7 +452,7 @@ function SettingsPage() {
         </header>
 
         <ProfileSection userId={user.id} initialName={user.name} />
-        <EmailSection email={user.email} />
+        <EmailSection userId={user.id} email={user.email} pendingEmail={user.pendingEmail} />
         {user.provider === 'local' || !user.provider ? (
           <PasswordSection userId={user.id} />
         ) : (

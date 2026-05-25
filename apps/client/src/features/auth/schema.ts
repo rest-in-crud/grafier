@@ -5,6 +5,7 @@ const userSchema = z.object({
   email: z.string().email(),
   name: z.string(),
   provider: z.string().nullable(),
+  pendingEmail: z.string().email().nullable().optional(),
 });
 
 const signInSchema = z.object({
