@@ -17,7 +17,7 @@ import { PasswordStrength } from '@/shared/ui/password-strength';
 
 /* ── Shared class strings ── */
 const section =
-  'grid grid-cols-[200px_1fr] gap-12 border-t border-hairline py-9 last-of-type:border-b last-of-type:border-hairline max-[720px]:grid-cols-1 max-[720px]:gap-4 max-[720px]:py-7';
+  'grid grid-cols-[200px_minmax(0,1fr)] gap-12 border-t border-hairline py-9 last-of-type:border-b last-of-type:border-hairline max-[720px]:grid-cols-1 max-[720px]:gap-4 max-[720px]:py-7';
 const label = 'pt-1 font-mono text-[10px] uppercase tracking-[0.22em] text-fg-dim max-[720px]:pt-0';
 const num = 'mt-1.5 block text-[9px] tracking-[0.1em] text-fg-dimmer';
 const h2 = 'mb-1.5 text-lg font-medium tracking-[-0.005em] text-foreground';
