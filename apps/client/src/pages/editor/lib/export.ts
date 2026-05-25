@@ -117,6 +117,7 @@ const toPdf = async (canvas: Canvas): Promise<Blob> => {
   return withWhiteBgIfTransparent(canvas, async () => {
     const width = canvas.width ?? 0;
     const height = canvas.height ?? 0;
+    // jsPDF converts px to pt at 72/96 scale; pages wider than ~19 200 px exceed the PDF spec limit
     if (width <= 0 || height <= 0) {
       throw new Error('Canvas has no dimensions for pdf export');
     }
