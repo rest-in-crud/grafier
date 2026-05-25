@@ -133,9 +133,9 @@ export const ChangeEmailTemplate: React.FC<ChangeEmailTemplateProps> = ({ name, 
                             <em>{name}</em>
                         </strong>
                         <br />
-                        <br />
-                        A request was made to change your Grafier email address to this one. Click
-                        the link below to confirm. Your current email remains active until you do.
+                        <br />A request was made to change your Grafier email address to this one.
+                        Click the link below to confirm. Your current email remains active until you
+                        do.
                     </Text>
                     <Section style={buttonContainer}>
                         <Link href={verifyLink} style={button}>
