@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { MouseEvent } from 'react';
+import type { DragEvent, MouseEvent } from 'react';
 import { Navigate, useParams } from 'react-router';
 import { z } from 'zod';
 import type { CanvasEngine } from '@/features/canvas/lib/CanvasEngine';
@@ -142,6 +142,23 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
     setCursor({ x: Math.round(e.clientX - r.left), y: Math.round(e.clientY - r.top) });
   }
 
+  const onCanvasDragOver = (event: DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
+  };
+
+  const onCanvasDrop = async (event: DragEvent) => {
+    event.preventDefault();
+    if (useReadOnlyStore.getState().isReadOnly) return;
+    const canvas = engineRef.current?.fabricCanvas;
+    if (!canvas) return;
+    const files = Array.from(event.dataTransfer.files);
+    for (const file of files) {
+      const result = await insertImageFromBlob(canvas, file);
+      if (!result.ok) showNotice(noticeForInsertImageReason(result.reason));
+    }
+  };
+
   if (isError) {
     if (error instanceof HttpError && (error.status === 404 || error.status === 403)) {
       return <Navigate to="/" replace />;
@@ -230,7 +247,12 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
               <ToolRail active={tool} setActive={setTool} />
             </div>
             <div className="min-w-0 flex-1">
-              <CanvasStage onContextMenu={onCanvasContextMenu} onMouseMove={onCanvasMove}>
+              <CanvasStage
+                onContextMenu={onCanvasContextMenu}
+                onMouseMove={onCanvasMove}
+                onDragOver={onCanvasDragOver}
+                onDrop={onCanvasDrop}
+              >
                 <CanvasArea
                   engineRef={engineRef}
                   containerRef={containerRef}
