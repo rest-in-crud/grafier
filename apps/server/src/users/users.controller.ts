@@ -8,10 +8,15 @@ import {
     UseGuards,
     HttpCode,
     HttpStatus,
+    Res,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
+import { Response } from 'express';
 import { UsersService } from './users.service';
 import { UserResponseDto } from './dto/user-response.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateNameDto } from './dto/update-name.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { InitiateEmailChangeDto } from './dto/initiate-email-change.dto';
 import { JwtAuthGuard } from '@/auth/guards/jwtAuth.guard';
 import { OptionalJwtAuthGuard } from '@/auth/guards/optional-jwt.guard';
 import { IsAccountOwnerGuard } from './guards/isAccountOwner.guard';
@@ -34,16 +39,35 @@ export class UsersController {
     }
 
     @UseGuards(JwtAuthGuard, IsAccountOwnerGuard)
-    @Patch(':id')
-    update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-        return this.usersService.update(id, updateUserDto);
-    }
-
-    @UseGuards(JwtAuthGuard, IsAccountOwnerGuard)
     @Delete(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
     remove(@Param('id') id: string) {
         return this.usersService.remove(id);
+    }
+
+    @Throttle({ default: { ttl: 60_000, limit: 5 } })
+    @UseGuards(JwtAuthGuard, IsAccountOwnerGuard)
+    @Patch(':id/name')
+    updateName(@Param('id') id: string, @Body() dto: UpdateNameDto) {
+        return this.usersService.updateName(id, dto.name);
+    }
+
+    @Throttle({ default: { ttl: 60_000, limit: 5 } })
+    @UseGuards(JwtAuthGuard, IsAccountOwnerGuard)
+    @Patch(':id/password')
+    changePassword(
+        @Param('id') id: string,
+        @Body() dto: ChangePasswordDto,
+        @Res({ passthrough: true }) res: Response,
+    ) {
+        return this.usersService.changePassword(id, dto, res);
+    }
+
+    @Throttle({ default: { ttl: 60_000, limit: 5 } })
+    @UseGuards(JwtAuthGuard, IsAccountOwnerGuard)
+    @Patch(':id/email')
+    initiateEmailChange(@Param('id') id: string, @Body() dto: InitiateEmailChangeDto) {
+        return this.usersService.initiateEmailChange(id, dto);
     }
 
     @UseGuards(OptionalJwtAuthGuard)
