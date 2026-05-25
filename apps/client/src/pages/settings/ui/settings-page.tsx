@@ -141,12 +141,15 @@ function ProfileSection({ userId, initialName }: { userId: string; initialName: 
 function EmailSection({
   userId,
   email,
+  provider,
   pendingEmail,
 }: {
   userId: string;
   email: string;
+  provider: string | null;
   pendingEmail?: string | null;
 }) {
+  const isLocal = provider === 'local' || !provider;
   const [copied, setCopied] = useState(false);
   const [newEmail, setNewEmail] = useState('');
   const [emailError, setEmailError] = useState('');
@@ -193,27 +196,34 @@ function EmailSection({
           </button>
         </div>
 
-        {pendingEmail && (
-          <div className="mt-3 border border-dashed border-hairline-strong px-[14px] py-3 font-mono text-[10px] uppercase tracking-[0.12em] text-fg-dim">
-            VERIFICATION PENDING · CHECK INBOX FOR{' '}
-            <span className="text-foreground">{pendingEmail}</span>
+        {isLocal ? (
+          <>
+            {pendingEmail && (
+              <div className="mt-3 border border-dashed border-hairline-strong px-[14px] py-3 font-mono text-[10px] uppercase tracking-[0.12em] text-fg-dim">
+                VERIFICATION PENDING · CHECK INBOX FOR{' '}
+                <span className="text-foreground">{pendingEmail}</span>
+              </div>
+            )}
+            <form onSubmit={onSubmit} className="mt-6">
+              <div className={field}>
+                <div className={fieldLabel}>NEW EMAIL ADDRESS</div>
+                <Input
+                  type="email"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  placeholder="new@example.com"
+                  aria-invalid={!!emailError}
+                />
+                {emailError && <div className={fieldError}>{emailError}</div>}
+              </div>
+              <SaveBar state={state} errorMsg={errorMsg} label="SEND VERIFICATION" />
+            </form>
+          </>
+        ) : (
+          <div className="mt-3 border border-hairline bg-white/[0.01] px-[14px] py-3 font-mono text-[10px] uppercase tracking-[0.14em] text-fg-dimmer">
+            SIGNED IN VIA {(provider ?? '').toUpperCase()} · EMAIL NOT MANAGED HERE
           </div>
         )}
-
-        <form onSubmit={onSubmit} className="mt-6">
-          <div className={field}>
-            <div className={fieldLabel}>NEW EMAIL ADDRESS</div>
-            <Input
-              type="email"
-              value={newEmail}
-              onChange={(e) => setNewEmail(e.target.value)}
-              placeholder="new@example.com"
-              aria-invalid={!!emailError}
-            />
-            {emailError && <div className={fieldError}>{emailError}</div>}
-          </div>
-          <SaveBar state={state} errorMsg={errorMsg} label="SEND VERIFICATION" />
-        </form>
       </div>
     </section>
   );
@@ -453,7 +463,12 @@ function SettingsPage() {
         </header>
 
         <ProfileSection userId={user.id} initialName={user.name} />
-        <EmailSection userId={user.id} email={user.email} pendingEmail={user.pendingEmail} />
+        <EmailSection
+          userId={user.id}
+          email={user.email}
+          provider={user.provider}
+          pendingEmail={user.pendingEmail}
+        />
         {user.provider === 'local' || !user.provider ? (
           <PasswordSection userId={user.id} />
         ) : (
