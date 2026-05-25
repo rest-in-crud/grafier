@@ -16,6 +16,7 @@ import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import { CanvasArea } from '@/features/canvas/components/CanvasArea';
 import { ScreenBackground } from '@/shared/ui/screen-background';
 import { HttpError } from '@/shared/lib/api-client';
+import { NoticeBanner } from '@/features/notice/ui/notice-banner';
 import { Topbar } from './ui/topbar';
 import { OptionsBar } from './ui/options-bar';
 import { ToolRail } from './ui/tool-rail';
@@ -162,6 +163,7 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
     <>
       <div className="fixed inset-0 flex flex-col overflow-hidden bg-background font-sans text-foreground">
         <ScreenBackground />
+        <NoticeBanner />
         <div className="relative z-10 flex h-full flex-col">
           <div className="h-9.5 shrink-0">
             <Topbar
