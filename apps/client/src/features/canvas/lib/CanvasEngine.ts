@@ -1,4 +1,11 @@
-import { ActiveSelection, Canvas, FabricObject, InteractiveFabricObject, Point } from 'fabric';
+import {
+  ActiveSelection,
+  Canvas,
+  FabricObject,
+  IText,
+  InteractiveFabricObject,
+  Point,
+} from 'fabric';
 import { applySelectionControls } from './selectionControls';
 import type {
   SelectionPatch,
@@ -60,7 +67,7 @@ function styleSliceFor(
 }
 
 function projectSelection(obj: FabricObject): SelectionSnapshot {
-  return {
+  const base: SelectionSnapshot = {
     id: typeof obj.data?.id === 'string' ? obj.data.id : '',
     type: obj.type,
     left: Math.round(obj.left ?? 0),
@@ -73,6 +80,12 @@ function projectSelection(obj: FabricObject): SelectionSnapshot {
     stroke: typeof obj.stroke === 'string' ? obj.stroke : null,
     strokeWidth: obj.strokeWidth ?? 0,
   };
+  if (obj instanceof IText) {
+    base.fontFamily = typeof obj.fontFamily === 'string' ? obj.fontFamily : undefined;
+    base.fontWeight = obj.fontWeight !== undefined ? String(obj.fontWeight) : undefined;
+    base.fontSize = typeof obj.fontSize === 'number' ? obj.fontSize : undefined;
+  }
+  return base;
 }
 
 export class CanvasEngine {
@@ -346,6 +359,11 @@ export class CanvasEngine {
     if (patch.fill !== undefined) obj.set('fill', patch.fill);
     if (patch.stroke !== undefined) obj.set('stroke', patch.stroke);
     if (patch.strokeWidth !== undefined) obj.set('strokeWidth', patch.strokeWidth);
+    if (obj instanceof IText) {
+      if (patch.fontFamily !== undefined) obj.set('fontFamily', patch.fontFamily);
+      if (patch.fontWeight !== undefined) obj.set('fontWeight', patch.fontWeight);
+      if (patch.fontSize !== undefined) obj.set('fontSize', patch.fontSize);
+    }
 
     obj.setCoords();
     this.canvas.requestRenderAll();

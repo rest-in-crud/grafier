@@ -25,6 +25,9 @@ export type SelectionSnapshot = {
   fill: string | null;
   stroke: string | null;
   strokeWidth: number;
+  fontFamily?: string;
+  fontWeight?: string;
+  fontSize?: number;
 };
 
 export type SelectionPatch = Partial<{
@@ -37,6 +40,9 @@ export type SelectionPatch = Partial<{
   fill: string;
   stroke: string;
   strokeWidth: number;
+  fontFamily: string;
+  fontWeight: string;
+  fontSize: number;
 }>;
 
 export type SelectionState = {

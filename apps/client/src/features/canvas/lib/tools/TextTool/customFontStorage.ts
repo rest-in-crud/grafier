@@ -74,8 +74,14 @@ async function registerFontFace(family: string, data: ArrayBuffer): Promise<void
 export async function loadAllCustomFonts(): Promise<void> {
   const db = await openDb();
   const records = await txGetAll<FontRecord>(db);
-  await Promise.all(records.map((r) => registerFontFace(r.family, r.data)));
-  useCustomFontStore.getState()._set(records.map((r) => r.family));
+  const seen = new Set<string>();
+  const unique = records.filter((r) => {
+    if (seen.has(r.family)) return false;
+    seen.add(r.family);
+    return true;
+  });
+  await Promise.all(unique.map((r) => registerFontFace(r.family, r.data)));
+  useCustomFontStore.getState()._set(unique.map((r) => r.family));
 }
 
 export async function saveCustomFont(file: File): Promise<StoredFont> {
@@ -84,10 +90,17 @@ export async function saveCustomFont(file: File): Promise<StoredFont> {
   }
   const data = await file.arrayBuffer();
   const family = familyFromFileName(file.name);
-  const id = crypto.randomUUID();
-  const record: FontRecord = { id, family, fileName: file.name, data, addedAt: Date.now() };
 
   const db = await openDb();
+
+  // Remove all existing records for this family to avoid duplicates
+  const existing = await txGetAll<FontRecord>(db);
+  for (const old of existing) {
+    if (old.family === family) await txDelete(db, old.id);
+  }
+
+  const id = crypto.randomUUID();
+  const record: FontRecord = { id, family, fileName: file.name, data, addedAt: Date.now() };
   await txPut(db, record);
   await registerFontFace(family, data);
 

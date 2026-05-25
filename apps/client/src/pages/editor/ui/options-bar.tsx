@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
+import { loadTextFont } from '@/features/canvas/lib/tools/TextTool/fontLoader';
 import { PEN_DEFAULT_STYLES } from '@/features/canvas/lib/tools/PenTool/PenTool.styles';
 import {
   CLOSED_SHAPE_STYLE,
@@ -185,11 +186,15 @@ const GOOGLE_FONTS_LIST: string[] = [...GOOGLE_TEXT_FONTS];
 function TextOptions() {
   const styles = useCanvasStore((s) => s.toolStyles.text);
   const setToolStyle = useCanvasStore((s) => s.setToolStyle);
+  const applyToSelection = useCanvasStore((s) => s.applyToSelection);
+  const selection = useCanvasStore((s) => s.selection);
   const customFamilies = useCustomFontStore((s) => s.families);
 
-  const fontFamily = styles?.fontFamily ?? DEFAULT_TEXT_FONT_FAMILY;
-  const fontWeight = styles?.fontWeight ?? DEFAULT_TEXT_FONT_WEIGHT;
-  const fontSize = styles?.fontSize ?? TEXT_DEFAULT_STYLES.fontSize;
+  const selectedText = selection.primary?.type === 'i-text' ? selection.primary : null;
+
+  const fontFamily = selectedText?.fontFamily ?? styles?.fontFamily ?? DEFAULT_TEXT_FONT_FAMILY;
+  const fontWeight = selectedText?.fontWeight ?? styles?.fontWeight ?? DEFAULT_TEXT_FONT_WEIGHT;
+  const fontSize = selectedText?.fontSize ?? styles?.fontSize ?? TEXT_DEFAULT_STYLES.fontSize;
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -201,6 +206,23 @@ function TextOptions() {
           { group: 'Google Fonts', items: GOOGLE_FONTS_LIST },
         ]
       : undefined;
+
+  async function applyFontFamily(family: string) {
+    await loadTextFont(family, fontWeight);
+    if (selectedText) applyToSelection({ fontFamily: family });
+    setToolStyle('text', { fontFamily: family });
+  }
+
+  async function applyFontWeight(weight: string) {
+    await loadTextFont(fontFamily, weight);
+    if (selectedText) applyToSelection({ fontWeight: weight });
+    setToolStyle('text', { fontWeight: weight });
+  }
+
+  function applyFontSize(size: number) {
+    if (selectedText) applyToSelection({ fontSize: size });
+    setToolStyle('text', { fontSize: size });
+  }
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -220,7 +242,7 @@ function TextOptions() {
     setUploadError(null);
     try {
       const stored = await saveCustomFont(file);
-      setToolStyle('text', { fontFamily: stored.family });
+      await applyFontFamily(stored.family);
     } catch {
       setUploadError('Upload failed');
     }
@@ -236,7 +258,7 @@ function TextOptions() {
             groups={fontGroups}
             options={fontGroups ? undefined : GOOGLE_FONTS_LIST}
             value={fontFamily}
-            onChange={(v) => setToolStyle('text', { fontFamily: v })}
+            onChange={(v) => void applyFontFamily(v)}
           />
           <IconButton
             title="Upload font (TTF / OTF, max 5 MB)"
@@ -258,18 +280,11 @@ function TextOptions() {
         <Select
           options={FONT_WEIGHT_OPTIONS}
           value={fontWeight}
-          onChange={(v) => setToolStyle('text', { fontWeight: v })}
+          onChange={(v) => void applyFontWeight(v)}
         />
       </Field>
       <Field label="Size">
-        <Slider
-          value={fontSize}
-          onChange={(v) => setToolStyle('text', { fontSize: v })}
-          min={6}
-          max={400}
-          suffix=" PT"
-          compact
-        />
+        <Slider value={fontSize} onChange={applyFontSize} min={6} max={400} suffix=" PT" compact />
       </Field>
     </>
   );
@@ -322,6 +337,9 @@ function SelectionOptions() {
 }
 
 export function OptionsBar({ tool }: Props) {
+  const selection = useCanvasStore((s) => s.selection);
+  const isTextSelected = selection.primary?.type === 'i-text';
+
   return (
     <div className={optionsBar}>
       {tool === 'pencil' ? (
@@ -332,7 +350,7 @@ export function OptionsBar({ tool }: Props) {
         <EraserOptions />
       ) : tool === 'shape' ? (
         <ShapeOptions />
-      ) : tool === 'text' ? (
+      ) : tool === 'text' || (tool === 'move' && isTextSelected) ? (
         <TextOptions />
       ) : tool === 'dropper' ? (
         <EyedropperOptions />
