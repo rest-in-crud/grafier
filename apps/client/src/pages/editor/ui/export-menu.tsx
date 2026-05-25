@@ -67,7 +67,7 @@ const ExportMenu = ({ getCanvas, projectName }: ExportMenuProps) => {
           </span>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-40">
+      <DropdownMenuContent align="end" className="w-28 min-w-0">
         {FORMATS.map((row) => (
           <DropdownMenuItem
             key={row.format}
@@ -76,6 +76,7 @@ const ExportMenu = ({ getCanvas, projectName }: ExportMenuProps) => {
               void onPick(row.format);
             }}
             disabled={exporting !== null}
+            className="cursor-pointer focus:bg-white/10"
           >
             {itemLabel(row)}
           </DropdownMenuItem>
