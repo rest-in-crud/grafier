@@ -20,7 +20,7 @@ const projectedJsonSize = (canvas: Canvas, blob: Blob): number => {
   return current + image;
 };
 
-const insertImageFromBlob = async (canvas: Canvas, blob: Blob): Promise<InsertImageResult> => {
+const doInsertImageFromBlob = async (canvas: Canvas, blob: Blob): Promise<InsertImageResult> => {
   if (!ALLOWED_TYPES.includes(blob.type)) {
     return { ok: false, reason: 'unsupported-format' };
   }
@@ -69,6 +69,15 @@ const insertImageFromBlob = async (canvas: Canvas, blob: Blob): Promise<InsertIm
   canvas.requestRenderAll();
 
   return { ok: true };
+};
+
+/* Serialize all inserts across all input surfaces. Without this, concurrent paste / drop handlers each see the pre-insert canvas state and the projectedJsonSize guard becomes racy. */
+let queue: Promise<unknown> = Promise.resolve();
+
+const insertImageFromBlob = (canvas: Canvas, blob: Blob): Promise<InsertImageResult> => {
+  const next = queue.then(() => doInsertImageFromBlob(canvas, blob));
+  queue = next.catch(() => undefined);
+  return next;
 };
 
 const noticeForInsertImageReason = (reason: InsertImageReason): string => {
