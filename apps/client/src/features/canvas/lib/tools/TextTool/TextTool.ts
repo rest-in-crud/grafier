@@ -53,6 +53,13 @@ export class TextTool implements BaseTool {
       canvas.setActiveObject(text);
       text.enterEditing();
       canvas.requestRenderAll();
+
+      text.once('editing:exited', () => {
+        if (text.text === '') {
+          canvas.remove(text);
+          canvas.requestRenderAll();
+        }
+      });
     };
 
     canvas.on('mouse:down', this.handler);

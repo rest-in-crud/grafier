@@ -13,8 +13,8 @@ const SHORTCUT_MAP: Record<string, ToolId> = {
   KeyU: 'shape',
   KeyT: 'text',
   KeyI: 'image',
+  KeyD: 'dropper',
   KeyH: 'hand',
-  KeyZ: 'zoom',
 };
 
 export function useToolShortcuts() {

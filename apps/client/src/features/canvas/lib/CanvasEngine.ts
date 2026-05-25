@@ -1,4 +1,12 @@
-import { ActiveSelection, Canvas, FabricObject, Point } from 'fabric';
+import {
+  ActiveSelection,
+  Canvas,
+  FabricObject,
+  IText,
+  InteractiveFabricObject,
+  Point,
+} from 'fabric';
+import { applySelectionControls } from './selectionControls';
 import type {
   SelectionPatch,
   SelectionSnapshot,
@@ -13,6 +21,14 @@ import { ToolRegistry } from './tools/ToolRegistry';
 
 FabricObject.customProperties = ['data'];
 
+InteractiveFabricObject.ownDefaults = {
+  ...InteractiveFabricObject.ownDefaults,
+  borderColor: 'rgba(0, 0, 0, 0.25)',
+  borderScaleFactor: 1,
+  padding: 5,
+};
+applySelectionControls();
+
 interface CanvasConfig {
   width: number;
   height: number;
@@ -25,6 +41,7 @@ const OBJECT_TYPE_LABELS: Record<string, string> = {
   triangle: 'Triangle',
   line: 'Line',
   path: 'Pen Stroke',
+  'brush-path': 'Brush Stroke',
   'i-text': 'Text',
   image: 'Image',
 };
@@ -36,6 +53,8 @@ function styleSliceFor(
   switch (toolId) {
     case 'pencil':
       return toolStyles.pencil;
+    case 'brush':
+      return toolStyles.brush;
     case 'eraser':
       return toolStyles.eraser;
     case 'text':
@@ -48,7 +67,7 @@ function styleSliceFor(
 }
 
 function projectSelection(obj: FabricObject): SelectionSnapshot {
-  return {
+  const base: SelectionSnapshot = {
     id: typeof obj.data?.id === 'string' ? obj.data.id : '',
     type: obj.type,
     left: Math.round(obj.left ?? 0),
@@ -61,10 +80,18 @@ function projectSelection(obj: FabricObject): SelectionSnapshot {
     stroke: typeof obj.stroke === 'string' ? obj.stroke : null,
     strokeWidth: obj.strokeWidth ?? 0,
   };
+  if (obj instanceof IText) {
+    base.fontFamily = typeof obj.fontFamily === 'string' ? obj.fontFamily : undefined;
+    base.fontWeight = obj.fontWeight !== undefined ? String(obj.fontWeight) : undefined;
+    base.fontSize = typeof obj.fontSize === 'number' ? obj.fontSize : undefined;
+  }
+  return base;
 }
 
 export class CanvasEngine {
   private readonly canvas: Canvas;
+  public readonly docWidth: number;
+  public readonly docHeight: number;
   private activeTool: BaseTool | null = null;
   private activeToolId: ToolId | null = null;
   private activeToolStyles: Record<string, unknown> | undefined = undefined;
@@ -106,10 +133,16 @@ export class CanvasEngine {
   }
 
   constructor(canvasElement: HTMLCanvasElement, config: CanvasConfig) {
+    this.docWidth = config.width;
+    this.docHeight = config.height;
     this.canvas = new Canvas(canvasElement, {
       width: config.width,
       height: config.height,
       selection: true,
+      selectionColor: 'rgba(0, 0, 0, 0.04)',
+      selectionBorderColor: 'rgba(0, 0, 0, 0.5)',
+      selectionLineWidth: 1,
+      selectionDashArray: [3, 3],
     });
     ToolRegistry.init();
 
@@ -119,7 +152,9 @@ export class CanvasEngine {
       if (this.isRestoring || obj.data?.id) return;
 
       const id = crypto.randomUUID();
-      const name = this.generateObjectName(obj.type);
+      const typeKey =
+        obj.type === 'path' && this.activeToolId === 'brush' ? 'brush-path' : obj.type;
+      const name = this.generateObjectName(typeKey);
       obj.data = { ...obj.data, id };
 
       const { activeLayerId, addObjectToLayer } = useLayersStore.getState();
@@ -324,6 +359,11 @@ export class CanvasEngine {
     if (patch.fill !== undefined) obj.set('fill', patch.fill);
     if (patch.stroke !== undefined) obj.set('stroke', patch.stroke);
     if (patch.strokeWidth !== undefined) obj.set('strokeWidth', patch.strokeWidth);
+    if (obj instanceof IText) {
+      if (patch.fontFamily !== undefined) obj.set('fontFamily', patch.fontFamily);
+      if (patch.fontWeight !== undefined) obj.set('fontWeight', patch.fontWeight);
+      if (patch.fontSize !== undefined) obj.set('fontSize', patch.fontSize);
+    }
 
     obj.setCoords();
     this.canvas.requestRenderAll();
