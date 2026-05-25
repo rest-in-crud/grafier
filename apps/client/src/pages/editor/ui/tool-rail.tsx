@@ -48,7 +48,7 @@ const TOOLS: ToolsEntry[] = [
   { id: 'shape', name: 'Shape', kbd: 'U', Icon: IShape, implemented: true },
   { id: 'text', name: 'Text', kbd: 'T', Icon: IText, implemented: true },
   { id: 'image', name: 'Image', kbd: 'I', Icon: IImage, implemented: true },
-  { id: 'dropper', name: 'Eyedropper', kbd: '', Icon: IDropper, implemented: true },
+  { id: 'dropper', name: 'Eyedropper', kbd: 'D', Icon: IDropper, implemented: true },
   { _div: true },
   { id: 'hand', name: 'Hand', kbd: 'H', Icon: IHand, implemented: true },
 ];
