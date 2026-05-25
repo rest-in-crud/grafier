@@ -79,6 +79,21 @@ const withWhiteBgIfTransparent = async <T>(
   }
 };
 
+const blobToDataUrl = (blob: Blob): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result;
+      if (typeof result !== 'string') {
+        reject(new Error('FileReader returned non-string for blob'));
+        return;
+      }
+      resolve(result);
+    };
+    reader.onerror = () => reject(reader.error ?? new Error('FileReader failed'));
+    reader.readAsDataURL(blob);
+  });
+
 const toPng = async (canvas: Canvas): Promise<Blob> => {
   const blob = await canvas.toBlob({ format: 'png', multiplier: 1 });
   if (!blob) throw new Error('Canvas toBlob returned null for png');
@@ -98,6 +113,27 @@ const toSvg = (canvas: Canvas): Blob => {
   return new Blob([svg], { type: 'image/svg+xml' });
 };
 
+const toPdf = async (canvas: Canvas): Promise<Blob> => {
+  return withWhiteBgIfTransparent(canvas, async () => {
+    const width = canvas.width ?? 0;
+    const height = canvas.height ?? 0;
+    if (width <= 0 || height <= 0) {
+      throw new Error('Canvas has no dimensions for pdf export');
+    }
+    const pngBlob = await canvas.toBlob({ format: 'png', multiplier: 1 });
+    if (!pngBlob) throw new Error('Canvas toBlob returned null for pdf source');
+    const dataUrl = await blobToDataUrl(pngBlob);
+    const { jsPDF } = await import('jspdf');
+    const pdf = new jsPDF({
+      orientation: width >= height ? 'landscape' : 'portrait',
+      unit: 'px',
+      format: [width, height],
+    });
+    pdf.addImage(dataUrl, 'PNG', 0, 0, width, height);
+    return pdf.output('blob');
+  });
+};
+
 const dispatch = async (canvas: Canvas, format: ExportFormat): Promise<Blob> => {
   switch (format) {
     case 'png':
@@ -107,7 +143,7 @@ const dispatch = async (canvas: Canvas, format: ExportFormat): Promise<Blob> => 
     case 'svg':
       return toSvg(canvas);
     case 'pdf':
-      throw new Error('PDF export not yet implemented');
+      return await toPdf(canvas);
   }
 };
 
