@@ -35,7 +35,7 @@ const triggerDownload = (blob: Blob, filename: string): void => {
   document.body.appendChild(anchor);
   anchor.click();
   document.body.removeChild(anchor);
-  URL.revokeObjectURL(url);
+  setTimeout(() => URL.revokeObjectURL(url), 0);
 };
 
 const isTransparentBg = (bg: unknown): boolean => {
