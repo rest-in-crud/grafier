@@ -84,7 +84,10 @@ export class AuthController {
     @Throttle({ default: { ttl: 60_000, limit: 5 } })
     @UseGuards(EmailVerificationGuard)
     @Post('confirm-email')
-    confirmEmail(@CurrentUser() payload: { id: string; jti: string }) {
-        return this.authService.confirmEmail(payload.id, payload.jti);
+    confirmEmail(
+        @CurrentUser() payload: { id: string; jti: string },
+        @Res({ passthrough: true }) res: Response,
+    ) {
+        return this.authService.confirmEmail(payload.id, payload.jti, res);
     }
 }
