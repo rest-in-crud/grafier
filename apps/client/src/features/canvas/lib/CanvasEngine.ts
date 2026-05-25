@@ -26,6 +26,7 @@ const OBJECT_TYPE_LABELS: Record<string, string> = {
   line: 'Line',
   path: 'Pen Stroke',
   'i-text': 'Text',
+  image: 'Image',
 };
 
 function styleSliceFor(

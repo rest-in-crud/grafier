@@ -68,6 +68,14 @@ const IText = makeIcon(
   </>,
 );
 
+const IImage = makeIcon(
+  <>
+    <rect x="2" y="3" width="12" height="10" />
+    <circle cx="5.5" cy="6.5" r="1" />
+    <path d="M2 11.5 L5.5 8.5 L8 10.5 L14 5.5" />
+  </>,
+);
+
 const IDropper = makeIcon(
   <>
     <path d="m11 5 1-1 1 1-1 1M11 5 4 12v2h2l7-7M9 7l1 1" />
@@ -217,6 +225,7 @@ export {
   IEraser,
   IShape,
   IText,
+  IImage,
   IDropper,
   IHand,
   IZoom,
