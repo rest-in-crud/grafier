@@ -9,7 +9,6 @@ import { useNoticeStore } from '@/features/notice/store/notice.store';
 import { useLayersStore } from '@/features/layers/store/layers.store';
 import { useReadOnlyStore } from '@/features/projects/store/read-only.store';
 import { saveCanvasRequestSchema } from '@/features/projects/schema';
-import { IPlus } from '@/pages/editor/icons';
 import type { CanvasEngine } from '@/features/canvas/lib/CanvasEngine';
 
 type SaveVersionPopoverProps = {
@@ -73,7 +72,6 @@ const SaveVersionPopover = ({ designId, engineRef }: SaveVersionPopoverProps) =>
     <Popover open={saveOpen} onOpenChange={(next) => (next ? openSave() : closeSave())}>
       <PopoverTrigger asChild>
         <Button variant="ghost" size="sm">
-          <IPlus size={11} />
           Save version
         </Button>
       </PopoverTrigger>
