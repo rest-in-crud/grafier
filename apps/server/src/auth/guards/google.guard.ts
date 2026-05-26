@@ -1,4 +1,3 @@
-// apps/server/src/auth/guards/google.guard.ts
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import type { Request } from 'express';

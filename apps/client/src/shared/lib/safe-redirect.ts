@@ -1,26 +1,3 @@
-// apps/client/src/shared/lib/safe-redirect.ts
-
-// VERIFY (manual smoke during PR review): each of these MUST return null
-//   safeRedirect(null)                   -> null
-//   safeRedirect('')                     -> null
-//   safeRedirect('a'.repeat(513))        -> null
-//   safeRedirect('//evil.com')           -> null
-//   safeRedirect('/\\evil.com')          -> null (slash + backslash)
-//   safeRedirect('\\evil.com')           -> null (no leading slash)
-//   safeRedirect('https://evil.com')     -> null
-//   safeRedirect('/%2Fevil.com')         -> null (percent-encoded slash)
-//   safeRedirect('/%2fevil.com')         -> null (lowercase variant)
-//   safeRedirect('/%5Cevil.com')         -> null (percent-encoded backslash)
-//   safeRedirect('/\r/Set-Cookie')       -> null (CRLF)
-//   safeRedirect('/\n/Set-Cookie')       -> null
-//   safeRedirect('/\0/x')                -> null (null byte)
-//   safeRedirect('  /p/abc')             -> '/p/abc' (leading spaces stripped)
-//   safeRedirect('\t/p/abc')             -> '/p/abc' (leading tab stripped)
-// these MUST round-trip
-//   safeRedirect('/')                    -> '/'
-//   safeRedirect('/p/abc')               -> '/p/abc'
-//   safeRedirect('/editor/123?z=1')      -> '/editor/123?z=1'
-
 const MAX = 512;
 
 const safeRedirect = (raw: string | null | undefined): string | null => {

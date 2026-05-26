@@ -36,7 +36,7 @@ export default async function handler(req: Request): Promise<Response> {
         }
       }
     } catch {
-      // fall through to fallback copy (timeout, network error, non-OK status)
+      /* empty */
     }
   }
 

@@ -1,8 +1,3 @@
-// apps/server/src/auth/safe-redirect.ts
-
-// VERIFY (manual smoke): same cases as apps/client/src/shared/lib/safe-redirect.ts
-// The two implementations must stay byte-for-byte aligned on accept/reject rules.
-
 const MAX = 512;
 
 export const safeRedirect = (raw: string | null | undefined): string | null => {
