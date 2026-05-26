@@ -18,7 +18,7 @@ const FORMATS: FormatRow[] = [
   { format: 'jpg', label: 'JPG' },
   { format: 'svg', label: 'SVG' },
   { format: 'pdf', label: 'PDF' },
-  { format: 'project', label: 'Project' },
+  { format: 'project', label: 'GRAFIER' },
 ];
 
 const ERROR_CLEAR_MS = 3000;

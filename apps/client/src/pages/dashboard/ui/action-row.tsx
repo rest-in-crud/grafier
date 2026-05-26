@@ -49,11 +49,11 @@ const ActionRow = () => {
         height: parsed.height,
         type: 'project',
       });
-      await api.saveCanvas(created.id, {
+      const saved = await api.saveCanvas(created.id, {
         canvasJSON: parsed.canvasJSON,
         layersJSON: parsed.layersJSON,
       });
-      queryClient.setQueryData(designsKeys.detail(created.id), created);
+      queryClient.setQueryData(designsKeys.detail(created.id), saved);
       void queryClient.invalidateQueries({ queryKey: designsKeys.myProjects() });
       navigate(`/editor/${created.id}`);
     } catch {
