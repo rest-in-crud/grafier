@@ -38,6 +38,7 @@ type TooltipState = {
 
 const TOOLS: ToolsEntry[] = [
   { id: 'move', name: 'Move', kbd: 'V', Icon: IMove, implemented: true },
+  { id: 'hand', name: 'Hand', kbd: 'H', Icon: IHand, implemented: true },
   { id: 'marquee', name: 'Marquee', kbd: 'M', Icon: IMarquee, implemented: false },
   { id: 'lasso', name: 'Lasso', kbd: 'L', Icon: ILasso, implemented: false },
   { _div: true },
@@ -49,8 +50,6 @@ const TOOLS: ToolsEntry[] = [
   { id: 'text', name: 'Text', kbd: 'T', Icon: IText, implemented: true },
   { id: 'image', name: 'Image', kbd: 'I', Icon: IImage, implemented: true },
   { id: 'dropper', name: 'Eyedropper', kbd: 'D', Icon: IDropper, implemented: true },
-  { _div: true },
-  { id: 'hand', name: 'Hand', kbd: 'H', Icon: IHand, implemented: true },
 ];
 
 export function ToolRail({
