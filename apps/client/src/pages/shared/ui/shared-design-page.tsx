@@ -73,9 +73,15 @@ const SharedDesignPage = () => {
         </div>
         <div className="flex items-center gap-3">
           {user ? (
-            <Button size="sm" onClick={onFork} disabled={fork.isPending}>
-              {fork.isPending ? 'Opening…' : 'Open in Grafier'}
-            </Button>
+            user.id === design.userID ? (
+              <Button asChild size="sm">
+                <Link to={`/editor/${design.id}`}>Go to project</Link>
+              </Button>
+            ) : (
+              <Button size="sm" onClick={onFork} disabled={fork.isPending}>
+                {fork.isPending ? 'Opening…' : 'Open in Grafier'}
+              </Button>
+            )
           ) : (
             <Button asChild size="sm">
               <Link to={signInTarget}>Sign in to fork</Link>

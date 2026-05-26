@@ -156,8 +156,7 @@ const useSharedDesign = (token: string) =>
   useQuery({
     queryKey: designsKeys.shared(token),
     queryFn: () => api.getSharedDesign(token),
-    staleTime: Infinity,
-    refetchOnWindowFocus: false,
+    staleTime: 30_000,
     retry: (failureCount, error) => {
       if (error instanceof HttpError && error.status === 404) return false;
       return failureCount < 2;
