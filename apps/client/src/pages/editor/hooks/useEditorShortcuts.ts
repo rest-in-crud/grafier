@@ -4,6 +4,7 @@ import type { Canvas } from 'fabric';
 import type { CanvasEngine } from '@/features/canvas/lib/CanvasEngine';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import { useReadOnlyStore } from '@/features/projects/store/read-only.store';
+import { useSaveStatusStore } from '@/features/projects/store/save-status.store';
 import { isPrimaryModifier } from '@/shared/lib/platform';
 
 const collectAllIds = (canvas: Canvas): string[] =>
@@ -17,6 +18,9 @@ export function useEditorShortcuts(engineRef: RefObject<CanvasEngine | null>) {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (isPrimaryModifier(e) && e.code === 'KeyS' && !e.shiftKey && !e.altKey) {
         e.preventDefault();
+        if (!useReadOnlyStore.getState().isReadOnly) {
+          void useSaveStatusStore.getState().pendingFlush?.();
+        }
         return;
       }
 

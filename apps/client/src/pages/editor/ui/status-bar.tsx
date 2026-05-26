@@ -12,7 +12,9 @@ const labelFor = (status: SaveStatus): string => {
     case 'saving':
       return 'Saving…';
     case 'error':
-      return 'Save failed · retrying';
+      return status.lastError.status === 0
+        ? 'No connection · changes unsaved'
+        : 'Save failed · try again';
     case 'fatal':
       switch (status.reason) {
         case 'not-found':
