@@ -132,6 +132,7 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
 
   const [radial, setRadial] = useState<{ x: number; y: number } | null>(null);
   const [cursor, setCursor] = useState<{ x: number; y: number }>({ x: 412, y: 268 });
+  const [cursorVisible, setCursorVisible] = useState(false);
   const [railWidth, setRailWidth] = useState<number>(() => loadRailWidth());
 
   useEffect(() => {
@@ -148,6 +149,14 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
   function onCanvasMove(e: MouseEvent) {
     const r = e.currentTarget.getBoundingClientRect();
     setCursor({ x: Math.round(e.clientX - r.left), y: Math.round(e.clientY - r.top) });
+  }
+
+  function onCanvasLeave() {
+    setCursorVisible(false);
+  }
+
+  function onCanvasEnter() {
+    setCursorVisible(true);
   }
 
   const onCanvasDragOver = (event: DragEvent) => {
@@ -258,8 +267,12 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
               <CanvasStage
                 onContextMenu={onCanvasContextMenu}
                 onMouseMove={onCanvasMove}
+                onMouseLeave={onCanvasLeave}
                 onDragOver={onCanvasDragOver}
                 onDrop={onCanvasDrop}
+                cursorPos={cursor}
+                cursorVisible={cursorVisible}
+                onMouseEnter={onCanvasEnter}
               >
                 <CanvasArea
                   engineRef={engineRef}

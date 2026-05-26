@@ -2,6 +2,7 @@ import { useEffect, useState, type RefObject } from 'react';
 import type { CanvasEngine } from '@/features/canvas/lib/CanvasEngine';
 import type { ProjectDetail } from '@/features/projects/schema';
 import { useCanvas } from '@/features/canvas/hooks/useCanvas';
+import { loadCanvasTextFonts } from '@/features/canvas/lib/tools/TextTool/fontLoader';
 import { useLayerSync } from '@/features/layers/hooks/useLayerSync';
 import { useHistory } from '@/features/canvas/hooks/useHistory';
 import { useHistoryStore } from '@/features/canvas/store/history.store';
@@ -52,6 +53,7 @@ export const CanvasArea = ({ engineRef, containerRef, initialProject, onHydrateE
       try {
         if (initialProject.canvasJSON) {
           await engine.fabricCanvas.loadFromJSON(initialProject.canvasJSON);
+          await loadCanvasTextFonts(engine.fabricCanvas);
         }
         if (cancelled) return;
         if (initialProject.canvasJSON) {

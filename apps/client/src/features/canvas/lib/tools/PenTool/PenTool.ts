@@ -21,9 +21,10 @@ export class PenTool implements BaseTool {
         ? this.createSprayBrush(canvas, s, brushColor, shadow)
         : this.createPencilBrush(canvas, s, brushColor, shadow);
 
+    canvas.freeDrawingCursor = 'none';
+    canvas.defaultCursor = 'none';
+    canvas.hoverCursor = 'none';
     canvas.isDrawingMode = true;
-    canvas.defaultCursor = 'default';
-    canvas.hoverCursor = canvas.defaultCursor;
   }
 
   private createPencilBrush(canvas: Canvas, s: PenStyles, color: string, shadow: Shadow | null) {

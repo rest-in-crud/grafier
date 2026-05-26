@@ -104,8 +104,9 @@ export class BrushTool implements BaseTool {
 
     canvas.freeDrawingBrush = brush;
     canvas.isDrawingMode = true;
-    canvas.defaultCursor = 'crosshair';
-    canvas.hoverCursor = canvas.defaultCursor;
+    canvas.freeDrawingCursor = 'none';
+    canvas.defaultCursor = 'none';
+    canvas.hoverCursor = 'none';
     canvas.on('path:created', this.onPathCreated);
   }
 

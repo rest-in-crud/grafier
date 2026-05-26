@@ -1,3 +1,5 @@
+import { IText } from 'fabric';
+import type { Canvas } from 'fabric';
 import {
   DEFAULT_TEXT_FONT_FAMILY,
   DEFAULT_TEXT_FONT_WEIGHT,
@@ -20,6 +22,18 @@ function normalizeFamily(family: unknown): string {
 function normalizeWeight(weight: unknown): string {
   if (typeof weight === 'number') return String(weight);
   return typeof weight === 'string' && weight.trim().length > 0 ? weight : DEFAULT_TEXT_FONT_WEIGHT;
+}
+
+export async function loadCanvasTextFonts(canvas: Canvas): Promise<void> {
+  const textObjects: IText[] = [];
+  for (const obj of canvas.getObjects()) {
+    if (obj instanceof IText) textObjects.push(obj);
+  }
+  await Promise.all(textObjects.map((obj) => loadTextFont(obj.fontFamily, obj.fontWeight)));
+  for (const obj of textObjects) {
+    obj.initDimensions();
+    obj.setCoords();
+  }
 }
 
 export async function loadTextFont(family: unknown, weight: unknown) {
