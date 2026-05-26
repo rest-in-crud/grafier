@@ -81,7 +81,7 @@ const useAutosave = (projectId: string, engineRef: RefObject<CanvasEngine | null
   useEffect(() => {
     const flush = async () => {
       const tag = useSaveStatusStore.getState().status.tag;
-      if (tag === 'idle' || tag === 'fatal') return;
+      if (tag === 'idle' || tag === 'saving' || tag === 'fatal') return;
       await doSave();
     };
     setPendingFlush(flush);
