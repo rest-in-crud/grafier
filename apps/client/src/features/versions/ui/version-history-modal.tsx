@@ -33,7 +33,10 @@ const VersionHistoryModal = ({ designId, engineRef }: VersionHistoryModalProps) 
   const isReadOnly = useReadOnlyStore((s) => s.isReadOnly);
   const canEdit = !isReadOnly;
 
-  const filtered = (versions ?? []).filter((v) => showAuto || !isAutoLabel(v.label));
+  const sorted = [...(versions ?? [])].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  );
+  const filtered = sorted.filter((v) => showAuto || !isAutoLabel(v.label));
 
   const onRestore = async (versionId: string) => {
     setRestoringId(versionId);
