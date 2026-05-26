@@ -8,6 +8,7 @@ import {
     Param,
     Patch,
     Post,
+    Query,
     UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwtAuth.guard';
@@ -57,8 +58,8 @@ export class DesignsController {
 
     @UseGuards(JwtAuthGuard)
     @Post(':id/fork')
-    fork(@CurrentUser() user: AuthUser, @Param('id') id: string) {
-        return this.designsService.forkDesign(id, user.id);
+    fork(@CurrentUser() user: AuthUser, @Param('id') id: string, @Query('token') token?: string) {
+        return this.designsService.forkDesign(id, user.id, undefined, token);
     }
 
     @UseGuards(JwtAuthGuard)
