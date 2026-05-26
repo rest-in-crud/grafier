@@ -21,14 +21,20 @@ const useAutosave = (projectId: string, engineRef: RefObject<CanvasEngine | null
   const markFatal = useSaveStatusStore((s) => s.markFatal);
   const setPendingFlush = useSaveStatusStore((s) => s.setPendingFlush);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isSavingRef = useRef(false);
 
   const doSave = useCallback(async () => {
+    if (isSavingRef.current) return;
+    isSavingRef.current = true;
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
     }
     const engine = engineRef.current;
-    if (!engine) return;
+    if (!engine) {
+      isSavingRef.current = false;
+      return;
+    }
     markSaving();
     const canvasJSON = saveCanvasRequestSchema.shape.canvasJSON.parse(engine.fabricCanvas.toJSON());
     const layersJSON = useLayersStore.getState().layers;
@@ -48,6 +54,8 @@ const useAutosave = (projectId: string, engineRef: RefObject<CanvasEngine | null
         return markError(err);
       }
       markError(new HttpError(0, null));
+    } finally {
+      isSavingRef.current = false;
     }
   }, [engineRef, markSaving, markIdle, markError, markFatal, saveMutation, projectId]);
 
