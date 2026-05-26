@@ -27,6 +27,7 @@ export const designs = pgTable(
         type: designTypeEnum('type').notNull().default('project'),
         canvasJSON: jsonb('canvas_json'),
         layersJSON: jsonb('layers_json'),
+        shareToken: uuid('share_token').unique(),
         createdAt: timestamp('created_at').defaultNow().notNull(),
         updatedAt: timestamp('updated_at').defaultNow().notNull(),
     },

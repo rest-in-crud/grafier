@@ -68,6 +68,19 @@ export class DesignsController {
     }
 
     @UseGuards(JwtAuthGuard)
+    @Post(':id/share')
+    generateShare(@CurrentUser() user: AuthUser, @Param('id') id: string) {
+        return this.designsService.generateShareToken(id, user.id);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Delete(':id/share')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    revokeShare(@CurrentUser() user: AuthUser, @Param('id') id: string) {
+        return this.designsService.revokeShareToken(id, user.id);
+    }
+
+    @UseGuards(JwtAuthGuard)
     @Post(':id/canvas')
     saveCanvas(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() dto: SaveCanvasDto) {
         return this.designsService.saveCanvas(id, user.id, dto);

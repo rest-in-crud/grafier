@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { and, asc, count, desc, eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
@@ -23,6 +24,7 @@ const designListFields = {
     height: designs.height,
     isPublic: designs.isPublic,
     type: designs.type,
+    shareToken: designs.shareToken,
     createdAt: designs.createdAt,
     updatedAt: designs.updatedAt,
 } as const;
@@ -30,6 +32,13 @@ const designListFields = {
 @Injectable()
 export class DesignsService {
     constructor(@Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>) {}
+
+    private omitShareToken<T extends { shareToken: string | null }>(
+        design: T,
+    ): Omit<T, 'shareToken'> {
+        const { shareToken: _st, ...rest } = design;
+        return rest as Omit<T, 'shareToken'>;
+    }
 
     private async assertOwner(designId: string, userId: string): Promise<Design> {
         const [design] = await this.db.select().from(designs).where(eq(designs.id, designId));
@@ -63,12 +72,14 @@ export class DesignsService {
             ? and(eq(designs.isPublic, true), eq(designs.type, type))
             : eq(designs.isPublic, true);
 
-        return this.db
+        const results = await this.db
             .select(designListFields)
             .from(designs)
             .innerJoin(users, eq(designs.userID, users.id))
             .where(conditions)
             .orderBy(desc(designs.updatedAt));
+
+        return results.map((d) => this.omitShareToken(d));
     }
 
     async listUserDesigns(
@@ -76,19 +87,26 @@ export class DesignsService {
         requesterId: string | null,
         type?: 'project' | 'template',
     ) {
-        const visibilityFilter =
-            requesterId === targetUserId
-                ? eq(designs.userID, targetUserId)
-                : and(eq(designs.userID, targetUserId), eq(designs.isPublic, true));
+        const isOwner = requesterId === targetUserId;
+
+        const visibilityFilter = isOwner
+            ? eq(designs.userID, targetUserId)
+            : and(eq(designs.userID, targetUserId), eq(designs.isPublic, true));
 
         const conditions = type ? and(visibilityFilter, eq(designs.type, type)) : visibilityFilter;
 
-        return this.db
+        const results = await this.db
             .select(designListFields)
             .from(designs)
             .innerJoin(users, eq(designs.userID, users.id))
             .where(conditions)
             .orderBy(desc(designs.updatedAt));
+
+        if (!isOwner) {
+            return results.map((d) => this.omitShareToken(d));
+        }
+
+        return results;
     }
 
     async createDesign(userId: string, dto: CreateDesignDto) {
@@ -118,6 +136,7 @@ export class DesignsService {
                 height: designs.height,
                 isPublic: designs.isPublic,
                 type: designs.type,
+                shareToken: designs.shareToken,
                 canvasJSON: designs.canvasJSON,
                 layersJSON: designs.layersJSON,
                 createdAt: designs.createdAt,
@@ -131,6 +150,10 @@ export class DesignsService {
 
         if (!result.isPublic && result.userID !== userId) {
             throw new ForbiddenException('Access denied');
+        }
+
+        if (result.userID !== userId) {
+            return this.omitShareToken(result);
         }
 
         return result;
@@ -376,5 +399,53 @@ export class DesignsService {
         await this.db
             .delete(designHistory)
             .where(and(eq(designHistory.id, checkpointId), eq(designHistory.designID, id)));
+    }
+
+    async generateShareToken(designId: string, userId: string) {
+        await this.assertOwner(designId, userId);
+
+        const token = randomUUID();
+
+        const [updated] = await this.db
+            .update(designs)
+            .set({ shareToken: token, updatedAt: new Date() })
+            .where(eq(designs.id, designId))
+            .returning({ shareToken: designs.shareToken });
+
+        return updated;
+    }
+
+    async revokeShareToken(designId: string, userId: string) {
+        await this.assertOwner(designId, userId);
+
+        await this.db
+            .update(designs)
+            .set({ shareToken: null, updatedAt: new Date() })
+            .where(eq(designs.id, designId));
+    }
+
+    async getDesignByShareToken(shareToken: string) {
+        const [result] = await this.db
+            .select({
+                id: designs.id,
+                userID: designs.userID,
+                userName: users.name,
+                name: designs.name,
+                width: designs.width,
+                height: designs.height,
+                isPublic: designs.isPublic,
+                type: designs.type,
+                canvasJSON: designs.canvasJSON,
+                layersJSON: designs.layersJSON,
+                createdAt: designs.createdAt,
+                updatedAt: designs.updatedAt,
+            })
+            .from(designs)
+            .innerJoin(users, eq(designs.userID, users.id))
+            .where(eq(designs.shareToken, shareToken));
+
+        if (!result) throw new NotFoundException('Design not found');
+
+        return result;
     }
 }
