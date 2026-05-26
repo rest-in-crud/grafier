@@ -50,10 +50,23 @@ const saveCanvasRequestSchema = z.object({
   layersJSON: z.array(layerSchema),
 });
 
+const PROJECT_FILE_VERSION = 1;
+
+const projectFileSchema = z.object({
+  version: z.literal(1),
+  name: z.string(),
+  width: z.number().int().positive(),
+  height: z.number().int().positive(),
+  canvasJSON: z.record(z.string(), z.unknown()),
+  layersJSON: z.array(layerSchema),
+});
+
 type ProjectSummary = z.infer<typeof projectSummarySchema>;
 type ProjectDetail = z.infer<typeof projectDetailSchema>;
 type CreateProjectRequest = z.infer<typeof createProjectRequestSchema>;
 type SaveCanvasRequest = z.infer<typeof saveCanvasRequestSchema>;
+type ProjectFile = z.infer<typeof projectFileSchema>;
+type Layer = z.infer<typeof layerSchema>;
 
 export {
   projectSummarySchema,
@@ -61,5 +74,14 @@ export {
   projectsListResponseSchema,
   createProjectRequestSchema,
   saveCanvasRequestSchema,
+  projectFileSchema,
+  PROJECT_FILE_VERSION,
 };
-export type { ProjectSummary, ProjectDetail, CreateProjectRequest, SaveCanvasRequest };
+export type {
+  ProjectSummary,
+  ProjectDetail,
+  CreateProjectRequest,
+  SaveCanvasRequest,
+  ProjectFile,
+  Layer,
+};

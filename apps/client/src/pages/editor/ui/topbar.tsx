@@ -122,6 +122,8 @@ function Topbar({
         <ExportMenu
           getCanvas={getCanvas ?? (() => null)}
           projectName={exportProjectName ?? 'design'}
+          projectWidth={width ?? 1920}
+          projectHeight={height ?? 1080}
         />
 
         {designId ? <ReadOnlyActions designId={designId} /> : null}
