@@ -25,8 +25,12 @@ const DeleteProjectDialog = ({
   const remove = useDeleteProject();
 
   const onConfirm = async () => {
-    await remove.mutateAsync(projectId);
-    onOpenChange(false);
+    try {
+      await remove.mutateAsync(projectId);
+      onOpenChange(false);
+    } catch {
+      // mutation .error state drives the inline error message
+    }
   };
 
   return (

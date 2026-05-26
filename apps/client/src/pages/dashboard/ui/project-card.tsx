@@ -54,7 +54,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
         tabIndex={0}
         onClick={onOpen}
         onKeyDown={onKey}
-        className="relative flex cursor-pointer flex-col border border-hairline bg-black/30 text-left transition-colors hover:border-hairline-strong hover:bg-black/40 focus:outline-none focus-visible:border-foreground"
+        className="relative flex cursor-pointer flex-col border border-hairline bg-black/30 text-left transition-colors hover:border-hairline-strong hover:bg-black/40 focus:outline-none focus-visible:border-foreground focus-visible:ring-2 focus-visible:ring-foreground/40"
       >
         <div className="relative flex h-[130px] items-center justify-center overflow-hidden border-b border-hairline">
           <pre className="m-0 font-mono text-[6.5px] leading-[1.05] whitespace-pre text-foreground/90">

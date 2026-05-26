@@ -39,8 +39,12 @@ const RenameProjectDialog = ({
       onOpenChange(false);
       return;
     }
-    await rename.mutateAsync({ id: projectId, name: trimmed });
-    onOpenChange(false);
+    try {
+      await rename.mutateAsync({ id: projectId, name: trimmed });
+      onOpenChange(false);
+    } catch {
+      // mutation .error state drives the inline error message
+    }
   };
 
   return (
