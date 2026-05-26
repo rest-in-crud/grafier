@@ -35,7 +35,7 @@ const NewProjectModal = ({ open, onOpenChange }: NewProjectModalProps) => {
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const finalName = name.trim() || placeholder;
-    const project = await create.mutateAsync(finalName);
+    const project = await create.mutateAsync({ name: finalName });
     onOpenChange(false);
     navigate(`/editor/${project.id}`);
   };
