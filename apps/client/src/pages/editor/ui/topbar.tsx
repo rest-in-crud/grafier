@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { MouseEvent } from 'react';
+import type { MouseEvent, RefObject } from 'react';
 import { Link } from 'react-router';
 import { PublishToggleButton, SaveAsTemplateButton } from './publish-popover';
 import { ReadOnlyAuthorLabel, ReadOnlyActions } from './read-only-banner';
@@ -11,6 +11,8 @@ import { ExportMenu } from './export-menu';
 import { useHistoryStore } from '@/features/canvas/store/history.store';
 import { formatHotkey } from '@/shared/lib/platform';
 import { useVersionUiStore } from '@/features/versions/store/version-ui.store';
+import { SaveVersionPopover } from '@/features/versions/ui/save-version-popover';
+import type { CanvasEngine } from '@/features/canvas/lib/CanvasEngine';
 
 type TooltipState = { name: string; kbd: string; x: number; y: number } | null;
 
@@ -25,6 +27,7 @@ export type TopbarProps = {
   isOwner?: boolean;
   getCanvas?: () => Canvas | null;
   exportProjectName?: string;
+  engineRef?: RefObject<CanvasEngine | null>;
 };
 
 function Topbar({
@@ -38,6 +41,7 @@ function Topbar({
   isOwner,
   getCanvas,
   exportProjectName,
+  engineRef,
 }: TopbarProps) {
   const [tooltip, setTooltip] = useState<TooltipState>(null);
   const undo = useHistoryStore((s) => s.undo);
@@ -84,7 +88,9 @@ function Topbar({
           <IHistory size={14} />
         </IconButton>
 
-        {/* SaveVersionPopover mounts here in a later task */}
+        {designId && engineRef ? (
+          <SaveVersionPopover designId={designId} engineRef={engineRef} />
+        ) : null}
       </div>
 
       <div className="flex flex-1 items-center justify-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.16em] text-fg-dim">

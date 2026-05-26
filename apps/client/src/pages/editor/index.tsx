@@ -248,6 +248,7 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
               isOwner={user?.id === project.userID}
               getCanvas={() => engineRef.current?.fabricCanvas ?? null}
               exportProjectName={project.name}
+              engineRef={engineRef}
             />
           </div>
           <div
