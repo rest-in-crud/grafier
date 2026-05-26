@@ -8,6 +8,7 @@ import {
 } from '@/shared/ui/dropdown-menu';
 import { exportAs, ExportError } from '../lib/export';
 import type { ExportFormat } from '../lib/export';
+import { useLayersStore } from '@/features/layers/store/layers.store';
 import { IExport } from '../icons';
 
 type FormatRow = { format: ExportFormat; label: string };
@@ -17,6 +18,7 @@ const FORMATS: FormatRow[] = [
   { format: 'jpg', label: 'JPG' },
   { format: 'svg', label: 'SVG' },
   { format: 'pdf', label: 'PDF' },
+  { format: 'project', label: 'Project' },
 ];
 
 const ERROR_CLEAR_MS = 3000;
@@ -24,9 +26,11 @@ const ERROR_CLEAR_MS = 3000;
 type ExportMenuProps = {
   getCanvas: () => Canvas | null;
   projectName: string;
+  projectWidth: number;
+  projectHeight: number;
 };
 
-const ExportMenu = ({ getCanvas, projectName }: ExportMenuProps) => {
+const ExportMenu = ({ getCanvas, projectName, projectWidth, projectHeight }: ExportMenuProps) => {
   const [exporting, setExporting] = useState<ExportFormat | null>(null);
   const [error, setError] = useState<ExportFormat | null>(null);
 
@@ -42,7 +46,13 @@ const ExportMenu = ({ getCanvas, projectName }: ExportMenuProps) => {
     setExporting(format);
     setError(null);
     try {
-      await exportAs(canvas, format, projectName);
+      const layersJSON = useLayersStore.getState().layers;
+      await exportAs(canvas, format, {
+        projectName,
+        projectWidth,
+        projectHeight,
+        layersJSON,
+      });
     } catch (e) {
       if (e instanceof ExportError) setError(e.format);
       else setError(format);
