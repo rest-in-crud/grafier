@@ -45,7 +45,7 @@ const SharedCanvas = ({ design }: SharedCanvasProps) => {
     );
   }
 
-  return <canvas ref={ref} className="border border-hairline-strong" />;
+  return <canvas ref={ref} className="max-h-full max-w-full border border-hairline-strong" />;
 };
 
 export { SharedCanvas };
