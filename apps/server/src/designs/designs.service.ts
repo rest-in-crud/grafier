@@ -49,12 +49,21 @@ export class DesignsService {
         return design;
     }
 
-    private async assertAccessible(designId: string, userId: string | null): Promise<Design> {
+    private async assertAccessible(
+        designId: string,
+        userId: string | null,
+        shareToken?: string,
+    ): Promise<Design> {
         const [design] = await this.db.select().from(designs).where(eq(designs.id, designId));
 
         if (!design) throw new NotFoundException('Design not found');
 
-        if (!design.isPublic && design.userID !== userId) {
+        const allowed =
+            design.isPublic ||
+            design.userID === userId ||
+            (shareToken !== undefined && design.shareToken === shareToken);
+
+        if (!allowed) {
             throw new ForbiddenException('Access denied');
         }
 
@@ -212,8 +221,13 @@ export class DesignsService {
         return updated;
     }
 
-    async forkDesign(id: string, userId: string, forcedType?: 'project' | 'template') {
-        const source = await this.assertAccessible(id, userId);
+    async forkDesign(
+        id: string,
+        userId: string,
+        forcedType?: 'project' | 'template',
+        shareToken?: string,
+    ) {
+        const source = await this.assertAccessible(id, userId, shareToken);
 
         const [fork] = await this.db
             .insert(designs)

@@ -9,6 +9,7 @@ const projectSummarySchema = z.object({
   height: z.number().int().positive(),
   isPublic: z.boolean(),
   type: z.enum(['project', 'template']),
+  shareToken: z.string().uuid().nullable().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
@@ -34,6 +35,23 @@ const projectDetailSchema = projectSummarySchema.extend({
   canvasJSON: z.record(z.string(), z.unknown()).nullable(),
   layersJSON: z.array(layerSchema).nullable(),
 });
+
+const sharedDesignSchema = z.object({
+  id: z.string().uuid(),
+  userID: z.string().uuid(),
+  userName: z.string(),
+  name: z.string(),
+  width: z.number().int().positive(),
+  height: z.number().int().positive(),
+  isPublic: z.boolean(),
+  type: z.enum(['project', 'template']),
+  canvasJSON: z.record(z.string(), z.unknown()).nullable(),
+  layersJSON: z.array(layerSchema).nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+type SharedDesign = z.infer<typeof sharedDesignSchema>;
 
 const projectsListResponseSchema = z.array(projectSummarySchema);
 
@@ -71,6 +89,7 @@ type Layer = z.infer<typeof layerSchema>;
 export {
   projectSummarySchema,
   projectDetailSchema,
+  sharedDesignSchema,
   projectsListResponseSchema,
   createProjectRequestSchema,
   saveCanvasRequestSchema,
@@ -80,6 +99,7 @@ export {
 export type {
   ProjectSummary,
   ProjectDetail,
+  SharedDesign,
   CreateProjectRequest,
   SaveCanvasRequest,
   ProjectFile,

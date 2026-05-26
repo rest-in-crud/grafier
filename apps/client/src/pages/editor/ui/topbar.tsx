@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { MouseEvent, RefObject } from 'react';
 import { Link } from 'react-router';
 import { PublishToggleButton, SaveAsTemplateButton } from './publish-popover';
+import { ShareLinkPopover } from './share-link-popover';
 import { ReadOnlyAuthorLabel, ReadOnlyActions } from './read-only-banner';
 import { IconButton } from './primitives';
 import { PublicIcon, PrivateIcon } from '@/shared/ui/visibility-icons';
@@ -131,6 +132,7 @@ function Topbar({
         {isOwner && designId ? (
           <>
             <SaveAsTemplateButton designId={designId} />
+            <ShareLinkPopover designId={designId} />
             <PublishToggleButton designId={designId} />
           </>
         ) : null}

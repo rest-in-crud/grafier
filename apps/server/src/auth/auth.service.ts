@@ -17,6 +17,7 @@ import { MailService } from '../mail/mail.service';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
+import { safeRedirect } from './safe-redirect';
 
 const REFRESH_COOKIE = 'refresh_token';
 
@@ -123,11 +124,15 @@ export class AuthService {
         return { message: 'Logged out' };
     }
 
-    async googleCallback(oauthUser: AuthUser, res: Response) {
+    async googleCallback(oauthUser: AuthUser, req: Request, res: Response) {
         await this.issueRefreshCookie(oauthUser.id, res);
 
         const frontendUrl = this.config.getOrThrow<string>('URL_FRONTEND').replace(/\/$/, '');
-        res.redirect(`${frontendUrl}/callback`);
+        const validated = safeRedirect(
+            typeof req.query.state === 'string' ? req.query.state : null,
+        );
+        const suffix = validated ? `?redirect=${encodeURIComponent(validated)}` : '';
+        res.redirect(`${frontendUrl}/callback${suffix}`);
     }
 
     async forgotPassword(dto: ForgotPasswordDto) {

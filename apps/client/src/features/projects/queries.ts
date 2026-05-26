@@ -95,7 +95,7 @@ const useSaveCanvas = (projectId: string) => {
 const useForkAsProject = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (sourceId: string) => api.forkAsProject(sourceId),
+    mutationFn: ({ id, token }: { id: string; token?: string }) => api.forkAsProject(id, token),
     onSuccess: (created: ProjectDetail) => {
       queryClient.setQueryData(designsKeys.detail(created.id), created);
       queryClient.invalidateQueries({ queryKey: designsKeys.myProjects() });
@@ -128,6 +128,41 @@ const useSetVisibility = (designId: string) => {
   });
 };
 
+const useCreateShareToken = (designId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => api.createShareToken(designId),
+    onSuccess: ({ shareToken }) => {
+      queryClient.setQueryData<ProjectDetail | undefined>(designsKeys.detail(designId), (prev) =>
+        prev ? { ...prev, shareToken } : prev,
+      );
+    },
+  });
+};
+
+const useRevokeShareToken = (designId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => api.revokeShareToken(designId),
+    onSuccess: () => {
+      queryClient.setQueryData<ProjectDetail | undefined>(designsKeys.detail(designId), (prev) =>
+        prev ? { ...prev, shareToken: null } : prev,
+      );
+    },
+  });
+};
+
+const useSharedDesign = (token: string) =>
+  useQuery({
+    queryKey: designsKeys.shared(token),
+    queryFn: () => api.getSharedDesign(token),
+    staleTime: 30_000,
+    retry: (failureCount, error) => {
+      if (error instanceof HttpError && error.status === 404) return false;
+      return failureCount < 2;
+    },
+  });
+
 export {
   useMyProjects,
   useMyTemplates,
@@ -140,4 +175,7 @@ export {
   useForkAsProject,
   useForkAsTemplate,
   useSetVisibility,
+  useCreateShareToken,
+  useRevokeShareToken,
+  useSharedDesign,
 };

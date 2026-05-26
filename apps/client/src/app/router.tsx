@@ -13,6 +13,7 @@ import { ResetPage } from '@/pages/reset';
 import { VerifyPage } from '@/pages/verify';
 import { NotFoundPage } from '@/pages/not-found';
 import { CallbackPage } from '@/pages/callback';
+import { SharedDesignPage } from '@/pages/shared';
 import { completeOAuth } from '@/features/auth/session';
 import { RequireAuth, RequireAnon } from '@/app/guards';
 
@@ -45,6 +46,7 @@ const routes: RouteObject[] = [
       { path: '/callback', loader: completeOAuth, Component: CallbackPage },
     ],
   },
+  { path: '/p/:token', Component: SharedDesignPage },
   { path: '*', Component: NotFoundPage },
 ];
 
