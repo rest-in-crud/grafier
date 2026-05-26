@@ -50,6 +50,13 @@
       "when": 1779671115666,
       "tag": "0006_nasty_machine_man",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1779823148416,
+      "tag": "0007_workable_rhodey",
+      "breakpoints": true
     }
   ]
 }
