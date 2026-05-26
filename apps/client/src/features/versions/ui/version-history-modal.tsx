@@ -84,7 +84,7 @@ const VersionHistoryModal = ({ designId, engineRef }: VersionHistoryModalProps) 
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex items-center justify-center py-12 text-center font-mono text-[11px] uppercase tracking-[0.18em] text-fg-dim">
-            No saved versions yet. Press Cmd+Shift+S or click + Save version to create your first
+            No saved versions yet. Press Cmd+Shift+S or click Save version to create your first
             one.
           </div>
         ) : (
