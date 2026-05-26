@@ -75,6 +75,13 @@ const api = {
     const data = await apiClient.patch(`/designs/${id}`, { isPublic });
     return projectDetailSchema.parse(data);
   },
+  updateName: async (id: string, name: string): Promise<ProjectDetail> => {
+    const data = await apiClient.patch(`/designs/${id}`, { name });
+    return projectDetailSchema.parse(data);
+  },
+  remove: async (id: string): Promise<void> => {
+    await apiClient.delete(`/designs/${id}`);
+  },
   createShareToken: async (id: string): Promise<{ shareToken: string }> => {
     const data = await apiClient.post(`/designs/${id}/share`, undefined);
     return shareTokenResponseSchema.parse(data);
