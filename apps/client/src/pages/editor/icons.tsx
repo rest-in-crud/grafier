@@ -119,6 +119,15 @@ const IPlus = makeIcon(
   </>,
 );
 
+const IHistory = makeIcon(
+  <>
+    <circle cx="8" cy="8" r="6" />
+    <path d="M8 4.5v3.5l2.25 1.5" />
+    <path d="M3 5.5h2.5v-2.5" />
+    <path d="M5.5 5.5a6 6 0 0 0-2.5 2.5" />
+  </>,
+);
+
 const IFolder = makeIcon(
   <>
     <path d="M2 4h4l2 2h6v8H2V4z" />
@@ -233,6 +242,7 @@ export {
   IRedo,
   IClose,
   IPlus,
+  IHistory,
   IFolder,
   ISquare,
   ICircle,

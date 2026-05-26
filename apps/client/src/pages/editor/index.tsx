@@ -29,7 +29,9 @@ import { RadialMenu } from './ui/radial-menu';
 import { PickToast } from './ui/pick-toast';
 import { useToolShortcuts } from './hooks/useToolShortcuts';
 import { usePasteImage } from './hooks/usePasteImage';
+import { useAutoVersionTimer } from '@/features/versions/hooks/useAutoVersionTimer';
 import { loadAllCustomFonts } from '@/features/canvas/lib/tools/TextTool/customFontStorage';
+import { VersionHistoryModal } from '@/features/versions/ui/version-history-modal';
 
 const idSchema = z.string().uuid();
 
@@ -53,6 +55,7 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
   useEditorShortcuts(engineRef);
   useToolShortcuts();
   usePasteImage(engineRef);
+  useAutoVersionTimer(id, engineRef);
 
   useEffect(() => {
     void loadAllCustomFonts();
@@ -228,6 +231,7 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
       <div className="fixed inset-0 flex flex-col overflow-hidden bg-background font-sans text-foreground">
         <ScreenBackground />
         <NoticeBanner />
+        <VersionHistoryModal designId={id} engineRef={engineRef} />
         <input
           ref={fileInputRef}
           type="file"
@@ -248,6 +252,7 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
               isOwner={user?.id === project.userID}
               getCanvas={() => engineRef.current?.fabricCanvas ?? null}
               exportProjectName={project.name}
+              engineRef={engineRef}
             />
           </div>
           <div

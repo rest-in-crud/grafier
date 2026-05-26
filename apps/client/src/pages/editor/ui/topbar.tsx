@@ -1,16 +1,18 @@
 import { useState } from 'react';
-import type { MouseEvent } from 'react';
+import type { MouseEvent, RefObject } from 'react';
 import { Link } from 'react-router';
-import { Menubar } from './menubar';
 import { PublishToggleButton, SaveAsTemplateButton } from './publish-popover';
 import { ReadOnlyAuthorLabel, ReadOnlyActions } from './read-only-banner';
 import { IconButton } from './primitives';
 import { PublicIcon, PrivateIcon } from '@/shared/ui/visibility-icons';
 import type { Canvas } from 'fabric';
-import { IUndo, IRedo } from '../icons';
+import { IUndo, IRedo, IHistory } from '../icons';
 import { ExportMenu } from './export-menu';
 import { useHistoryStore } from '@/features/canvas/store/history.store';
 import { formatHotkey } from '@/shared/lib/platform';
+import { useVersionUiStore } from '@/features/versions/store/version-ui.store';
+import { SaveVersionPopover } from '@/features/versions/ui/save-version-popover';
+import type { CanvasEngine } from '@/features/canvas/lib/CanvasEngine';
 
 type TooltipState = { name: string; kbd: string; x: number; y: number } | null;
 
@@ -25,6 +27,7 @@ export type TopbarProps = {
   isOwner?: boolean;
   getCanvas?: () => Canvas | null;
   exportProjectName?: string;
+  engineRef?: RefObject<CanvasEngine | null>;
 };
 
 function Topbar({
@@ -38,6 +41,7 @@ function Topbar({
   isOwner,
   getCanvas,
   exportProjectName,
+  engineRef,
 }: TopbarProps) {
   const [tooltip, setTooltip] = useState<TooltipState>(null);
   const undo = useHistoryStore((s) => s.undo);
@@ -57,7 +61,37 @@ function Topbar({
         GRAFIER
       </Link>
 
-      <Menubar />
+      <div className="flex h-full items-center gap-2">
+        <IconButton
+          onClick={undo}
+          onMouseEnter={(e) => showTooltip(e, 'Undo', formatHotkey(['Mod', 'Z']))}
+          onMouseLeave={() => setTooltip(null)}
+        >
+          <IUndo size={14} />
+        </IconButton>
+        <IconButton
+          onClick={redo}
+          onMouseEnter={(e) => showTooltip(e, 'Redo', formatHotkey(['Mod', 'Y']))}
+          onMouseLeave={() => setTooltip(null)}
+        >
+          <IRedo size={14} />
+        </IconButton>
+
+        <div className="mx-1 h-[18px] w-px bg-hairline" />
+
+        <IconButton
+          onClick={() => useVersionUiStore.getState().openHistory()}
+          onMouseEnter={(e) => showTooltip(e, 'Version history', '')}
+          onMouseLeave={() => setTooltip(null)}
+          aria-label="Version history"
+        >
+          <IHistory size={14} />
+        </IconButton>
+
+        {designId && engineRef ? (
+          <SaveVersionPopover designId={designId} engineRef={engineRef} />
+        ) : null}
+      </div>
 
       <div className="flex flex-1 items-center justify-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.16em] text-fg-dim">
         {projectName && width !== undefined && height !== undefined ? (
@@ -85,23 +119,6 @@ function Topbar({
       </div>
 
       <div className="flex h-full items-center gap-2">
-        <IconButton
-          onClick={undo}
-          onMouseEnter={(e) => showTooltip(e, 'Undo', formatHotkey(['Mod', 'Z']))}
-          onMouseLeave={() => setTooltip(null)}
-        >
-          <IUndo size={14} />
-        </IconButton>
-        <IconButton
-          onClick={redo}
-          onMouseEnter={(e) => showTooltip(e, 'Redo', formatHotkey(['Mod', 'Y']))}
-          onMouseLeave={() => setTooltip(null)}
-        >
-          <IRedo size={14} />
-        </IconButton>
-
-        <div className="mx-1 h-[18px] w-px bg-hairline" />
-
         <ExportMenu
           getCanvas={getCanvas ?? (() => null)}
           projectName={exportProjectName ?? 'design'}
