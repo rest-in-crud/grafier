@@ -41,7 +41,7 @@ const SharedDesignPage = () => {
 
   const onFork = async () => {
     try {
-      const created = await fork.mutateAsync(design.id);
+      const created = await fork.mutateAsync({ id: design.id, token: token ?? undefined });
       navigate(`/editor/${created.id}`);
     } catch {
       useNoticeStore.getState().show('Could not fork this design');
@@ -52,6 +52,14 @@ const SharedDesignPage = () => {
 
   return (
     <div className="flex min-h-svh flex-col bg-chrome">
+      <header className="flex h-12 items-center border-b border-hairline bg-chrome px-3">
+        <Link
+          to="/"
+          className="flex h-full items-center font-mono text-[11px] font-semibold tracking-[0.28em] text-foreground hover:text-foreground"
+        >
+          GRAFIER
+        </Link>
+      </header>
       <div className="flex flex-1 items-center justify-center overflow-auto p-6">
         <SharedCanvas design={design} />
       </div>

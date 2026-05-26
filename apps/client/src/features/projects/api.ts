@@ -60,8 +60,11 @@ const api = {
     const data = await apiClient.post(`/designs/${id}/canvas`, body);
     return projectDetailSchema.parse(data);
   },
-  forkAsProject: async (id: string): Promise<ProjectDetail> => {
-    const data = await apiClient.post(`/projects/${id}/fork`, undefined);
+  forkAsProject: async (id: string, token?: string): Promise<ProjectDetail> => {
+    const path = token
+      ? `/projects/${id}/fork?token=${encodeURIComponent(token)}`
+      : `/projects/${id}/fork`;
+    const data = await apiClient.post(path, undefined);
     return projectDetailSchema.parse(data);
   },
   forkAsTemplate: async (id: string): Promise<ProjectDetail> => {

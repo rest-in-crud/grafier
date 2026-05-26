@@ -95,7 +95,7 @@ const useSaveCanvas = (projectId: string) => {
 const useForkAsProject = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (sourceId: string) => api.forkAsProject(sourceId),
+    mutationFn: ({ id, token }: { id: string; token?: string }) => api.forkAsProject(id, token),
     onSuccess: (created: ProjectDetail) => {
       queryClient.setQueryData(designsKeys.detail(created.id), created);
       queryClient.invalidateQueries({ queryKey: designsKeys.myProjects() });
