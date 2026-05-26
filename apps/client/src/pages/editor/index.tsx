@@ -30,6 +30,7 @@ import { PickToast } from './ui/pick-toast';
 import { useToolShortcuts } from './hooks/useToolShortcuts';
 import { usePasteImage } from './hooks/usePasteImage';
 import { loadAllCustomFonts } from '@/features/canvas/lib/tools/TextTool/customFontStorage';
+import { VersionHistoryModal } from '@/features/versions/ui/version-history-modal';
 
 const idSchema = z.string().uuid();
 
@@ -228,6 +229,7 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
       <div className="fixed inset-0 flex flex-col overflow-hidden bg-background font-sans text-foreground">
         <ScreenBackground />
         <NoticeBanner />
+        <VersionHistoryModal designId={id} engineRef={engineRef} />
         <input
           ref={fileInputRef}
           type="file"
