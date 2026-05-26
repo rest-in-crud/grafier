@@ -29,6 +29,7 @@ import { RadialMenu } from './ui/radial-menu';
 import { PickToast } from './ui/pick-toast';
 import { useToolShortcuts } from './hooks/useToolShortcuts';
 import { usePasteImage } from './hooks/usePasteImage';
+import { useAutoVersionTimer } from '@/features/versions/hooks/useAutoVersionTimer';
 import { loadAllCustomFonts } from '@/features/canvas/lib/tools/TextTool/customFontStorage';
 import { VersionHistoryModal } from '@/features/versions/ui/version-history-modal';
 
@@ -54,6 +55,7 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
   useEditorShortcuts(engineRef);
   useToolShortcuts();
   usePasteImage(engineRef);
+  useAutoVersionTimer(id, engineRef);
 
   useEffect(() => {
     void loadAllCustomFonts();
