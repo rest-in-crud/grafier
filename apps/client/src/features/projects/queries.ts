@@ -128,6 +128,42 @@ const useSetVisibility = (designId: string) => {
   });
 };
 
+const useCreateShareToken = (designId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => api.createShareToken(designId),
+    onSuccess: ({ shareToken }) => {
+      queryClient.setQueryData<ProjectDetail | undefined>(designsKeys.detail(designId), (prev) =>
+        prev ? { ...prev, shareToken } : prev,
+      );
+    },
+  });
+};
+
+const useRevokeShareToken = (designId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => api.revokeShareToken(designId),
+    onSuccess: () => {
+      queryClient.setQueryData<ProjectDetail | undefined>(designsKeys.detail(designId), (prev) =>
+        prev ? { ...prev, shareToken: null } : prev,
+      );
+    },
+  });
+};
+
+const useSharedDesign = (token: string) =>
+  useQuery({
+    queryKey: designsKeys.shared(token),
+    queryFn: () => api.getSharedDesign(token),
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    retry: (failureCount, error) => {
+      if (error instanceof HttpError && error.status === 404) return false;
+      return failureCount < 2;
+    },
+  });
+
 export {
   useMyProjects,
   useMyTemplates,
@@ -140,4 +176,7 @@ export {
   useForkAsProject,
   useForkAsTemplate,
   useSetVisibility,
+  useCreateShareToken,
+  useRevokeShareToken,
+  useSharedDesign,
 };
