@@ -5,6 +5,7 @@ import * as React from 'react';
 import { MAIL_PROVIDER, MailProvider } from './interfaces/mail-provider.interface';
 import { ForgotPasswordTemplate } from './templates/forgot-password.template';
 import { VerifyEmailTemplate } from './templates/verify-email.template';
+import { ChangeEmailTemplate } from './templates/change-email.template';
 
 @Injectable()
 export class MailService {
@@ -45,6 +46,24 @@ export class MailService {
         await this.provider.send({
             to: email,
             subject: 'Verify your email address',
+            html,
+        });
+    }
+
+    async sendEmailChangeEmail(email: string, name: string, token: string) {
+        const frontendUrl = this.config.getOrThrow<string>('URL_FRONTEND').replace(/\/$/, '');
+        const verifyLink = `${frontendUrl}/verify?token=${token}`;
+
+        const html = await render(
+            React.createElement(ChangeEmailTemplate, {
+                name,
+                verifyLink,
+            }),
+        );
+
+        await this.provider.send({
+            to: email,
+            subject: 'Confirm your new email address',
             html,
         });
     }

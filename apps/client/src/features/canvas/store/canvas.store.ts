@@ -7,6 +7,7 @@ import { loadToolStyles, saveToolStyles } from '@/features/canvas/lib/persistenc
 
 export type ToolStyles = {
   pencil?: { width?: number; opacity?: number; color?: string };
+  brush?: { color?: string; width?: number; opacity?: number; smoothing?: number };
   eraser?: { size?: number };
   text?: { fontSize?: number; fontFamily?: string; fontWeight?: string; fill?: string };
   shape?: { strokeWidth?: number; fill?: string; stroke?: string; opacity?: number };
@@ -24,6 +25,9 @@ export type SelectionSnapshot = {
   fill: string | null;
   stroke: string | null;
   strokeWidth: number;
+  fontFamily?: string;
+  fontWeight?: string;
+  fontSize?: number;
 };
 
 export type SelectionPatch = Partial<{
@@ -36,6 +40,9 @@ export type SelectionPatch = Partial<{
   fill: string;
   stroke: string;
   strokeWidth: number;
+  fontFamily: string;
+  fontWeight: string;
+  fontSize: number;
 }>;
 
 export type SelectionState = {
@@ -53,6 +60,12 @@ interface CanvasState {
     toolId: K,
     patch: Partial<NonNullable<ToolStyles[K]>>,
   ) => void;
+  eyedropperColor: string | null;
+  setEyedropperColor: (color: string | null) => void;
+  lastShapeColorTarget: 'fill' | 'stroke';
+  toast: { message: string; id: number } | null;
+  showToast: (message: string) => void;
+  hideToast: () => void;
   selection: SelectionState;
   setSelection: (selection: SelectionState) => void;
   applyToSelection: (patch: SelectionPatch) => void;
@@ -73,9 +86,32 @@ interface CanvasState {
   setCanvasBgColor: (color: string) => void;
 }
 
+const COLORABLE_TOOLS = new Set<ToolId>(['pencil', 'brush', 'text', 'shape']);
+
+const TOOL_COLOR_FIELD: Partial<Record<ToolId, string>> = {
+  pencil: 'color',
+  brush: 'color',
+  text: 'fill',
+} as const;
+
 export const useCanvasStore = create<CanvasState>((set) => ({
   activeTool: 'move',
-  setActiveTool: (tool) => set({ activeTool: tool }),
+  setActiveTool: (tool) =>
+    set((state) => {
+      if (state.eyedropperColor !== null && COLORABLE_TOOLS.has(tool)) {
+        const color = state.eyedropperColor;
+        const field = tool === 'shape' ? state.lastShapeColorTarget : TOOL_COLOR_FIELD[tool];
+        if (!field) return { activeTool: tool };
+        const toolKey = tool as keyof ToolStyles;
+        const nextStyles: ToolStyles = {
+          ...state.toolStyles,
+          [toolKey]: { ...state.toolStyles[toolKey], [field]: color },
+        };
+        saveToolStyles(nextStyles);
+        return { activeTool: tool, eyedropperColor: null, toolStyles: nextStyles };
+      }
+      return { activeTool: tool };
+    }),
   activeShape: DEFAULT_SHAPE_TYPE,
   setActiveShape: (shape) => set({ activeShape: shape }),
   toolStyles: loadToolStyles(),
@@ -86,8 +122,22 @@ export const useCanvasStore = create<CanvasState>((set) => ({
         [toolId]: { ...state.toolStyles[toolId], ...patch },
       };
       saveToolStyles(nextToolStyles);
+      if (toolId === 'shape') {
+        if ('fill' in patch) {
+          return { toolStyles: nextToolStyles, lastShapeColorTarget: 'fill' as const };
+        }
+        if ('stroke' in patch) {
+          return { toolStyles: nextToolStyles, lastShapeColorTarget: 'stroke' as const };
+        }
+      }
       return { toolStyles: nextToolStyles };
     }),
+  eyedropperColor: null,
+  setEyedropperColor: (color) => set({ eyedropperColor: color }),
+  lastShapeColorTarget: 'fill',
+  toast: null,
+  showToast: (message) => set((state) => ({ toast: { message, id: (state.toast?.id ?? 0) + 1 } })),
+  hideToast: () => set({ toast: null }),
   selection: { ids: [], primary: null },
   setSelection: (selection) => set({ selection }),
   applyToSelection: () => {},

@@ -6,6 +6,7 @@ export class UserResponseDto {
     name!: string;
     provider!: string | null;
     isVerified!: boolean;
+    pendingEmail?: string | null;
 
     @Exclude()
     password?: string | null;

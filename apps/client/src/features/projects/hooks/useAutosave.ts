@@ -4,6 +4,7 @@ import { useHistoryStore } from '@/features/canvas/store/history.store';
 import { useLayersStore } from '@/features/layers/store/layers.store';
 import { useSaveStatusStore } from '@/features/projects/store/save-status.store';
 import { useReadOnlyStore } from '@/features/projects/store/read-only.store';
+import { useNoticeStore } from '@/features/notice/store/notice.store';
 import { useSaveCanvas } from '@/features/projects/queries';
 import { HttpError } from '@/shared/lib/api-client';
 import { saveCanvasRequestSchema } from '@/features/projects/schema';
@@ -20,14 +21,20 @@ const useAutosave = (projectId: string, engineRef: RefObject<CanvasEngine | null
   const markFatal = useSaveStatusStore((s) => s.markFatal);
   const setPendingFlush = useSaveStatusStore((s) => s.setPendingFlush);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isSavingRef = useRef(false);
 
   const doSave = useCallback(async () => {
+    if (isSavingRef.current) return;
+    isSavingRef.current = true;
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
     }
     const engine = engineRef.current;
-    if (!engine) return;
+    if (!engine) {
+      isSavingRef.current = false;
+      return;
+    }
     markSaving();
     const canvasJSON = saveCanvasRequestSchema.shape.canvasJSON.parse(engine.fabricCanvas.toJSON());
     const layersJSON = useLayersStore.getState().layers;
@@ -40,9 +47,15 @@ const useAutosave = (projectId: string, engineRef: RefObject<CanvasEngine | null
       if (err instanceof HttpError) {
         if (err.status === 404) return markFatal('not-found');
         if (err.status === 403) return markFatal('forbidden');
+        if (err.status === 413) {
+          useNoticeStore.getState().show('✕  DESIGN TOO LARGE TO SAVE');
+          return markFatal('too-large');
+        }
         return markError(err);
       }
       markError(new HttpError(0, null));
+    } finally {
+      isSavingRef.current = false;
     }
   }, [engineRef, markSaving, markIdle, markError, markFatal, saveMutation, projectId]);
 
@@ -76,7 +89,7 @@ const useAutosave = (projectId: string, engineRef: RefObject<CanvasEngine | null
   useEffect(() => {
     const flush = async () => {
       const tag = useSaveStatusStore.getState().status.tag;
-      if (tag === 'idle' || tag === 'fatal') return;
+      if (tag === 'idle' || tag === 'saving' || tag === 'fatal') return;
       await doSave();
     };
     setPendingFlush(flush);

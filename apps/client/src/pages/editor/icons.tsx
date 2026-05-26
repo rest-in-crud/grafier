@@ -68,6 +68,14 @@ const IText = makeIcon(
   </>,
 );
 
+const IImage = makeIcon(
+  <>
+    <rect x="2" y="3" width="12" height="10" />
+    <circle cx="5.5" cy="6.5" r="1" />
+    <path d="M2 11.5 L5.5 8.5 L8 10.5 L14 5.5" />
+  </>,
+);
+
 const IDropper = makeIcon(
   <>
     <path d="m11 5 1-1 1 1-1 1M11 5 4 12v2h2l7-7M9 7l1 1" />
@@ -80,10 +88,10 @@ const IHand = makeIcon(
   </>,
 );
 
-const IZoom = makeIcon(
+const IUpload = makeIcon(
   <>
-    <circle cx="7" cy="7" r="4" />
-    <path d="M10 10l4 4M5 7h4M7 5v4" />
+    <path d="M8 10V4M5 7l3-3 3 3" />
+    <path d="M3 12v1a1 1 0 001 1h8a1 1 0 001-1v-1" />
   </>,
 );
 
@@ -108,6 +116,15 @@ const IClose = makeIcon(
 const IPlus = makeIcon(
   <>
     <path d="M8 3v10M3 8h10" />
+  </>,
+);
+
+const IHistory = makeIcon(
+  <>
+    <circle cx="8" cy="8" r="6" />
+    <path d="M8 4.5v3.5l2.25 1.5" />
+    <path d="M3 5.5h2.5v-2.5" />
+    <path d="M5.5 5.5a6 6 0 0 0-2.5 2.5" />
   </>,
 );
 
@@ -217,13 +234,15 @@ export {
   IEraser,
   IShape,
   IText,
+  IImage,
   IDropper,
   IHand,
-  IZoom,
+  IUpload,
   IUndo,
   IRedo,
   IClose,
   IPlus,
+  IHistory,
   IFolder,
   ISquare,
   ICircle,

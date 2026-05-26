@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowRightIcon } from '@phosphor-icons/react';
 import { signUpSchema, type SignUpValues } from '@/features/auth/schema';
@@ -11,13 +11,16 @@ import { Field } from '@/shared/ui/field';
 import { GoogleIcon } from '@/shared/ui/google-icon';
 import { Input } from '@/shared/ui/input';
 import { PasswordInput } from '@/shared/ui/password-input';
+import { PasswordStrength } from '@/shared/ui/password-strength';
 
 const SignUpForm = () => {
   const [sentEmail, setSentEmail] = useState<string | null>(null);
 
-  const { register, handleSubmit, setError, clearErrors, formState } = useForm<SignUpValues>({
-    resolver: zodResolver(signUpSchema),
-  });
+  const { register, handleSubmit, setError, clearErrors, control, formState } =
+    useForm<SignUpValues>({
+      resolver: zodResolver(signUpSchema),
+    });
+  const passwordValue = useWatch({ control, name: 'password', defaultValue: '' });
 
   const onSubmit = async (values: SignUpValues) => {
     clearErrors('root.serverError');
@@ -88,6 +91,7 @@ const SignUpForm = () => {
           autoComplete="new-password"
           placeholder="••••••••••••"
         />
+        <PasswordStrength value={passwordValue} />
       </Field>
 
       <Button

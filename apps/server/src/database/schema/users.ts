@@ -8,4 +8,5 @@ export const users = pgTable('users', {
     providerId: text('provider_id'),
     password: text('password'),
     isVerified: boolean('is_verified').default(false).notNull(),
+    pendingEmail: text('pending_email'),
 });

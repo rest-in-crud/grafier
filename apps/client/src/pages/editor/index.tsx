@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { MouseEvent } from 'react';
+import type { DragEvent, MouseEvent } from 'react';
 import { Navigate, useParams } from 'react-router';
 import { z } from 'zod';
 import type { CanvasEngine } from '@/features/canvas/lib/CanvasEngine';
@@ -16,6 +16,9 @@ import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import { CanvasArea } from '@/features/canvas/components/CanvasArea';
 import { ScreenBackground } from '@/shared/ui/screen-background';
 import { HttpError } from '@/shared/lib/api-client';
+import { insertImageFromBlob, noticeForInsertImageReason } from '@/features/canvas/lib/insertImage';
+import { useNoticeStore } from '@/features/notice/store/notice.store';
+import { NoticeBanner } from '@/features/notice/ui/notice-banner';
 import { Topbar } from './ui/topbar';
 import { OptionsBar } from './ui/options-bar';
 import { ToolRail } from './ui/tool-rail';
@@ -23,7 +26,12 @@ import { CanvasStage } from './ui/canvas-stage';
 import { RightRail } from './ui/right-rail';
 import { StatusBar } from './ui/status-bar';
 import { RadialMenu } from './ui/radial-menu';
+import { PickToast } from './ui/pick-toast';
 import { useToolShortcuts } from './hooks/useToolShortcuts';
+import { usePasteImage } from './hooks/usePasteImage';
+import { useAutoVersionTimer } from '@/features/versions/hooks/useAutoVersionTimer';
+import { loadAllCustomFonts } from '@/features/canvas/lib/tools/TextTool/customFontStorage';
+import { VersionHistoryModal } from '@/features/versions/ui/version-history-modal';
 
 const idSchema = z.string().uuid();
 
@@ -46,6 +54,12 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
   useTempMoveOverride(engineRef);
   useEditorShortcuts(engineRef);
   useToolShortcuts();
+  usePasteImage(engineRef);
+  useAutoVersionTimer(id, engineRef);
+
+  useEffect(() => {
+    void loadAllCustomFonts();
+  }, []);
   const { user } = useUser();
   const { data: project, isPending, isError, error, refetch } = useProject(id);
   const [hydrateError, setHydrateError] = useState(false);
@@ -91,8 +105,37 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
 
   const tool = useCanvasStore((s) => s.activeTool);
   const setTool = useCanvasStore((s) => s.setActiveTool);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const showNotice = useNoticeStore((s) => s.show);
+
+  useEffect(() => {
+    if (tool !== 'image') return;
+    /* Defense-in-depth: useToolShortcuts and the rail's inert wrapper already gate read-only; this catches any future path that sets tool='image' directly. */
+    if (useReadOnlyStore.getState().isReadOnly) {
+      setTool('move');
+      return;
+    }
+    const input = fileInputRef.current;
+    if (!input) return;
+    input.click();
+    setTool('move');
+  }, [tool, setTool]);
+
+  const onFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const input = event.target;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+    const canvas = engineRef.current?.fabricCanvas;
+    if (!canvas) return;
+    const result = await insertImageFromBlob(canvas, file);
+    if (!result.ok) showNotice(noticeForInsertImageReason(result.reason));
+  };
+
   const [radial, setRadial] = useState<{ x: number; y: number } | null>(null);
   const [cursor, setCursor] = useState<{ x: number; y: number }>({ x: 412, y: 268 });
+  const [cursorVisible, setCursorVisible] = useState(false);
   const [railWidth, setRailWidth] = useState<number>(() => loadRailWidth());
 
   useEffect(() => {
@@ -110,6 +153,31 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
     const r = e.currentTarget.getBoundingClientRect();
     setCursor({ x: Math.round(e.clientX - r.left), y: Math.round(e.clientY - r.top) });
   }
+
+  function onCanvasLeave() {
+    setCursorVisible(false);
+  }
+
+  function onCanvasEnter() {
+    setCursorVisible(true);
+  }
+
+  const onCanvasDragOver = (event: DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
+  };
+
+  const onCanvasDrop = async (event: DragEvent) => {
+    event.preventDefault();
+    if (useReadOnlyStore.getState().isReadOnly) return;
+    const canvas = engineRef.current?.fabricCanvas;
+    if (!canvas) return;
+    const files = Array.from(event.dataTransfer.files);
+    for (const file of files) {
+      const result = await insertImageFromBlob(canvas, file);
+      if (!result.ok) showNotice(noticeForInsertImageReason(result.reason));
+    }
+  };
 
   if (isError) {
     if (error instanceof HttpError && (error.status === 404 || error.status === 403)) {
@@ -162,6 +230,15 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
     <>
       <div className="fixed inset-0 flex flex-col overflow-hidden bg-background font-sans text-foreground">
         <ScreenBackground />
+        <NoticeBanner />
+        <VersionHistoryModal designId={id} engineRef={engineRef} />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/png,image/jpeg,image/gif,image/webp"
+          className="hidden"
+          onChange={onFileChange}
+        />
         <div className="relative z-10 flex h-full flex-col">
           <div className="h-9.5 shrink-0">
             <Topbar
@@ -173,6 +250,9 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
               designId={id}
               isPublic={project.isPublic}
               isOwner={user?.id === project.userID}
+              getCanvas={() => engineRef.current?.fabricCanvas ?? null}
+              exportProjectName={project.name}
+              engineRef={engineRef}
             />
           </div>
           <div
@@ -189,7 +269,16 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
               <ToolRail active={tool} setActive={setTool} />
             </div>
             <div className="min-w-0 flex-1">
-              <CanvasStage onContextMenu={onCanvasContextMenu} onMouseMove={onCanvasMove}>
+              <CanvasStage
+                onContextMenu={onCanvasContextMenu}
+                onMouseMove={onCanvasMove}
+                onMouseLeave={onCanvasLeave}
+                onDragOver={onCanvasDragOver}
+                onDrop={onCanvasDrop}
+                cursorPos={cursor}
+                cursorVisible={cursorVisible}
+                onMouseEnter={onCanvasEnter}
+              >
                 <CanvasArea
                   engineRef={engineRef}
                   containerRef={containerRef}
@@ -211,6 +300,7 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
         </div>
       </div>
       {radial && <RadialMenu x={radial.x} y={radial.y} onClose={() => setRadial(null)} />}
+      <PickToast />
     </>
   );
 };

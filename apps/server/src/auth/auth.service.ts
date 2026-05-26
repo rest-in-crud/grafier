@@ -161,7 +161,8 @@ export class AuthService {
 
     async resetPassword(userId: string, jti: string, dto: ResetPasswordDto) {
         await this.db.delete(passwordResetTokens).where(eq(passwordResetTokens.id, jti));
-        await this.usersService.update(userId, { password: dto.password });
+        const hashed = await bcrypt.hash(dto.password, 10);
+        await this.usersService.update(userId, { password: hashed });
 
         return { message: 'Password reset successful' };
     }
@@ -201,10 +202,23 @@ export class AuthService {
         return genericMessage;
     }
 
-    async confirmEmail(userId: string, jti: string) {
+    async confirmEmail(userId: string, jti: string, res: Response) {
         await this.db.delete(emailVerificationTokens).where(eq(emailVerificationTokens.id, jti));
-        await this.usersService.update(userId, { isVerified: true });
 
+        const user = await this.usersService.findOne(userId);
+
+        if (user?.pendingEmail) {
+            await this.usersService.update(userId, {
+                email: user.pendingEmail,
+                pendingEmail: null,
+            });
+            await this.db.delete(sessions).where(eq(sessions.userID, userId));
+            res.clearCookie(REFRESH_COOKIE);
+
+            return { message: 'Email updated. Please log in again.' };
+        }
+
+        await this.usersService.update(userId, { isVerified: true });
         return { message: 'Email verified successfully' };
     }
 

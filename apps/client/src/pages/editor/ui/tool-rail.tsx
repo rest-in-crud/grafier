@@ -11,9 +11,9 @@ import {
   IEraser,
   IShape,
   IText,
+  IImage,
   IDropper,
   IHand,
-  IZoom,
 } from '../icons';
 
 type DividerEntry = { _div: true };
@@ -41,16 +41,16 @@ const TOOLS: ToolsEntry[] = [
   { id: 'marquee', name: 'Marquee', kbd: 'M', Icon: IMarquee, implemented: false },
   { id: 'lasso', name: 'Lasso', kbd: 'L', Icon: ILasso, implemented: false },
   { _div: true },
-  { id: 'brush', name: 'Brush', kbd: 'B', Icon: IBrush, implemented: false },
+  { id: 'brush', name: 'Brush', kbd: 'B', Icon: IBrush, implemented: true },
   { id: 'pencil', name: 'Pencil', kbd: 'P', Icon: IPencil, implemented: true },
   { id: 'eraser', name: 'Eraser', kbd: 'E', Icon: IEraser, implemented: true },
   { _div: true },
   { id: 'shape', name: 'Shape', kbd: 'U', Icon: IShape, implemented: true },
   { id: 'text', name: 'Text', kbd: 'T', Icon: IText, implemented: true },
-  { id: 'dropper', name: 'Eyedropper', kbd: 'I', Icon: IDropper, implemented: false },
+  { id: 'image', name: 'Image', kbd: 'I', Icon: IImage, implemented: true },
+  { id: 'dropper', name: 'Eyedropper', kbd: 'D', Icon: IDropper, implemented: true },
   { _div: true },
-  { id: 'hand', name: 'Hand', kbd: 'H', Icon: IHand, implemented: false },
-  { id: 'zoom', name: 'Zoom', kbd: 'Z', Icon: IZoom, implemented: false },
+  { id: 'hand', name: 'Hand', kbd: 'H', Icon: IHand, implemented: true },
 ];
 
 export function ToolRail({

@@ -38,6 +38,9 @@ const TopBar = () => {
             {user?.email}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
+          <DropdownMenuItem asChild>
+            <Link to="/settings">Settings</Link>
+          </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => performLogout()}>Log out</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

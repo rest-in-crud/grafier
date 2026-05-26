@@ -12,11 +12,18 @@ const labelFor = (status: SaveStatus): string => {
     case 'saving':
       return 'Saving…';
     case 'error':
-      return 'Save failed · retrying';
+      return status.lastError.status === 0
+        ? 'No connection · changes unsaved'
+        : 'Save failed · try again';
     case 'fatal':
-      return status.reason === 'not-found'
-        ? 'Project deleted · autosave off'
-        : 'Access denied · autosave off';
+      switch (status.reason) {
+        case 'not-found':
+          return 'Project deleted · autosave off';
+        case 'forbidden':
+          return 'Access denied · autosave off';
+        case 'too-large':
+          return 'Design too large · autosave off';
+      }
   }
 };
 
@@ -33,13 +40,11 @@ const StatusBar: FC<StatusBarProps> = ({ cursor }) => {
 
   return (
     <div className="flex h-full items-center gap-3.5 border-t border-hairline bg-background px-3.5 font-mono text-[10px] uppercase tracking-[0.14em] text-fg-dim">
-      <span>GRAFIER · V1.0</span>
+      <span>{`GRAFIER · V${__APP_VERSION__}`}</span>
       <span className="h-3 w-px bg-hairline" />
       <span>
         {px} × {py} PX
       </span>
-      <span className="h-3 w-px bg-hairline" />
-      <span>RGB / 8</span>
       <span className="h-3 w-px bg-hairline" />
       <span>{labelFor(status)}</span>
       <div className="mr-10 ml-auto flex items-center gap-3.5">

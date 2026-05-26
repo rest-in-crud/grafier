@@ -8,6 +8,15 @@ import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 const MIN_ZOOM = 10;
 const MAX_ZOOM = 400;
 const ZOOM_STEP = 1.1;
+const CLAMP_MARGIN = 100;
+
+function clampVT(vt: TMat2D, docW: number, docH: number, vpW: number, vpH: number): TMat2D {
+  const scale = vt[0];
+  const next: TMat2D = [...vt];
+  next[4] = Math.min(vpW - CLAMP_MARGIN, Math.max(CLAMP_MARGIN - docW * scale, vt[4]));
+  next[5] = Math.min(vpH - CLAMP_MARGIN, Math.max(CLAMP_MARGIN - docH * scale, vt[5]));
+  return next;
+}
 
 export function useViewport(
   wrapperRef: RefObject<HTMLDivElement | null>,
@@ -16,6 +25,7 @@ export function useViewport(
   const isSpacePressed = useRef(false);
   const isPanning = useRef(false);
   const panStart = useRef<{ x: number; y: number; vt: TMat2D } | null>(null);
+  const isLmbDown = useRef(false);
   const spaceSnapshot = useRef<{
     isDrawingMode: boolean;
     selection: boolean;
@@ -27,6 +37,8 @@ export function useViewport(
     if (!wrapper) return;
 
     const getCanvas = () => engineRef.current?.fabricCanvas ?? null;
+
+    const isHandTool = () => useCanvasStore.getState().activeTool === 'hand';
 
     const enterSpacePan = () => {
       const canvas = getCanvas();
@@ -52,7 +64,7 @@ export function useViewport(
       canvas.isDrawingMode = snap.isDrawingMode;
       canvas.selection = snap.selection;
       canvas.skipTargetFind = snap.skipTargetFind;
-      canvas.defaultCursor = 'default';
+      canvas.defaultCursor = isHandTool() ? 'grab' : 'default';
       spaceSnapshot.current = null;
     };
 
@@ -60,7 +72,9 @@ export function useViewport(
       e.preventDefault();
       if (isPanning.current) return;
       const canvas = getCanvas();
-      if (!canvas) return;
+      const engine = engineRef.current;
+      if (!canvas || !engine) return;
+      if (isLmbDown.current && canvas.isDrawingMode) return;
 
       if (e.ctrlKey || e.metaKey) {
         const rect = wrapper.getBoundingClientRect();
@@ -74,14 +88,16 @@ export function useViewport(
 
       const current = canvas.viewportTransform;
       if (!current) return;
-      const next: typeof current = [...current];
+      const next: TMat2D = [...current];
       if (e.shiftKey) {
         next[4] -= e.deltaY;
       } else {
         next[5] -= e.deltaY;
         if (e.deltaX) next[4] -= e.deltaX;
       }
-      canvas.setViewportTransform(next);
+      canvas.setViewportTransform(
+        clampVT(next, engine.docWidth, engine.docHeight, wrapper.clientWidth, wrapper.clientHeight),
+      );
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -104,44 +120,47 @@ export function useViewport(
     };
 
     const handleMouseDown = (e: MouseEvent) => {
-      if (!isSpacePressed.current) return;
+      if (e.button === 0) isLmbDown.current = true;
+      if (!isSpacePressed.current && !isHandTool()) return;
       const canvas = getCanvas();
       if (!canvas) return;
       const tx = canvas.viewportTransform;
       if (!tx) return;
       isPanning.current = true;
-      panStart.current = {
-        x: e.clientX,
-        y: e.clientY,
-        vt: [...tx],
-      };
+      panStart.current = { x: e.clientX, y: e.clientY, vt: [...tx] };
       canvas.defaultCursor = 'grabbing';
     };
 
     const handleMouseMove = (e: MouseEvent) => {
       if (!isPanning.current || !panStart.current) return;
       const canvas = getCanvas();
-      if (!canvas) return;
+      const engine = engineRef.current;
+      if (!canvas || !engine) return;
       const dx = e.clientX - panStart.current.x;
       const dy = e.clientY - panStart.current.y;
       const vt: TMat2D = [...panStart.current.vt];
       vt[4] += dx;
       vt[5] += dy;
-      canvas.setViewportTransform(vt);
+      canvas.setViewportTransform(
+        clampVT(vt, engine.docWidth, engine.docHeight, wrapper.clientWidth, wrapper.clientHeight),
+      );
     };
 
-    const handleMouseUp = () => {
+    const handleMouseUp = (e: MouseEvent) => {
+      if (e.button === 0) isLmbDown.current = false;
       if (!isPanning.current) return;
       isPanning.current = false;
       panStart.current = null;
       const canvas = getCanvas();
-      if (canvas) canvas.defaultCursor = isSpacePressed.current ? 'grab' : 'default';
+      if (canvas)
+        canvas.defaultCursor = isSpacePressed.current || isHandTool() ? 'grab' : 'default';
     };
 
     const handleBlur = () => {
       isSpacePressed.current = false;
       isPanning.current = false;
       panStart.current = null;
+      isLmbDown.current = false;
       exitSpacePan();
     };
 

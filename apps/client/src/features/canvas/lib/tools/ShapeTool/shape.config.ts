@@ -1,7 +1,19 @@
-import { Circle, Ellipse, Line, Path, Rect, Triangle, type Point } from 'fabric';
+import { Circle, Ellipse, Line, Path, Polygon, Rect, Triangle, type Point } from 'fabric';
 import type { FabricObject } from 'fabric';
 
-export type ShapeType = 'rect' | 'square' | 'circle' | 'ellipse' | 'triangle' | 'line' | 'arrow';
+export type ShapeType =
+  | 'rect'
+  | 'square'
+  | 'rounded-rect'
+  | 'circle'
+  | 'ellipse'
+  | 'triangle'
+  | 'diamond'
+  | 'pentagon'
+  | 'hexagon'
+  | 'star'
+  | 'line'
+  | 'arrow';
 
 export type ShapePoint = {
   x: number;
@@ -29,9 +41,14 @@ export type ShapeDimensions =
 export const DEFAULT_SHAPE_DIMENSIONS: Record<ShapeType, ShapeDimensions> = {
   rect: { width: 120, height: 80 },
   square: { width: 100, height: 100 },
+  'rounded-rect': { width: 120, height: 80 },
   circle: { radius: 50 },
   ellipse: { rx: 70, ry: 45 },
   triangle: { width: 110, height: 100 },
+  diamond: { width: 100, height: 100 },
+  pentagon: { width: 100, height: 100 },
+  hexagon: { width: 100, height: 100 },
+  star: { width: 100, height: 100 },
   line: { length: 140 },
   arrow: { length: 140 },
 };
@@ -39,12 +56,39 @@ export const DEFAULT_SHAPE_DIMENSIONS: Record<ShapeType, ShapeDimensions> = {
 export const ARROWHEAD_SIZE = 22;
 export const ARROWHEAD_HALF_WIDTH = 14;
 
+const POLYGON_BASE_SIZE = 100;
+const SCALE_SHAPES = new Set<ShapeType>(['diamond', 'pentagon', 'hexagon', 'star']);
+
+const regularPolygon = (sides: number, radius: number): Array<{ x: number; y: number }> =>
+  Array.from({ length: sides }, (_, i) => {
+    const angle = (Math.PI * 2 * i) / sides - Math.PI / 2;
+    return { x: radius * Math.cos(angle), y: radius * Math.sin(angle) };
+  });
+
+const buildStarPath = (outerR: number, innerR: number, numPoints: number = 5): string => {
+  const stepAngle = Math.PI / numPoints;
+  const startAngle = -Math.PI / 2;
+  return (
+    Array.from({ length: numPoints * 2 }, (_, i) => {
+      const r = i % 2 === 0 ? outerR : innerR;
+      const angle = startAngle + i * stepAngle;
+      const cmd = i === 0 ? 'M' : 'L';
+      return `${cmd} ${r * Math.cos(angle)} ${r * Math.sin(angle)}`;
+    }).join(' ') + ' Z'
+  );
+};
+
 export const SHAPE_OPTIONS: ShapeOption[] = [
   { type: 'rect', label: 'Rect' },
   { type: 'square', label: 'Square' },
+  { type: 'rounded-rect', label: 'Rounded' },
   { type: 'circle', label: 'Circle' },
   { type: 'ellipse', label: 'Ellipse' },
   { type: 'triangle', label: 'Triangle' },
+  { type: 'diamond', label: 'Diamond' },
+  { type: 'pentagon', label: 'Pentagon' },
+  { type: 'hexagon', label: 'Hexagon' },
+  { type: 'star', label: 'Star' },
   { type: 'line', label: 'Line' },
   { type: 'arrow', label: 'Arrow' },
 ];
@@ -125,10 +169,12 @@ export function createShapeObject(
   switch (type) {
     case 'rect':
     case 'square':
+    case 'rounded-rect':
     case 'triangle': {
       if (!('width' in dims)) throw new Error(`expected width/height dims for ${type}`);
       const opts = { ...closedOptions(point, style), width: dims.width, height: dims.height };
       if (type === 'triangle') return new Triangle(opts);
+      if (type === 'rounded-rect') return new Rect({ ...opts, rx: 12, ry: 12 });
       return new Rect(opts);
     }
     case 'circle': {
@@ -138,6 +184,29 @@ export function createShapeObject(
     case 'ellipse': {
       if (!('rx' in dims)) throw new Error(`expected rx/ry dims for ellipse`);
       return new Ellipse({ ...closedOptions(point, style), rx: dims.rx, ry: dims.ry });
+    }
+    case 'diamond': {
+      return new Polygon(
+        [
+          { x: 0, y: -50 },
+          { x: 50, y: 0 },
+          { x: 0, y: 50 },
+          { x: -50, y: 0 },
+        ],
+        closedOptions(point, style),
+      );
+    }
+    case 'pentagon': {
+      return new Polygon(regularPolygon(5, 50), closedOptions(point, style));
+    }
+    case 'hexagon': {
+      return new Polygon(regularPolygon(6, 50), closedOptions(point, style));
+    }
+    case 'star': {
+      return new Path(buildStarPath(50, 20), {
+        ...closedOptions(point, style),
+        strokeLineJoin: 'miter' as const,
+      });
     }
     case 'line': {
       if (!('length' in dims)) throw new Error(`expected length dims for line`);
@@ -178,6 +247,10 @@ const resizeClosed = (
       shape.set({ left: start.x, top: start.y, radius: Math.max(finalW, finalH) / 2 });
     } else if (type === 'ellipse') {
       shape.set({ left: start.x, top: start.y, rx: finalW / 2, ry: finalH / 2 });
+    } else if (SCALE_SHAPES.has(type)) {
+      const baseW = shape.width || POLYGON_BASE_SIZE;
+      const baseH = shape.height || POLYGON_BASE_SIZE;
+      shape.set({ left: start.x, top: start.y, scaleX: finalW / baseW, scaleY: finalH / baseH });
     } else {
       shape.set({ left: start.x, top: start.y, width: finalW, height: finalH });
     }
@@ -188,6 +261,10 @@ const resizeClosed = (
       shape.set({ left: cx, top: cy, radius: Math.max(absW, absH) / 2 });
     } else if (type === 'ellipse') {
       shape.set({ left: cx, top: cy, rx: absW / 2, ry: absH / 2 });
+    } else if (SCALE_SHAPES.has(type)) {
+      const baseW = shape.width || POLYGON_BASE_SIZE;
+      const baseH = shape.height || POLYGON_BASE_SIZE;
+      shape.set({ left: cx, top: cy, scaleX: absW / baseW, scaleY: absH / baseH });
     } else {
       shape.set({ left: cx, top: cy, width: absW, height: absH });
     }
@@ -261,6 +338,15 @@ export const applyDimensions = (
         shape._setPath(buildArrowPath(-half, 0, half, 0), false);
       }
     }
+  } else if (SCALE_SHAPES.has(type)) {
+    const baseW = shape.width || POLYGON_BASE_SIZE;
+    const baseH = shape.height || POLYGON_BASE_SIZE;
+    shape.set({
+      left: origin.x,
+      top: origin.y,
+      scaleX: dims.width / baseW,
+      scaleY: dims.height / baseH,
+    });
   } else {
     shape.set({ left: origin.x, top: origin.y, width: dims.width, height: dims.height });
   }
