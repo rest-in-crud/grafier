@@ -4,6 +4,7 @@ import { setAccessToken, clearAccessToken } from '@/features/auth/token';
 import { queryClient } from '@/shared/lib/query-client';
 import { userQueryKey } from '@/features/auth/query-keys';
 import { userQueryOptions } from '@/features/auth/queries';
+import { safeRedirect } from '@/shared/lib/safe-redirect';
 import type {
   AuthResponse,
   ForgotPasswordValues,
@@ -26,7 +27,12 @@ const performSignUp = async (values: SignUpValues): Promise<void> => {
 
 const startGoogleOAuth = () => {
   const base = (import.meta.env.VITE_URL_BACKEND ?? '/api').replace(/\/$/, '');
-  window.location.href = `${base}/auth/google`;
+  const params = new URLSearchParams(window.location.search);
+  const desired = safeRedirect(params.get('redirect'));
+  const url = desired
+    ? `${base}/auth/google?state=${encodeURIComponent(desired)}`
+    : `${base}/auth/google`;
+  window.location.href = url;
 };
 
 const completeOAuth = async () => {
@@ -35,7 +41,9 @@ const completeOAuth = async () => {
   } catch {
     throw redirect('/signin?error=oauth');
   }
-  throw redirect('/');
+  const params = new URLSearchParams(window.location.search);
+  const target = safeRedirect(params.get('redirect'));
+  throw redirect(target ?? '/');
 };
 
 const performLogout = () => {
