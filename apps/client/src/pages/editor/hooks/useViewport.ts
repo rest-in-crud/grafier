@@ -25,6 +25,7 @@ export function useViewport(
   const isSpacePressed = useRef(false);
   const isPanning = useRef(false);
   const panStart = useRef<{ x: number; y: number; vt: TMat2D } | null>(null);
+  const isLmbDown = useRef(false);
   const spaceSnapshot = useRef<{
     isDrawingMode: boolean;
     selection: boolean;
@@ -73,6 +74,7 @@ export function useViewport(
       const canvas = getCanvas();
       const engine = engineRef.current;
       if (!canvas || !engine) return;
+      if (isLmbDown.current && canvas.isDrawingMode) return;
 
       if (e.ctrlKey || e.metaKey) {
         const rect = wrapper.getBoundingClientRect();
@@ -118,6 +120,7 @@ export function useViewport(
     };
 
     const handleMouseDown = (e: MouseEvent) => {
+      if (e.button === 0) isLmbDown.current = true;
       if (!isSpacePressed.current && !isHandTool()) return;
       const canvas = getCanvas();
       if (!canvas) return;
@@ -143,7 +146,8 @@ export function useViewport(
       );
     };
 
-    const handleMouseUp = () => {
+    const handleMouseUp = (e: MouseEvent) => {
+      if (e.button === 0) isLmbDown.current = false;
       if (!isPanning.current) return;
       isPanning.current = false;
       panStart.current = null;
@@ -156,6 +160,7 @@ export function useViewport(
       isSpacePressed.current = false;
       isPanning.current = false;
       panStart.current = null;
+      isLmbDown.current = false;
       exitSpacePan();
     };
 
