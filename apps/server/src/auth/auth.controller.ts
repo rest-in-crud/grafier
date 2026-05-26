@@ -55,8 +55,8 @@ export class AuthController {
 
     @UseGuards(GoogleGuard)
     @Get('google/callback')
-    async googleCallback(@CurrentUser() user: AuthUser, @Res() res: Response) {
-        await this.authService.googleCallback(user, res);
+    async googleCallback(@CurrentUser() user: AuthUser, @Req() req: Request, @Res() res: Response) {
+        await this.authService.googleCallback(user, req, res);
     }
 
     @Throttle({ default: { ttl: 60_000, limit: 5 } })
