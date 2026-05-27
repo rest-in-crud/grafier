@@ -77,6 +77,10 @@ interface CanvasState {
   setSelectObjectsByIds: (fn: (ids: string[]) => void) => void;
   duplicateSelection: () => void;
   setDuplicateSelection: (fn: () => void) => void;
+  copySelection: () => void;
+  setCopySelection: (fn: () => void) => void;
+  pasteSelection: () => void;
+  setPasteSelection: (fn: () => void) => void;
   removeObjectById: (id: string) => void;
   setRemoveObjectById: (fn: (id: string) => void) => void;
   artboardWidth: number;
@@ -154,6 +158,10 @@ export const useCanvasStore = create<CanvasState>((set) => ({
   setSelectObjectsByIds: (fn) => set({ selectObjectsByIds: fn }),
   duplicateSelection: () => {},
   setDuplicateSelection: (fn) => set({ duplicateSelection: fn }),
+  copySelection: () => {},
+  setCopySelection: (fn) => set({ copySelection: fn }),
+  pasteSelection: () => {},
+  setPasteSelection: (fn) => set({ pasteSelection: fn }),
   removeObjectById: () => {},
   setRemoveObjectById: (fn) => set({ removeObjectById: fn }),
   artboardWidth: 1920,
