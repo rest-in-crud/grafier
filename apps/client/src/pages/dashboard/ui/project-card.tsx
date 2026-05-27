@@ -87,15 +87,16 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
                   align="end"
                   onClick={(e) => e.stopPropagation()}
                   onCloseAutoFocus={(e) => e.preventDefault()}
+                  className="min-w-[140px] border border-hairline-strong bg-raised p-0 shadow-none ring-0"
                 >
                   <DropdownMenuItem
-                    className="cursor-pointer focus:bg-white/10"
+                    className="cursor-pointer px-3 py-2 font-mono text-[11px] uppercase tracking-[0.16em] text-foreground focus:bg-white/[0.06] focus:text-foreground"
                     onSelect={() => setRenameOpen(true)}
                   >
                     Rename
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    className="cursor-pointer focus:bg-white/10"
+                    className="cursor-pointer px-3 py-2 font-mono text-[11px] uppercase tracking-[0.16em] text-foreground focus:bg-white/[0.06] focus:text-destructive"
                     onSelect={() => setDeleteOpen(true)}
                   >
                     Delete
