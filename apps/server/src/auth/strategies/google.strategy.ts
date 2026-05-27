@@ -32,7 +32,16 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
         let user = await this.usersService.findByProviderId('google', profile.id);
 
         if (!user) {
-            user = await this.usersService.createOAuthUser(email, name, 'google', profile.id);
+            const existing = await this.usersService.findByEmail(email);
+            if (existing) {
+                user = await this.usersService.update(existing.id, {
+                    provider: 'google',
+                    providerId: profile.id,
+                    isVerified: true,
+                });
+            } else {
+                user = await this.usersService.createOAuthUser(email, name, 'google', profile.id);
+            }
         }
 
         done(null, user);
