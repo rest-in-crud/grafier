@@ -135,7 +135,7 @@ const useRenameProject = () => {
     mutationFn: ({ id, name }: { id: string; name: string }) => api.updateName(id, name),
     onSuccess: (updated: ProjectDetail) => {
       queryClient.setQueryData(designsKeys.detail(updated.id), updated);
-      queryClient.invalidateQueries({ queryKey: designsKeys.myProjects() });
+      queryClient.invalidateQueries({ queryKey: designsKeys.all });
     },
   });
 };
@@ -146,7 +146,7 @@ const useDeleteProject = () => {
     mutationFn: (id: string) => api.remove(id),
     onSuccess: (_void, id) => {
       queryClient.removeQueries({ queryKey: designsKeys.detail(id) });
-      queryClient.invalidateQueries({ queryKey: designsKeys.myProjects() });
+      queryClient.invalidateQueries({ queryKey: designsKeys.all });
     },
   });
 };

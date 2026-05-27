@@ -1,15 +1,11 @@
 import { useState } from 'react';
+import type { MouseEvent } from 'react';
 import { useNavigate } from 'react-router';
+import { PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react';
 import { placeholderThumb } from '@/pages/dashboard/lib/thumb-generators';
 import type { ProjectSummary } from '@/features/projects/schema';
 import { useUser } from '@/features/auth/queries';
 import { PublicIcon, PrivateIcon } from '@/shared/ui/visibility-icons';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/shared/ui/dropdown-menu';
 import { RenameProjectDialog } from './rename-project-dialog';
 import { DeleteProjectDialog } from './delete-project-dialog';
 
@@ -60,50 +56,43 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
           <pre className="m-0 font-mono text-[6.5px] leading-[1.05] whitespace-pre text-foreground/90">
             {thumb}
           </pre>
-          {project.type === 'template' ? (
-            <span className="absolute top-2 left-2 border border-hairline-strong bg-black/60 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.16em] text-foreground">
-              Template
-            </span>
-          ) : null}
-          <span className="absolute top-2 right-2 flex size-5 items-center justify-center border border-hairline-strong bg-black/60 text-fg-dim">
+          <span className="absolute top-2 left-2 flex size-5 items-center justify-center border border-hairline-strong bg-black/60 text-fg-dim">
             {project.isPublic ? (
               <PublicIcon className="size-3" />
             ) : (
               <PrivateIcon className="size-3" />
             )}
           </span>
+          {project.type === 'template' ? (
+            <span className="absolute bottom-2 left-2 border border-hairline-strong bg-black/60 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.16em] text-foreground">
+              Template
+            </span>
+          ) : null}
           {isOwner ? (
-            <div className="absolute top-2 right-9">
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  onClick={(e) => e.stopPropagation()}
-                  onKeyDown={(e) => e.stopPropagation()}
-                  className="flex size-5 items-center justify-center border border-hairline-strong bg-black/60 font-mono text-[12px] leading-none text-fg-dim hover:text-foreground"
-                  aria-label="Project actions"
-                >
-                  …
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align="end"
-                  onClick={(e) => e.stopPropagation()}
-                  onCloseAutoFocus={(e) => e.preventDefault()}
-                  className="min-w-[140px] border border-hairline-strong bg-raised p-0 shadow-none ring-0"
-                >
-                  <DropdownMenuItem
-                    className="cursor-pointer px-3 py-2 font-mono text-[11px] uppercase tracking-[0.16em] text-foreground focus:bg-white/[0.06] focus:text-foreground"
-                    onSelect={() => setRenameOpen(true)}
-                  >
-                    Rename
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="cursor-pointer px-3 py-2 font-mono text-[11px] uppercase tracking-[0.16em] text-foreground focus:bg-white/[0.06] focus:text-destructive"
-                    onSelect={() => setDeleteOpen(true)}
-                  >
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+            <>
+              <button
+                type="button"
+                onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                  e.stopPropagation();
+                  setRenameOpen(true);
+                }}
+                aria-label="Rename project"
+                className="absolute top-2 right-9 flex size-5 items-center justify-center border border-hairline-strong bg-black/60 text-fg-dim hover:text-foreground"
+              >
+                <PencilSimpleIcon className="size-3" />
+              </button>
+              <button
+                type="button"
+                onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                  e.stopPropagation();
+                  setDeleteOpen(true);
+                }}
+                aria-label="Delete project"
+                className="absolute top-2 right-2 flex size-5 items-center justify-center border border-hairline-strong bg-black/60 text-fg-dim hover:text-destructive"
+              >
+                <TrashIcon className="size-3" />
+              </button>
+            </>
           ) : null}
         </div>
         <div className="px-3.5 py-3">
