@@ -233,7 +233,7 @@ export const CanvasArea = ({ engineRef, containerRef, initialProject, onHydrateE
     <div
       ref={containerRef}
       className="relative h-full w-full overflow-hidden"
-      style={{ backgroundColor: '#070707', cursor: activeTool === 'hand' ? 'grab' : undefined }}
+      style={{ cursor: activeTool === 'hand' ? 'grab' : undefined }}
     >
       <div
         style={{
