@@ -6,10 +6,10 @@ import { useReadOnlyStore } from '@/features/projects/store/read-only.store';
 const SHORTCUT_MAP: Record<string, ToolId> = {
   KeyV: 'move',
   KeyM: 'marquee',
-  KeyL: 'lasso',
   KeyB: 'brush',
   KeyP: 'pencil',
   KeyE: 'eraser',
+  KeyG: 'fill',
   KeyU: 'shape',
   KeyT: 'text',
   KeyI: 'image',

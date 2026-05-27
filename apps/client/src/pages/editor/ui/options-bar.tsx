@@ -21,6 +21,7 @@ import {
 import { BRUSH_DEFAULT_STYLES } from '@/features/canvas/lib/tools/BrushTool/BrushTool.styles';
 import { TEXT_DEFAULT_STYLES } from '@/features/canvas/lib/tools/TextTool/TextTool';
 import { ERASER_DEFAULT_STYLES } from '@/features/canvas/lib/tools/EraserTool/EraserTool';
+import { FILL_DEFAULT_STYLES } from '@/features/canvas/lib/tools/FillTool/FillTool';
 import type { ToolId } from '../types';
 import { IUpload } from '../icons';
 import {
@@ -300,6 +301,24 @@ function HandOptions() {
   );
 }
 
+function FillOptions() {
+  const styles = useCanvasStore((s) => s.toolStyles.fill);
+  const setToolStyle = useCanvasStore((s) => s.setToolStyle);
+  const color = styles?.color ?? FILL_DEFAULT_STYLES.color;
+
+  return (
+    <>
+      <Label>Fill</Label>
+      <Separator />
+      <Field label="Color">
+        <ColorField value={color} onCommit={(v) => setToolStyle('fill', { color: v })} />
+      </Field>
+      <Separator />
+      <span className="text-fg-dimmer text-2xs">Click a shape to fill it with this color</span>
+    </>
+  );
+}
+
 function EyedropperOptions() {
   const eyedropperColor = useCanvasStore((s) => s.eyedropperColor);
 
@@ -348,6 +367,8 @@ export function OptionsBar({ tool }: Props) {
         <BrushOptions />
       ) : tool === 'eraser' ? (
         <EraserOptions />
+      ) : tool === 'fill' ? (
+        <FillOptions />
       ) : tool === 'shape' ? (
         <ShapeOptions />
       ) : tool === 'text' || (tool === 'move' && isTextSelected) ? (

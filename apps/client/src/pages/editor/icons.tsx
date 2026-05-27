@@ -31,9 +31,10 @@ const IMarquee = makeIcon(
   </>,
 );
 
-const ILasso = makeIcon(
+const IFill = makeIcon(
   <>
-    <path d="M3 9c0-3 2-6 5-6s5 3 5 5-2 4-4 4H6c-1 0-2 .5-2 1.5S5 15 6 14" />
+    <path d="M5 4 L6 13 L10 13 L11 4 Z" />
+    <path d="M5 4 Q5 2 8 2 Q11 2 11 4" />
   </>,
 );
 
@@ -228,7 +229,7 @@ const IExport = makeIcon(
 export {
   IMove,
   IMarquee,
-  ILasso,
+  IFill,
   IBrush,
   IPencil,
   IEraser,

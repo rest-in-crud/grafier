@@ -3,10 +3,10 @@ export type IconProps = { size?: number };
 export type ToolId =
   | 'move'
   | 'marquee'
-  | 'lasso'
   | 'brush'
   | 'pencil'
   | 'eraser'
+  | 'fill'
   | 'shape'
   | 'text'
   | 'image'

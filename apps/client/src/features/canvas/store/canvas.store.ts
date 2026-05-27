@@ -11,6 +11,7 @@ export type ToolStyles = {
   eraser?: { size?: number };
   text?: { fontSize?: number; fontFamily?: string; fontWeight?: string; fill?: string };
   shape?: { strokeWidth?: number; fill?: string; stroke?: string; opacity?: number };
+  fill?: { color?: string };
 };
 
 export type SelectionSnapshot = {
@@ -90,12 +91,13 @@ interface CanvasState {
   setCanvasBgColor: (color: string) => void;
 }
 
-const COLORABLE_TOOLS = new Set<ToolId>(['pencil', 'brush', 'text', 'shape']);
+const COLORABLE_TOOLS = new Set<ToolId>(['pencil', 'brush', 'text', 'shape', 'fill']);
 
 const TOOL_COLOR_FIELD: Partial<Record<ToolId, string>> = {
   pencil: 'color',
   brush: 'color',
   text: 'fill',
+  fill: 'color',
 } as const;
 
 export const useCanvasStore = create<CanvasState>((set) => ({
