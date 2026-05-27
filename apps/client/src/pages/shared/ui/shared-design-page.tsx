@@ -44,7 +44,7 @@ const SharedDesignPage = () => {
       const created = await fork.mutateAsync({ id: design.id, token: token ?? undefined });
       navigate(`/editor/${created.id}`);
     } catch {
-      useNoticeStore.getState().show('Could not fork this design');
+      useNoticeStore.getState().show('Could not copy this design');
     }
   };
 
@@ -79,7 +79,7 @@ const SharedDesignPage = () => {
             )
           ) : (
             <Button asChild size="sm">
-              <Link to={signInTarget}>Sign in to fork</Link>
+              <Link to={signInTarget}>Sign in to copy</Link>
             </Button>
           )}
           <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-dim">

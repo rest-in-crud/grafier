@@ -57,7 +57,7 @@ const PublishToggleButton = ({ designId }: Props) => {
       </PopoverTrigger>
       <PopoverContent align="center" className="w-72">
         <div className="flex flex-col gap-3">
-          <p className="font-sans text-sm text-foreground">Anyone can view and fork. Continue?</p>
+          <p className="font-sans text-sm text-foreground">Anyone can view and copy. Continue?</p>
           <div className="flex justify-end gap-2">
             <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>
               Cancel
