@@ -116,7 +116,13 @@ const ShareLinkPopover = ({ designId }: ShareLinkPopoverProps) => {
               onFocus={(e) => e.target.select()}
               className="border border-hairline-strong bg-background px-2 py-1.5 font-mono text-[11px] text-foreground outline-none focus:border-foreground"
             />
-            <div className="flex items-center justify-between gap-2">
+            <Button size="sm" onClick={onCopy} className="w-full">
+              {copiedAt ? 'Copied' : 'Copy link'}
+            </Button>
+            <div className="flex flex-col gap-1.5">
+              <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-fg-dim">
+                Share to
+              </span>
               <div className="flex items-center gap-1.5">
                 <a
                   href={socials.x}
@@ -149,12 +155,15 @@ const ShareLinkPopover = ({ designId }: ShareLinkPopoverProps) => {
                   <FacebookLogoIcon size={14} />
                 </a>
               </div>
-              <Button size="sm" onClick={onCopy}>
-                {copiedAt ? 'Copied' : 'Copy link'}
-              </Button>
             </div>
             <div className="flex justify-end">
-              <Button variant="ghost" size="sm" onClick={onRevoke} disabled={revokeShare.isPending}>
+              <Button
+                variant="link"
+                size="sm"
+                onClick={onRevoke}
+                disabled={revokeShare.isPending}
+                className="text-fg-dim hover:text-destructive"
+              >
                 {revokeShare.isPending ? 'Revoking…' : 'Revoke link'}
               </Button>
             </div>
