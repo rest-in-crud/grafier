@@ -18,8 +18,6 @@ import type { CanvasEngine } from '@/features/canvas/lib/CanvasEngine';
 type TooltipState = { name: string; kbd: string; x: number; y: number } | null;
 
 export type TopbarProps = {
-  avatarInitial: string;
-  onLogout: () => void;
   projectName?: string;
   width?: number;
   height?: number;
@@ -32,8 +30,6 @@ export type TopbarProps = {
 };
 
 function Topbar({
-  avatarInitial,
-  onLogout,
   projectName,
   width,
   height,
@@ -137,14 +133,6 @@ function Topbar({
           </>
         ) : null}
 
-        <button
-          type="button"
-          onClick={onLogout}
-          aria-label="Log out"
-          className="editor-avatar-bg flex h-6.5 w-6.5 cursor-pointer items-center justify-center border border-hairline-strong font-mono text-[10px] text-foreground"
-        >
-          {avatarInitial}
-        </button>
       </div>
 
       {tooltip && (
