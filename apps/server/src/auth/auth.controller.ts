@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res, UseFilters, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { GoogleGuard } from '@/auth/guards/google.guard';
+import { GoogleCallbackFilter } from '@/auth/guards/google-callback.filter';
 import { LocalGuard } from '@/auth/guards/local.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { AuthUser } from '@/types/auth.types';
@@ -53,6 +54,7 @@ export class AuthController {
     @Get('google')
     googleRedirect() {}
 
+    @UseFilters(GoogleCallbackFilter)
     @UseGuards(GoogleGuard)
     @Get('google/callback')
     async googleCallback(@CurrentUser() user: AuthUser, @Req() req: Request, @Res() res: Response) {
