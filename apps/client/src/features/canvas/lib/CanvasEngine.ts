@@ -298,6 +298,15 @@ export class CanvasEngine {
   private clipboard: FabricObject[] = [];
   private pasteOffset = 0;
 
+  private async cloneObject(source: FabricObject): Promise<FabricObject> {
+    const clone = await source.clone();
+    if (clone.data && typeof clone.data === 'object') {
+      const { id: _omitId, ...rest } = clone.data;
+      clone.data = rest;
+    }
+    return clone;
+  }
+
   private async copyActive(): Promise<void> {
     const active = this.canvas.getActiveObject();
     if (!active) return;
@@ -305,13 +314,13 @@ export class CanvasEngine {
     if (active instanceof ActiveSelection) {
       const children = [...active.getObjects()];
       this.canvas.discardActiveObject();
-      this.clipboard = await Promise.all(children.map((c) => c.clone()));
+      this.clipboard = await Promise.all(children.map((c) => this.cloneObject(c)));
       const restored = new ActiveSelection(children, { canvas: this.canvas });
       this.canvas.setActiveObject(restored);
       this.canvas.requestRenderAll();
       return;
     }
-    this.clipboard = [await active.clone()];
+    this.clipboard = [await this.cloneObject(active)];
   }
 
   private async pasteClipboard(): Promise<void> {
@@ -321,7 +330,7 @@ export class CanvasEngine {
     const offset = this.pasteOffset;
     const clones: FabricObject[] = [];
     for (const source of this.clipboard) {
-      const clone = await source.clone();
+      const clone = await this.cloneObject(source);
       clone.set({ left: (clone.left ?? 0) + offset, top: (clone.top ?? 0) + offset });
       this.canvas.add(clone);
       clones.push(clone);
@@ -341,7 +350,7 @@ export class CanvasEngine {
     if (!active) return;
 
     if (!(active instanceof ActiveSelection)) {
-      const clone = await active.clone();
+      const clone = await this.cloneObject(active);
       clone.set({ left: (active.left ?? 0) + 10, top: (active.top ?? 0) + 10 });
       this.canvas.add(clone);
       this.canvas.setActiveObject(clone);
@@ -354,7 +363,7 @@ export class CanvasEngine {
     this.canvas.discardActiveObject();
     const clones: FabricObject[] = [];
     for (const child of children) {
-      const clone = await child.clone();
+      const clone = await this.cloneObject(child);
       clone.set({ left: (clone.left ?? 0) + 10, top: (clone.top ?? 0) + 10 });
       this.canvas.add(clone);
       clones.push(clone);
