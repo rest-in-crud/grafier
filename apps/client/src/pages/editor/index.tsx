@@ -101,6 +101,14 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
     return () => window.removeEventListener('beforeunload', handler);
   }, []);
 
+  useEffect(() => {
+    const blockBrowserZoom = (e: WheelEvent) => {
+      if (e.ctrlKey || e.metaKey) e.preventDefault();
+    };
+    window.addEventListener('wheel', blockBrowserZoom, { passive: false, capture: true });
+    return () => window.removeEventListener('wheel', blockBrowserZoom, { capture: true });
+  }, []);
+
   useAutosave(id, engineRef);
 
   const tool = useCanvasStore((s) => s.activeTool);
