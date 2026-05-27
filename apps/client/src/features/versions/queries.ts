@@ -10,6 +10,7 @@ import { reloadFromDesign } from '@/features/canvas/lib/reloadFromDesign';
 import { buildAutoBeforeRestoreLabel } from '@/features/versions/lib/version-labels';
 import { useLayersStore } from '@/features/layers/store/layers.store';
 import { saveCanvasRequestSchema } from '@/features/projects/schema';
+import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import type { CanvasEngine } from '@/features/canvas/lib/CanvasEngine';
 
 const useVersionsList = (designId: string, enabled: boolean) =>
@@ -24,6 +25,8 @@ type SaveVersionInput = {
   label: string | null;
   canvasJSON: unknown;
   layersJSON: unknown;
+  width: number;
+  height: number;
 };
 
 const useSaveVersion = (designId: string) => {
@@ -34,6 +37,8 @@ const useSaveVersion = (designId: string) => {
         label: input.label,
         canvasJSON: input.canvasJSON,
         layersJSON: input.layersJSON,
+        width: input.width,
+        height: input.height,
       }),
     onSuccess: () => {
       /* saveCheckpoint also overwrites the design row server-side, so the autosave state is no longer dirty */
@@ -107,11 +112,14 @@ const useRestoreVersion = (designId: string, engineRef: RefObject<CanvasEngine |
         engine.fabricCanvas.toJSON(),
       );
       const layersJSON = useLayersStore.getState().layers;
+      const { artboardWidth, artboardHeight } = useCanvasStore.getState();
       try {
         await api.saveVersion(designId, {
           label: buildAutoBeforeRestoreLabel(new Date()),
           canvasJSON,
           layersJSON,
+          width: artboardWidth,
+          height: artboardHeight,
         });
       } catch {
         useNoticeStore.getState().show('✕ Could not save current state, restore cancelled');

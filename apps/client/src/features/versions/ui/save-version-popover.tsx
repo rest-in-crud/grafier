@@ -8,6 +8,7 @@ import { formatVersionName } from '@/features/versions/lib/version-labels';
 import { useNoticeStore } from '@/features/notice/store/notice.store';
 import { useLayersStore } from '@/features/layers/store/layers.store';
 import { useReadOnlyStore } from '@/features/projects/store/read-only.store';
+import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import { saveCanvasRequestSchema } from '@/features/projects/schema';
 import type { CanvasEngine } from '@/features/canvas/lib/CanvasEngine';
 
@@ -45,11 +46,14 @@ const SaveVersionPopover = ({ designId, engineRef }: SaveVersionPopoverProps) =>
         engine.fabricCanvas.toJSON(),
       );
       const layersJSON = useLayersStore.getState().layers;
+      const { artboardWidth, artboardHeight } = useCanvasStore.getState();
       const trimmed = label.trim();
       await saveVersion.mutateAsync({
         label: trimmed.length > 0 ? trimmed : null,
         canvasJSON,
         layersJSON,
+        width: artboardWidth,
+        height: artboardHeight,
       });
       closeSave();
       useNoticeStore.getState().show('✓ Version saved');

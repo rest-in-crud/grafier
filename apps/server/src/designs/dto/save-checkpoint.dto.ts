@@ -1,4 +1,4 @@
-import { IsArray, IsObject, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsArray, IsInt, IsObject, IsOptional, IsString, MaxLength, Min } from 'class-validator';
 
 export class SaveCheckpointDto {
     @IsObject()
@@ -6,6 +6,14 @@ export class SaveCheckpointDto {
 
     @IsArray()
     layersJSON!: unknown[];
+
+    @IsInt()
+    @Min(1)
+    width!: number;
+
+    @IsInt()
+    @Min(1)
+    height!: number;
 
     @IsOptional()
     @IsString()

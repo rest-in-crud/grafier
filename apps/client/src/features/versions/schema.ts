@@ -10,6 +10,8 @@ const versionSchema = z.object({
 const versionDetailSchema = versionSchema.extend({
   canvasJSON: z.unknown(),
   layersJSON: z.unknown(),
+  width: z.number().int().positive(),
+  height: z.number().int().positive(),
 });
 
 const versionsListResponseSchema = z.array(versionSchema);
