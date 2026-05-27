@@ -5,6 +5,7 @@ import type { BaseTool } from '@/features/canvas/lib/tools/BaseTool';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import { isPrimaryModifier } from '@/shared/lib/platform';
 import { ToolRegistry } from '@/features/canvas/lib/tools/ToolRegistry';
+import type { ToolId } from '@/pages/editor/types';
 
 type Snapshot = {
   toolId: ToolId;
