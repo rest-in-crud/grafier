@@ -87,7 +87,7 @@ const SharedDesignPage = () => {
           </span>
         </div>
       </header>
-      <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden p-6">
+      <div className="relative flex min-h-0 flex-1 overflow-hidden p-6">
         <SharedCanvas design={design} />
       </div>
     </div>
