@@ -12,7 +12,7 @@ const TemplatesSection = () => {
     <section className="mb-14">
       <div className="mb-5 flex items-baseline justify-between">
         <h2 className="m-0 font-sans text-lg font-medium tracking-[-0.005em] text-foreground">
-          Your templates
+          My Templates
           {total > 0 ? (
             <span className="ml-2.5 font-mono text-[10px] font-normal uppercase tracking-[0.18em] text-fg-dim">
               {`· ${top.length} of ${total}`}
@@ -31,7 +31,7 @@ const TemplatesSection = () => {
             to="/templates"
             className="font-mono text-[10px] uppercase tracking-[0.18em] text-fg-dim transition-colors hover:text-foreground"
           >
-            Browse community →
+            Browse all →
           </Link>
         )}
       </div>

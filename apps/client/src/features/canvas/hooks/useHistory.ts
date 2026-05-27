@@ -32,14 +32,12 @@ export const useHistory = (engineRef: RefObject<CanvasEngine | null>, baselineKe
 
       engine.isRestoring = true;
       await canvas.loadFromJSON(snapshot.canvasJSON);
-      engine.isRestoring = false;
-
       canvas.requestRenderAll();
-
       useLayersStore.setState({
         layers: snapshot.layersState.layers,
         activeLayerId: snapshot.layersState.activeLayerId,
       });
+      engine.isRestoring = false;
     },
     [engineRef],
   );
@@ -129,12 +127,18 @@ export const useHistory = (engineRef: RefObject<CanvasEngine | null>, baselineKe
     canvas.on('object:modified', onObjectModified);
     canvas.on('object:removed', onObjectRemoved);
 
+    const unsubscribeLayers = useLayersStore.subscribe((state, prev) => {
+      if (engine.isRestoring) return;
+      if (state.layers !== prev.layers) schedulePush();
+    });
+
     return () => {
       if (debounceTimer) clearTimeout(debounceTimer);
       canvas.off('path:created', onPathCreated);
       canvas.off('object:added', onObjectAdded);
       canvas.off('object:modified', onObjectModified);
       canvas.off('object:removed', onObjectRemoved);
+      unsubscribeLayers();
     };
   }, [engineRef, takeSnapshot]);
 

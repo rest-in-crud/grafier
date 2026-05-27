@@ -30,7 +30,7 @@ const ProjectsListPage = () => {
       <ScreenBackground />
       <TopBar />
       <main className="relative z-10 mx-auto max-w-[1200px] px-10 pt-14 pb-24">
-        <h1 className="m-0 mb-10 font-sans text-3xl font-medium tracking-[-0.02em]">Projects</h1>
+        <h1 className="m-0 mb-10 font-sans text-3xl font-medium tracking-[-0.02em]">My Projects</h1>
         {(projects?.length ?? 0) > 0 ? (
           <ProjectsToolbar
             query={query}

@@ -27,7 +27,7 @@ const TopBar = () => {
         <DropdownMenuTrigger asChild>
           <button
             type="button"
-            className="flex items-center gap-2.5 border border-hairline-strong bg-white/[0.02] px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] text-foreground hover:border-foreground"
+            className="flex cursor-pointer items-center gap-2.5 border border-hairline-strong bg-white/[0.02] px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] text-foreground hover:border-foreground"
           >
             {firstName}
           </button>

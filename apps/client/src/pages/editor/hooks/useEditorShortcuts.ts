@@ -57,6 +57,18 @@ export function useEditorShortcuts(engineRef: RefObject<CanvasEngine | null>) {
         return;
       }
 
+      if (e.code === 'KeyC') {
+        e.preventDefault();
+        useCanvasStore.getState().copySelection();
+        return;
+      }
+
+      if (e.code === 'KeyV') {
+        e.preventDefault();
+        useCanvasStore.getState().pasteSelection();
+        return;
+      }
+
       if (e.code === 'KeyA') {
         e.preventDefault();
         useCanvasStore.getState().selectObjectsByIds(collectAllIds(canvas));

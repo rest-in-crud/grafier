@@ -1,4 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
+import type { SVGProps } from 'react';
+import {
+  XLogoIcon,
+  LinkedinLogoIcon,
+  FacebookLogoIcon,
+  RedditLogoIcon,
+  TelegramLogoIcon,
+} from '@phosphor-icons/react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover';
 import { Button } from '@/shared/ui/button';
 import { useProject, useCreateShareToken, useRevokeShareToken } from '@/features/projects/queries';
@@ -8,7 +16,39 @@ type ShareLinkPopoverProps = {
   designId: string;
 };
 
+const ShareIcon = (props: SVGProps<SVGSVGElement>) => (
+  <svg
+    viewBox="0 0 16 16"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.25"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    {...props}
+  >
+    <path d="M9.25 3.5l1-1a2.65 2.65 0 0 1 3.75 3.75l-2.25 2.25a2.65 2.65 0 0 1-3.75 0" />
+    <path d="M6.75 12.5l-1 1a2.65 2.65 0 0 1-3.75-3.75l2.25-2.25a2.65 2.65 0 0 1 3.75 0" />
+    <path d="M6.25 9.75l3.5-3.5" />
+  </svg>
+);
+
 const buildShareUrl = (token: string): string => `${window.location.origin}/p/${token}`;
+
+const buildSocialShares = (url: string, title: string) => {
+  const u = encodeURIComponent(url);
+  const t = encodeURIComponent(title);
+  return {
+    x: `https://twitter.com/intent/tweet?url=${u}&text=${t}`,
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${u}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${u}`,
+    reddit: `https://www.reddit.com/submit?url=${u}&title=${t}`,
+    telegram: `https://t.me/share/url?url=${u}&text=${t}`,
+  };
+};
+
+const socialBtn =
+  'flex size-7 cursor-pointer items-center justify-center border border-hairline-strong text-fg-dim transition-colors hover:border-foreground hover:text-foreground';
 
 const ShareLinkPopover = ({ designId }: ShareLinkPopoverProps) => {
   const { data: design } = useProject(designId);
@@ -28,6 +68,7 @@ const ShareLinkPopover = ({ designId }: ShareLinkPopoverProps) => {
 
   const shareToken = design.shareToken ?? null;
   const shareUrl = shareToken ? buildShareUrl(shareToken) : '';
+  const socials = buildSocialShares(shareUrl, `${design.name} on Grafier`);
 
   const onCreate = async () => {
     try {
@@ -59,11 +100,16 @@ const ShareLinkPopover = ({ designId }: ShareLinkPopoverProps) => {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="sm">
-          Share
-        </Button>
+        <button
+          type="button"
+          aria-label="Share"
+          title="Share"
+          className="flex cursor-pointer items-center text-fg-dim transition-colors hover:text-foreground"
+        >
+          <ShareIcon className="size-3.5" />
+        </button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-80">
+      <PopoverContent align="center" className="w-80">
         {shareToken ? (
           <div className="flex flex-col gap-3">
             <label className="font-mono text-[11px] uppercase tracking-[0.16em] text-fg-dim">
@@ -78,18 +124,75 @@ const ShareLinkPopover = ({ designId }: ShareLinkPopoverProps) => {
               onFocus={(e) => e.target.select()}
               className="border border-hairline-strong bg-background px-2 py-1.5 font-mono text-[11px] text-foreground outline-none focus:border-foreground"
             />
-            <div className="flex justify-between gap-2">
-              <Button
-                variant="destructive"
-                size="sm"
+            <Button size="sm" onClick={onCopy} className="w-full">
+              {copiedAt ? 'Copied' : 'Copy link'}
+            </Button>
+            <div className="flex flex-col gap-1.5">
+              <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-fg-dim">
+                Share to
+              </span>
+              <div className="flex items-center gap-1.5">
+                <a
+                  href={socials.x}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  aria-label="Share on X"
+                  title="Share on X"
+                  className={socialBtn}
+                >
+                  <XLogoIcon size={14} />
+                </a>
+                <a
+                  href={socials.linkedin}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  aria-label="Share on LinkedIn"
+                  title="Share on LinkedIn"
+                  className={socialBtn}
+                >
+                  <LinkedinLogoIcon size={14} />
+                </a>
+                <a
+                  href={socials.facebook}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  aria-label="Share on Facebook"
+                  title="Share on Facebook"
+                  className={socialBtn}
+                >
+                  <FacebookLogoIcon size={14} />
+                </a>
+                <a
+                  href={socials.reddit}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  aria-label="Share on Reddit"
+                  title="Share on Reddit"
+                  className={socialBtn}
+                >
+                  <RedditLogoIcon size={14} />
+                </a>
+                <a
+                  href={socials.telegram}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  aria-label="Share on Telegram"
+                  title="Share on Telegram"
+                  className={socialBtn}
+                >
+                  <TelegramLogoIcon size={14} />
+                </a>
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <button
+                type="button"
                 onClick={onRevoke}
                 disabled={revokeShare.isPending}
+                className="inline-flex cursor-pointer items-center gap-2.5 border border-danger bg-transparent px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.2em] text-danger transition-colors hover:bg-danger hover:text-black disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-40"
               >
-                {revokeShare.isPending ? 'Revoking…' : 'Revoke'}
-              </Button>
-              <Button size="sm" onClick={onCopy}>
-                {copiedAt ? 'Copied' : 'Copy link'}
-              </Button>
+                {revokeShare.isPending ? 'Revoking…' : 'Revoke link'}
+              </button>
             </div>
           </div>
         ) : (

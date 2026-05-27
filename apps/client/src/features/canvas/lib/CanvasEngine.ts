@@ -29,9 +29,16 @@ interface CanvasConfig {
 
 const OBJECT_TYPE_LABELS: Record<string, string> = {
   rect: 'Rectangle',
+  square: 'Square',
+  'rounded-rect': 'Rounded Rectangle',
   circle: 'Circle',
   ellipse: 'Ellipse',
   triangle: 'Triangle',
+  diamond: 'Diamond',
+  pentagon: 'Pentagon',
+  hexagon: 'Hexagon',
+  star: 'Star',
+  arrow: 'Arrow',
   line: 'Line',
   path: 'Pen Stroke',
   'brush-path': 'Brush Stroke',
@@ -144,8 +151,10 @@ export class CanvasEngine {
       if (this.isRestoring || obj.data?.id) return;
 
       const id = crypto.randomUUID();
+      const shapeType = typeof obj.data?.shapeType === 'string' ? obj.data.shapeType : null;
       const typeKey =
-        obj.type === 'path' && this.activeToolId === 'brush' ? 'brush-path' : obj.type;
+        shapeType ??
+        (obj.type === 'path' && this.activeToolId === 'brush' ? 'brush-path' : obj.type);
       const name = this.generateObjectName(typeKey);
       obj.data = { ...obj.data, id };
 
@@ -206,6 +215,14 @@ export class CanvasEngine {
 
     useCanvasStore.getState().setDuplicateSelection(() => {
       void this.duplicateActive();
+    });
+
+    useCanvasStore.getState().setCopySelection(() => {
+      void this.copyActive();
+    });
+
+    useCanvasStore.getState().setPasteSelection(() => {
+      void this.pasteClipboard();
     });
 
     useCanvasStore.getState().setRemoveObjectById((id) => {
@@ -278,12 +295,62 @@ export class CanvasEngine {
     }
   }
 
+  private clipboard: FabricObject[] = [];
+  private pasteOffset = 0;
+
+  private async cloneObject(source: FabricObject): Promise<FabricObject> {
+    const clone = await source.clone();
+    if (clone.data && typeof clone.data === 'object') {
+      const { id: _omitId, ...rest } = clone.data;
+      clone.data = rest;
+    }
+    return clone;
+  }
+
+  private async copyActive(): Promise<void> {
+    const active = this.canvas.getActiveObject();
+    if (!active) return;
+    this.pasteOffset = 0;
+    if (active instanceof ActiveSelection) {
+      const children = [...active.getObjects()];
+      this.canvas.discardActiveObject();
+      this.clipboard = await Promise.all(children.map((c) => this.cloneObject(c)));
+      const restored = new ActiveSelection(children, { canvas: this.canvas });
+      this.canvas.setActiveObject(restored);
+      this.canvas.requestRenderAll();
+      return;
+    }
+    this.clipboard = [await this.cloneObject(active)];
+  }
+
+  private async pasteClipboard(): Promise<void> {
+    if (this.clipboard.length === 0) return;
+    this.canvas.discardActiveObject();
+    this.pasteOffset += 20;
+    const offset = this.pasteOffset;
+    const clones: FabricObject[] = [];
+    for (const source of this.clipboard) {
+      const clone = await this.cloneObject(source);
+      clone.set({ left: (clone.left ?? 0) + offset, top: (clone.top ?? 0) + offset });
+      this.canvas.add(clone);
+      clones.push(clone);
+    }
+    if (clones.length === 1 && clones[0]) {
+      this.canvas.setActiveObject(clones[0]);
+    } else if (clones.length > 1) {
+      const sel = new ActiveSelection(clones, { canvas: this.canvas });
+      this.canvas.setActiveObject(sel);
+    }
+    this.canvas.requestRenderAll();
+    if (clones[0]) this.canvas.fire('object:modified', { target: clones[0] });
+  }
+
   private async duplicateActive(): Promise<void> {
     const active = this.canvas.getActiveObject();
     if (!active) return;
 
     if (!(active instanceof ActiveSelection)) {
-      const clone = await active.clone();
+      const clone = await this.cloneObject(active);
       clone.set({ left: (active.left ?? 0) + 10, top: (active.top ?? 0) + 10 });
       this.canvas.add(clone);
       this.canvas.setActiveObject(clone);
@@ -296,7 +363,7 @@ export class CanvasEngine {
     this.canvas.discardActiveObject();
     const clones: FabricObject[] = [];
     for (const child of children) {
-      const clone = await child.clone();
+      const clone = await this.cloneObject(child);
       clone.set({ left: (clone.left ?? 0) + 10, top: (clone.top ?? 0) + 10 });
       this.canvas.add(clone);
       clones.push(clone);
@@ -361,6 +428,8 @@ export class CanvasEngine {
     useCanvasStore.getState().setSelectObjectById(() => {});
     useCanvasStore.getState().setSelectObjectsByIds(() => {});
     useCanvasStore.getState().setDuplicateSelection(() => {});
+    useCanvasStore.getState().setCopySelection(() => {});
+    useCanvasStore.getState().setPasteSelection(() => {});
     useCanvasStore.getState().setRemoveObjectById(() => {});
     useCanvasStore.getState().setSelection({ ids: [], primary: null });
     this.activeTool?.deactivate(this.canvas);

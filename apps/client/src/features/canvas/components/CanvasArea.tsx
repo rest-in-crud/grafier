@@ -174,13 +174,12 @@ export const CanvasArea = ({ engineRef, containerRef, initialProject, onHydrateE
           await loadCanvasTextFonts(engine.fabricCanvas);
         }
         if (cancelled) return;
-        if (initialProject.canvasJSON) {
-          const savedBg = readSavedBgColor(initialProject.canvasJSON);
-          if (savedBg !== null) {
-            engine.fabricCanvas.backgroundColor = savedBg;
-            useCanvasStore.setState({ canvasBgColor: savedBg });
-          }
-        }
+        const savedBg = initialProject.canvasJSON
+          ? readSavedBgColor(initialProject.canvasJSON)
+          : null;
+        const bg = savedBg ?? '#ffffff';
+        engine.fabricCanvas.backgroundColor = bg;
+        useCanvasStore.setState({ canvasBgColor: bg });
         if (initialProject.layersJSON && initialProject.layersJSON.length > 0) {
           const flatLayerObjects = initialProject.layersJSON.flatMap((l) => l.objects);
           const canvasObjects = engine.fabricCanvas.getObjects();
