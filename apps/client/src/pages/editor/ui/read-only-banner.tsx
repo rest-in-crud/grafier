@@ -17,7 +17,12 @@ const ReadOnlyAuthorLabel = ({ designId }: Props) => {
   if (!readOnly.isReadOnly || !project) return null;
   if (user?.id === project.userID) return null;
 
-  return <span className="text-fg-dimmer">{`by @${project.userName ?? 'unknown'}`}</span>;
+  return (
+    <>
+      <span>·</span>
+      <span className="text-fg-dimmer">{`by @${project.userName ?? 'unknown'}`}</span>
+    </>
+  );
 };
 
 const ReadOnlyActions = ({ designId }: Props) => {

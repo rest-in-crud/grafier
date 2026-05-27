@@ -103,12 +103,7 @@ function Topbar({
                 <PrivateIcon className="size-3.5 text-fg-dim" />
               )
             ) : null}
-            {designId ? (
-              <>
-                <span>·</span>
-                <ReadOnlyAuthorLabel designId={designId} />
-              </>
-            ) : null}
+            {designId ? <ReadOnlyAuthorLabel designId={designId} /> : null}
             <span>·</span>
             <span className="text-fg-dimmer">{`${width} × ${height} PX`}</span>
           </>
