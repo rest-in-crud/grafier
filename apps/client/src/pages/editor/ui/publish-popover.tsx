@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover';
 import { Button } from '@/shared/ui/button';
+import { PublicIcon, PrivateIcon } from '@/shared/ui/visibility-icons';
 import { useProject, useSetVisibility, useForkAsTemplate } from '@/features/projects/queries';
 import { useFlushAutosave } from '@/features/projects/hooks/useFlushAutosave';
 
@@ -38,14 +39,23 @@ const PublishToggleButton = ({ designId }: Props) => {
     setVisibility.mutate(true);
   };
 
+  const Icon = design.isPublic ? PublicIcon : PrivateIcon;
+  const label = design.isPublic ? 'Make private' : 'Make public';
+
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="sm" disabled={setVisibility.isPending}>
-          {design.isPublic ? 'Public' : 'Make public'}
-        </Button>
+        <button
+          type="button"
+          aria-label={label}
+          title={label}
+          disabled={setVisibility.isPending}
+          className="flex cursor-pointer items-center text-fg-dim transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          <Icon className="size-3.5" />
+        </button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-72">
+      <PopoverContent align="center" className="w-72">
         <div className="flex flex-col gap-3">
           <p className="font-sans text-sm text-foreground">Anyone can view and fork. Continue?</p>
           <div className="flex justify-end gap-2">

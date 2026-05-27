@@ -96,7 +96,9 @@ function Topbar({
             <span className="max-w-[40ch] truncate text-foreground" title={projectName}>
               {projectName}
             </span>
-            {isPublic !== undefined ? (
+            {designId && isOwner ? (
+              <PublishToggleButton designId={designId} />
+            ) : isPublic !== undefined ? (
               isPublic ? (
                 <PublicIcon className="size-3.5 text-fg-dim" />
               ) : (
@@ -124,7 +126,6 @@ function Topbar({
           <>
             <SaveAsTemplateButton designId={designId} />
             <ShareLinkPopover designId={designId} />
-            <PublishToggleButton designId={designId} />
           </>
         ) : null}
       </div>
