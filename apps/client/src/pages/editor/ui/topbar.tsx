@@ -50,47 +50,49 @@ function Topbar({
   }
 
   return (
-    <div className="flex h-full items-center gap-3.5 border-b border-hairline bg-chrome px-3">
-      <Link
-        to="/"
-        className="flex h-full items-center border-r border-hairline pr-3.5 font-mono text-[11px] font-semibold tracking-[0.28em] text-foreground hover:text-foreground"
-      >
-        GRAFIER
-      </Link>
-
-      <div className="flex h-full items-center gap-2">
-        <IconButton
-          onClick={undo}
-          onMouseEnter={(e) => showTooltip(e, 'Undo', formatHotkey(['Mod', 'Z']))}
-          onMouseLeave={() => setTooltip(null)}
+    <div className="grid h-full grid-cols-[1fr_auto_1fr] items-center gap-3.5 border-b border-hairline bg-chrome px-3">
+      <div className="flex h-full items-center gap-3.5 justify-self-start">
+        <Link
+          to="/"
+          className="flex h-full items-center border-r border-hairline pr-3.5 font-mono text-[11px] font-semibold tracking-[0.28em] text-foreground hover:text-foreground"
         >
-          <IUndo size={14} />
-        </IconButton>
-        <IconButton
-          onClick={redo}
-          onMouseEnter={(e) => showTooltip(e, 'Redo', formatHotkey(['Mod', 'Y']))}
-          onMouseLeave={() => setTooltip(null)}
-        >
-          <IRedo size={14} />
-        </IconButton>
+          GRAFIER
+        </Link>
 
-        <div className="mx-1 h-[18px] w-px bg-hairline" />
+        <div className="flex h-full items-center gap-2">
+          <IconButton
+            onClick={undo}
+            onMouseEnter={(e) => showTooltip(e, 'Undo', formatHotkey(['Mod', 'Z']))}
+            onMouseLeave={() => setTooltip(null)}
+          >
+            <IUndo size={14} />
+          </IconButton>
+          <IconButton
+            onClick={redo}
+            onMouseEnter={(e) => showTooltip(e, 'Redo', formatHotkey(['Mod', 'Y']))}
+            onMouseLeave={() => setTooltip(null)}
+          >
+            <IRedo size={14} />
+          </IconButton>
 
-        <IconButton
-          onClick={() => useVersionUiStore.getState().openHistory()}
-          onMouseEnter={(e) => showTooltip(e, 'Version history', '')}
-          onMouseLeave={() => setTooltip(null)}
-          aria-label="Version history"
-        >
-          <IHistory size={14} />
-        </IconButton>
+          <div className="mx-1 h-[18px] w-px bg-hairline" />
 
-        {designId && engineRef ? (
-          <SaveVersionPopover designId={designId} engineRef={engineRef} />
-        ) : null}
+          <IconButton
+            onClick={() => useVersionUiStore.getState().openHistory()}
+            onMouseEnter={(e) => showTooltip(e, 'Version history', '')}
+            onMouseLeave={() => setTooltip(null)}
+            aria-label="Version history"
+          >
+            <IHistory size={14} />
+          </IconButton>
+
+          {designId && engineRef ? (
+            <SaveVersionPopover designId={designId} engineRef={engineRef} />
+          ) : null}
+        </div>
       </div>
 
-      <div className="flex flex-1 items-center justify-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.16em] text-fg-dim">
+      <div className="flex items-center justify-self-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.16em] text-fg-dim">
         {projectName && width !== undefined && height !== undefined ? (
           <>
             <span className="max-w-[40ch] truncate text-foreground" title={projectName}>
@@ -116,7 +118,7 @@ function Topbar({
         ) : null}
       </div>
 
-      <div className="flex h-full items-center gap-2">
+      <div className="flex h-full items-center gap-2 justify-self-end">
         <ExportMenu
           getCanvas={getCanvas ?? (() => null)}
           projectName={exportProjectName ?? 'design'}
