@@ -1,6 +1,7 @@
 import { EraserBrush } from '@erase2d/fabric';
 import type { Canvas, FabricObject } from 'fabric';
 import { removeFromLayer } from '../../removeFromLayer';
+import { useLayersStore } from '@/features/layers/store/layers.store';
 import type { BaseTool } from '../BaseTool';
 import type { ToolRegistration } from '../types';
 
@@ -14,6 +15,18 @@ export class EraserTool implements BaseTool {
   styleSchema = {
     size: { type: 'range', label: 'Size', min: 1, max: 200, unit: 'px' },
   };
+
+  private unsubscribeLayers: (() => void) | null = null;
+
+  private syncErasable(canvas: Canvas) {
+    const { layers, activeLayerId } = useLayersStore.getState();
+    const activeLayer = layers.find((l) => l.id === activeLayerId);
+    const activeIds = new Set(activeLayer?.objects.map((o) => o.id) ?? []);
+    for (const obj of canvas.getObjects()) {
+      const id = obj.data?.id;
+      obj.erasable = typeof id === 'string' && activeIds.has(id);
+    }
+  }
 
   activate(canvas: Canvas, styles: Record<string, unknown> = {}) {
     const brush = new EraserBrush(canvas);
@@ -40,6 +53,9 @@ export class EraserTool implements BaseTool {
     canvas.freeDrawingCursor = 'none';
     canvas.defaultCursor = 'none';
     canvas.hoverCursor = 'none';
+
+    this.syncErasable(canvas);
+    this.unsubscribeLayers = useLayersStore.subscribe(() => this.syncErasable(canvas));
   }
 
   private isFullyErased(obj: FabricObject): boolean {
@@ -66,6 +82,9 @@ export class EraserTool implements BaseTool {
 
   deactivate(canvas: Canvas) {
     canvas.isDrawingMode = false;
+    this.unsubscribeLayers?.();
+    this.unsubscribeLayers = null;
+    for (const obj of canvas.getObjects()) obj.erasable = true;
   }
 
   suspend(canvas: Canvas): void {
@@ -74,6 +93,7 @@ export class EraserTool implements BaseTool {
 
   resume(canvas: Canvas): void {
     canvas.isDrawingMode = true;
+    this.syncErasable(canvas);
   }
 }
 

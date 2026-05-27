@@ -11,6 +11,7 @@ export type ToolStyles = {
   eraser?: { size?: number };
   text?: { fontSize?: number; fontFamily?: string; fontWeight?: string; fill?: string };
   shape?: { strokeWidth?: number; fill?: string; stroke?: string; opacity?: number };
+  fill?: { color?: string };
 };
 
 export type SelectionSnapshot = {
@@ -76,6 +77,10 @@ interface CanvasState {
   setSelectObjectsByIds: (fn: (ids: string[]) => void) => void;
   duplicateSelection: () => void;
   setDuplicateSelection: (fn: () => void) => void;
+  copySelection: () => void;
+  setCopySelection: (fn: () => void) => void;
+  pasteSelection: () => void;
+  setPasteSelection: (fn: () => void) => void;
   removeObjectById: (id: string) => void;
   setRemoveObjectById: (fn: (id: string) => void) => void;
   artboardWidth: number;
@@ -90,12 +95,13 @@ interface CanvasState {
   setCanvasBgColor: (color: string) => void;
 }
 
-const COLORABLE_TOOLS = new Set<ToolId>(['pencil', 'brush', 'text', 'shape']);
+const COLORABLE_TOOLS = new Set<ToolId>(['pencil', 'brush', 'text', 'shape', 'fill']);
 
 const TOOL_COLOR_FIELD: Partial<Record<ToolId, string>> = {
   pencil: 'color',
   brush: 'color',
   text: 'fill',
+  fill: 'color',
 } as const;
 
 export const useCanvasStore = create<CanvasState>((set) => ({
@@ -152,6 +158,10 @@ export const useCanvasStore = create<CanvasState>((set) => ({
   setSelectObjectsByIds: (fn) => set({ selectObjectsByIds: fn }),
   duplicateSelection: () => {},
   setDuplicateSelection: (fn) => set({ duplicateSelection: fn }),
+  copySelection: () => {},
+  setCopySelection: (fn) => set({ copySelection: fn }),
+  pasteSelection: () => {},
+  setPasteSelection: (fn) => set({ pasteSelection: fn }),
   removeObjectById: () => {},
   setRemoveObjectById: (fn) => set({ removeObjectById: fn }),
   artboardWidth: 1920,

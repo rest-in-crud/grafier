@@ -77,7 +77,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
                   setRenameOpen(true);
                 }}
                 aria-label="Rename project"
-                className="absolute top-2 right-9 flex size-5 items-center justify-center border border-hairline-strong bg-black/60 text-fg-dim hover:text-foreground"
+                className="absolute top-2 right-9 flex size-5 cursor-pointer items-center justify-center border border-hairline-strong bg-black/60 text-fg-dim hover:text-foreground"
               >
                 <PencilSimpleIcon className="size-3" />
               </button>
@@ -88,7 +88,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
                   setDeleteOpen(true);
                 }}
                 aria-label="Delete project"
-                className="absolute top-2 right-2 flex size-5 items-center justify-center border border-hairline-strong bg-black/60 text-fg-dim hover:text-destructive"
+                className="absolute top-2 right-2 flex size-5 cursor-pointer items-center justify-center border border-hairline-strong bg-black/60 text-fg-dim hover:text-destructive"
               >
                 <TrashIcon className="size-3" />
               </button>

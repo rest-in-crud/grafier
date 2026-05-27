@@ -119,7 +119,7 @@ const NewProjectModal = ({ open, onOpenChange }: NewProjectModalProps) => {
                   type="button"
                   onClick={() => onPresetClick(i)}
                   disabled={create.isPending}
-                  className={`flex flex-col items-start gap-1 border px-3 py-2 text-left transition-colors ${
+                  className={`flex cursor-pointer flex-col items-start gap-1 border px-3 py-2 text-left transition-colors disabled:cursor-not-allowed ${
                     active
                       ? 'border-foreground bg-white/[0.04]'
                       : 'border-hairline-strong hover:border-foreground'

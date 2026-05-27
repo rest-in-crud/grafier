@@ -23,7 +23,7 @@ export function CollapsibleSection({ id, title, children }: Props) {
       <button
         type="button"
         onClick={toggle}
-        className="flex items-center gap-1 text-left"
+        className="flex cursor-pointer items-center gap-1 text-left"
         title={collapsed ? 'Expand' : 'Collapse'}
       >
         <span className="flex h-3 w-3 shrink-0 items-center justify-center text-fg-dim">

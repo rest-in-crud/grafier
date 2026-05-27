@@ -196,7 +196,7 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
           <button
             type="button"
             onClick={() => refetch()}
-            className="font-mono text-[11px] uppercase tracking-[0.2em] underline"
+            className="cursor-pointer font-mono text-[11px] uppercase tracking-[0.2em] underline"
           >
             Retry
           </button>

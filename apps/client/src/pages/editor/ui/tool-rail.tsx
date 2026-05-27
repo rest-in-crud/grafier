@@ -4,11 +4,10 @@ import type { IconProps, ToolId } from '../types';
 import { ToolButton } from './primitives';
 import {
   IMove,
-  IMarquee,
-  ILasso,
   IBrush,
   IPencil,
   IEraser,
+  IFill,
   IShape,
   IText,
   IImage,
@@ -39,16 +38,16 @@ type TooltipState = {
 const TOOLS: ToolsEntry[] = [
   { id: 'move', name: 'Move', kbd: 'V', Icon: IMove, implemented: true },
   { id: 'hand', name: 'Hand', kbd: 'H', Icon: IHand, implemented: true },
-  { id: 'marquee', name: 'Marquee', kbd: 'M', Icon: IMarquee, implemented: false },
-  { id: 'lasso', name: 'Lasso', kbd: 'L', Icon: ILasso, implemented: false },
-  { _div: true },
-  { id: 'brush', name: 'Brush', kbd: 'B', Icon: IBrush, implemented: true },
-  { id: 'pencil', name: 'Pencil', kbd: 'P', Icon: IPencil, implemented: true },
-  { id: 'eraser', name: 'Eraser', kbd: 'E', Icon: IEraser, implemented: true },
   { _div: true },
   { id: 'shape', name: 'Shape', kbd: 'U', Icon: IShape, implemented: true },
   { id: 'text', name: 'Text', kbd: 'T', Icon: IText, implemented: true },
   { id: 'image', name: 'Image', kbd: 'I', Icon: IImage, implemented: true },
+  { _div: true },
+  { id: 'pencil', name: 'Pencil', kbd: 'P', Icon: IPencil, implemented: true },
+  { id: 'brush', name: 'Brush', kbd: 'B', Icon: IBrush, implemented: true },
+  { id: 'eraser', name: 'Eraser', kbd: 'E', Icon: IEraser, implemented: true },
+  { id: 'fill', name: 'Fill', kbd: 'G', Icon: IFill, implemented: true },
+  { _div: true },
   { id: 'dropper', name: 'Eyedropper', kbd: 'D', Icon: IDropper, implemented: true },
 ];
 

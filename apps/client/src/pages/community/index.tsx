@@ -11,7 +11,7 @@ const CommunityPage = () => {
       <ScreenBackground />
       <TopBar />
       <main className="relative z-10 mx-auto max-w-[1200px] px-10 pt-14 pb-24">
-        <h1 className="m-0 mb-10 font-sans text-3xl font-medium tracking-[-0.02em]">Community</h1>
+        <h1 className="m-0 mb-10 font-sans text-3xl font-medium tracking-[-0.02em]">Explore</h1>
         {isPending ? null : (projects?.length ?? 0) === 0 ? (
           <div className="flex items-center justify-center border border-hairline bg-black/10 py-16 font-mono text-[11px] uppercase tracking-[0.18em] text-fg-dim">
             No community projects yet

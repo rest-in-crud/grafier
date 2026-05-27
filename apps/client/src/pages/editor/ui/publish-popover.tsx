@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
+import { BookmarkSimpleIcon } from '@phosphor-icons/react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover';
 import { Button } from '@/shared/ui/button';
+import { PublicIcon, PrivateIcon } from '@/shared/ui/visibility-icons';
 import { useProject, useSetVisibility, useForkAsTemplate } from '@/features/projects/queries';
 import { useFlushAutosave } from '@/features/projects/hooks/useFlushAutosave';
 
@@ -38,16 +40,25 @@ const PublishToggleButton = ({ designId }: Props) => {
     setVisibility.mutate(true);
   };
 
+  const Icon = design.isPublic ? PublicIcon : PrivateIcon;
+  const label = design.isPublic ? 'Make private' : 'Make public';
+
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="sm" disabled={setVisibility.isPending}>
-          {design.isPublic ? 'Public' : 'Make public'}
-        </Button>
+        <button
+          type="button"
+          aria-label={label}
+          title={label}
+          disabled={setVisibility.isPending}
+          className="flex cursor-pointer items-center text-fg-dim transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          <Icon className="size-3.5" />
+        </button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-72">
+      <PopoverContent align="center" className="w-72">
         <div className="flex flex-col gap-3">
-          <p className="font-sans text-sm text-foreground">Anyone can view and fork. Continue?</p>
+          <p className="font-sans text-sm text-foreground">Anyone can view and copy. Continue?</p>
           <div className="flex justify-end gap-2">
             <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>
               Cancel
@@ -82,19 +93,25 @@ const SaveAsTemplateButton = ({ designId }: Props) => {
     setRecentlySaved(true);
   };
 
+  const label = recentlySaved
+    ? 'Saved as template'
+    : forkAsTemplate.isPending
+      ? 'Saving as template…'
+      : 'Save as template';
+
   return (
-    <Button
-      variant="ghost"
-      size="sm"
+    <button
+      type="button"
       onClick={onClick}
       disabled={forkAsTemplate.isPending || recentlySaved}
+      aria-label={label}
+      title={label}
+      className={`flex cursor-pointer items-center transition-colors disabled:cursor-not-allowed ${
+        recentlySaved ? 'text-foreground' : 'text-fg-dim hover:text-foreground disabled:opacity-60'
+      }`}
     >
-      {recentlySaved
-        ? '✓ Saved as template'
-        : forkAsTemplate.isPending
-          ? 'Saving…'
-          : 'Save as template'}
-    </Button>
+      <BookmarkSimpleIcon size={14} weight={recentlySaved ? 'fill' : 'regular'} />
+    </button>
   );
 };
 
