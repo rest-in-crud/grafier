@@ -1,10 +1,4 @@
-import {
-  ActiveSelection,
-  Canvas,
-  FabricObject,
-  IText,
-  InteractiveFabricObject,
-} from 'fabric';
+import { ActiveSelection, Canvas, FabricObject, IText, InteractiveFabricObject } from 'fabric';
 import { applySelectionControls } from './selectionControls';
 import type {
   SelectionPatch,

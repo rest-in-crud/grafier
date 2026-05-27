@@ -157,7 +157,7 @@ export const CanvasArea = ({ engineRef, containerRef, initialProject, onHydrateE
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [containerRef]);
+  }, [containerRef, engineRef]);
 
   useEffect(() => {
     const engine = engineRef.current;

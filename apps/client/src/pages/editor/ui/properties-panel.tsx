@@ -153,7 +153,10 @@ function CanvasProperties({ designId }: { designId: string }) {
   );
 }
 
-export function PropertiesPanel({ className, designId }: { className?: string; designId?: string } = {}) {
+export function PropertiesPanel({
+  className,
+  designId,
+}: { className?: string; designId?: string } = {}) {
   const selection = useCanvasStore((s) => s.selection);
   const ids = selection.ids;
   const meta =

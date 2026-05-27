@@ -132,7 +132,6 @@ function Topbar({
             <PublishToggleButton designId={designId} />
           </>
         ) : null}
-
       </div>
 
       {tooltip && (
