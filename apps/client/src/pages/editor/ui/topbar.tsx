@@ -100,6 +100,7 @@ function Topbar({
               <>
                 <PublishToggleButton designId={designId} />
                 <ShareLinkPopover designId={designId} />
+                <SaveAsTemplateButton designId={designId} />
               </>
             ) : isPublic !== undefined ? (
               isPublic ? (
@@ -124,8 +125,6 @@ function Topbar({
         />
 
         {designId ? <ReadOnlyActions designId={designId} /> : null}
-
-        {isOwner && designId ? <SaveAsTemplateButton designId={designId} /> : null}
       </div>
 
       {tooltip && (

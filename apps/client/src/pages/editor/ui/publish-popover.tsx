@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { BookmarkSimpleIcon } from '@phosphor-icons/react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover';
 import { Button } from '@/shared/ui/button';
 import { PublicIcon, PrivateIcon } from '@/shared/ui/visibility-icons';
@@ -92,19 +93,25 @@ const SaveAsTemplateButton = ({ designId }: Props) => {
     setRecentlySaved(true);
   };
 
+  const label = recentlySaved
+    ? 'Saved as template'
+    : forkAsTemplate.isPending
+      ? 'Saving as template…'
+      : 'Save as template';
+
   return (
-    <Button
-      variant="ghost"
-      size="sm"
+    <button
+      type="button"
       onClick={onClick}
       disabled={forkAsTemplate.isPending || recentlySaved}
+      aria-label={label}
+      title={label}
+      className={`flex cursor-pointer items-center transition-colors disabled:cursor-not-allowed ${
+        recentlySaved ? 'text-foreground' : 'text-fg-dim hover:text-foreground disabled:opacity-60'
+      }`}
     >
-      {recentlySaved
-        ? '✓ Saved as template'
-        : forkAsTemplate.isPending
-          ? 'Saving…'
-          : 'Save as template'}
-    </Button>
+      <BookmarkSimpleIcon size={14} weight={recentlySaved ? 'fill' : 'regular'} />
+    </button>
   );
 };
 
