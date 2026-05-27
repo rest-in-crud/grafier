@@ -4,7 +4,6 @@ import type { IconProps, ToolId } from '../types';
 import { ToolButton } from './primitives';
 import {
   IMove,
-  IMarquee,
   IBrush,
   IPencil,
   IEraser,
@@ -39,7 +38,6 @@ type TooltipState = {
 const TOOLS: ToolsEntry[] = [
   { id: 'move', name: 'Move', kbd: 'V', Icon: IMove, implemented: true },
   { id: 'hand', name: 'Hand', kbd: 'H', Icon: IHand, implemented: true },
-  { id: 'marquee', name: 'Marquee', kbd: 'M', Icon: IMarquee, implemented: false },
   { _div: true },
   { id: 'brush', name: 'Brush', kbd: 'B', Icon: IBrush, implemented: true },
   { id: 'pencil', name: 'Pencil', kbd: 'P', Icon: IPencil, implemented: true },

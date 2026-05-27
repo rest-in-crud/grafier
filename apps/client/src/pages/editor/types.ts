@@ -2,7 +2,6 @@ export type IconProps = { size?: number };
 
 export type ToolId =
   | 'move'
-  | 'marquee'
   | 'brush'
   | 'pencil'
   | 'eraser'

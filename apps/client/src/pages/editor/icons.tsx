@@ -25,12 +25,6 @@ const IMove = makeIcon(
   </>,
 );
 
-const IMarquee = makeIcon(
-  <>
-    <path d="M2 2h3M11 2h3M2 14h3M11 14h3M2 2v3M2 11v3M14 2v3M14 11v3" strokeDasharray="2 1.2" />
-  </>,
-);
-
 const IFill = makeIcon(
   <>
     <path d="M5 4 L6 13 L10 13 L11 4 Z" />
@@ -228,7 +222,6 @@ const IExport = makeIcon(
 
 export {
   IMove,
-  IMarquee,
   IFill,
   IBrush,
   IPencil,
