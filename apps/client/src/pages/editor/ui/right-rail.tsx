@@ -10,7 +10,7 @@ type Props = {
 export function RightRail({ width, onResize }: Props) {
   return (
     <div
-      className="relative flex flex-col overflow-hidden border-l border-hairline bg-chrome"
+      className="relative flex h-full flex-col overflow-hidden border-l border-hairline bg-chrome"
       style={{ width }}
     >
       <RailResizeHandle currentWidth={width} onResize={onResize} />
