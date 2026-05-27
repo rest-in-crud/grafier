@@ -111,13 +111,13 @@ export const CanvasArea = ({ engineRef, containerRef, initialProject, onHydrateE
       workspace.style.cursor = '';
     };
 
-    workspace.addEventListener('wheel', handleWheel, { passive: false });
+    workspace.addEventListener('wheel', handleWheel, { passive: false, capture: true });
     workspace.addEventListener('mousedown', handleMouseDown);
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
 
     return () => {
-      workspace.removeEventListener('wheel', handleWheel);
+      workspace.removeEventListener('wheel', handleWheel, { capture: true });
       workspace.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
