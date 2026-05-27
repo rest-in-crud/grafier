@@ -165,6 +165,12 @@ export function createShapeObject(
   point: ShapePoint,
   style: ShapeStyle = type === 'line' || type === 'arrow' ? LINE_SHAPE_STYLE : CLOSED_SHAPE_STYLE,
 ): FabricObject {
+  const obj = buildShape(type, point, style);
+  obj.data = { ...obj.data, shapeType: type };
+  return obj;
+}
+
+function buildShape(type: ShapeType, point: ShapePoint, style: ShapeStyle): FabricObject {
   const dims = DEFAULT_SHAPE_DIMENSIONS[type];
   switch (type) {
     case 'rect':

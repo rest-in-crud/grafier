@@ -29,9 +29,16 @@ interface CanvasConfig {
 
 const OBJECT_TYPE_LABELS: Record<string, string> = {
   rect: 'Rectangle',
+  square: 'Square',
+  'rounded-rect': 'Rounded Rectangle',
   circle: 'Circle',
   ellipse: 'Ellipse',
   triangle: 'Triangle',
+  diamond: 'Diamond',
+  pentagon: 'Pentagon',
+  hexagon: 'Hexagon',
+  star: 'Star',
+  arrow: 'Arrow',
   line: 'Line',
   path: 'Pen Stroke',
   'brush-path': 'Brush Stroke',
@@ -144,8 +151,10 @@ export class CanvasEngine {
       if (this.isRestoring || obj.data?.id) return;
 
       const id = crypto.randomUUID();
+      const shapeType = typeof obj.data?.shapeType === 'string' ? obj.data.shapeType : null;
       const typeKey =
-        obj.type === 'path' && this.activeToolId === 'brush' ? 'brush-path' : obj.type;
+        shapeType ??
+        (obj.type === 'path' && this.activeToolId === 'brush' ? 'brush-path' : obj.type);
       const name = this.generateObjectName(typeKey);
       obj.data = { ...obj.data, id };
 
