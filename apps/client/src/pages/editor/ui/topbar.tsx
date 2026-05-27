@@ -97,7 +97,10 @@ function Topbar({
               {projectName}
             </span>
             {designId && isOwner ? (
-              <PublishToggleButton designId={designId} />
+              <>
+                <PublishToggleButton designId={designId} />
+                <ShareLinkPopover designId={designId} />
+              </>
             ) : isPublic !== undefined ? (
               isPublic ? (
                 <PublicIcon className="size-3.5 text-fg-dim" />
@@ -122,12 +125,7 @@ function Topbar({
 
         {designId ? <ReadOnlyActions designId={designId} /> : null}
 
-        {isOwner && designId ? (
-          <>
-            <SaveAsTemplateButton designId={designId} />
-            <ShareLinkPopover designId={designId} />
-          </>
-        ) : null}
+        {isOwner && designId ? <SaveAsTemplateButton designId={designId} /> : null}
       </div>
 
       {tooltip && (
