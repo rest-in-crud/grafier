@@ -157,15 +157,14 @@ const ShareLinkPopover = ({ designId }: ShareLinkPopoverProps) => {
               </div>
             </div>
             <div className="flex justify-end">
-              <Button
-                variant="link"
-                size="sm"
+              <button
+                type="button"
                 onClick={onRevoke}
                 disabled={revokeShare.isPending}
-                className="text-fg-dim hover:text-destructive"
+                className="inline-flex cursor-pointer items-center gap-2.5 border border-danger bg-transparent px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.2em] text-danger transition-colors hover:bg-danger hover:text-black disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {revokeShare.isPending ? 'Revoking…' : 'Revoke link'}
-              </Button>
+              </button>
             </div>
           </div>
         ) : (
