@@ -98,7 +98,7 @@ function PropertiesBody({ selection }: { selection: SelectionSnapshot }) {
           value={selection.strokeWidth}
           onChange={(v) => apply({ strokeWidth: v })}
           min={0}
-          max={20}
+          max={200}
           suffix=" PX"
         />
       </CollapsibleSection>
