@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState, type RefObject } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react';
 import type { CanvasEngine } from '@/features/canvas/lib/CanvasEngine';
 import type { ProjectDetail } from '@/features/projects/schema';
 import { useCanvas } from '@/features/canvas/hooks/useCanvas';
@@ -40,7 +40,19 @@ export const CanvasArea = ({ engineRef, containerRef, initialProject, onHydrateE
   const { canvasRef } = useCanvas(engineRef, initialProject.width, initialProject.height);
   const [baselineKey, setBaselineKey] = useState(0);
   const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const zoomRef = useRef(1);
+  const panRef = useRef({ x: 0, y: 0 });
   const isReadOnly = useReadOnlyStore((s) => s.isReadOnly);
+
+  useEffect(() => {
+    zoomRef.current = zoom;
+  }, [zoom]);
+
+  useEffect(() => {
+    panRef.current = pan;
+  }, [pan]);
+
   useLayerSync(engineRef);
   useHistory(engineRef, baselineKey);
 
@@ -58,6 +70,60 @@ export const CanvasArea = ({ engineRef, containerRef, initialProject, onHydrateE
       computeInitialZoom(rect.width, rect.height, initialProject.width, initialProject.height),
     );
   }, [containerRef, initialProject.width, initialProject.height]);
+
+  useEffect(() => {
+    const workspace = containerRef.current;
+    if (!workspace) return;
+
+    let dragStart: { x: number; y: number; panAtStart: { x: number; y: number } } | null = null;
+
+    const isWorkspaceTarget = (target: EventTarget | null): boolean => target === workspace;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (!isWorkspaceTarget(e.target)) return;
+      e.preventDefault();
+      if (e.ctrlKey || e.metaKey) {
+        const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+        const next = Math.min(4, Math.max(0.1, zoomRef.current * factor));
+        setZoom(next);
+      } else {
+        setPan({ x: panRef.current.x - e.deltaX, y: panRef.current.y - e.deltaY });
+      }
+    };
+
+    const handleMouseDown = (e: MouseEvent) => {
+      if (!isWorkspaceTarget(e.target)) return;
+      if (e.button !== 0) return;
+      dragStart = { x: e.clientX, y: e.clientY, panAtStart: panRef.current };
+      workspace.style.cursor = 'grabbing';
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!dragStart) return;
+      setPan({
+        x: dragStart.panAtStart.x + (e.clientX - dragStart.x),
+        y: dragStart.panAtStart.y + (e.clientY - dragStart.y),
+      });
+    };
+
+    const handleMouseUp = () => {
+      if (!dragStart) return;
+      dragStart = null;
+      workspace.style.cursor = '';
+    };
+
+    workspace.addEventListener('wheel', handleWheel, { passive: false });
+    workspace.addEventListener('mousedown', handleMouseDown);
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      workspace.removeEventListener('wheel', handleWheel);
+      workspace.removeEventListener('mousedown', handleMouseDown);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [containerRef]);
 
   useEffect(() => {
     const engine = engineRef.current;
@@ -140,7 +206,7 @@ export const CanvasArea = ({ engineRef, containerRef, initialProject, onHydrateE
           position: 'absolute',
           left: '50%',
           top: '50%',
-          transform: `translate(-50%, -50%) scale(${zoom})`,
+          transform: `translate(calc(-50% + ${pan.x}px), calc(-50% + ${pan.y}px)) scale(${zoom})`,
           transformOrigin: 'center center',
         }}
       >
