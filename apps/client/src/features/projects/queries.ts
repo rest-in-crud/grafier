@@ -175,6 +175,17 @@ const useRevokeShareToken = (designId: string) => {
   });
 };
 
+const useUpdateArtboardSize = (projectId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ width, height }: { width: number; height: number }) =>
+      api.updateDimensions(projectId, width, height),
+    onSuccess: (updated: ProjectDetail) => {
+      queryClient.setQueryData(designsKeys.detail(projectId), updated);
+    },
+  });
+};
+
 const useSharedDesign = (token: string) =>
   useQuery({
     queryKey: designsKeys.shared(token),
@@ -203,4 +214,5 @@ export {
   useCreateShareToken,
   useRevokeShareToken,
   useSharedDesign,
+  useUpdateArtboardSize,
 };

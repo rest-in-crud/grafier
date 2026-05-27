@@ -254,6 +254,8 @@ export class DesignsService {
                 entries.map((e) => ({
                     designID: fork.id,
                     label: e.label,
+                    width: e.width,
+                    height: e.height,
                     canvasJSON: e.canvasJSON as Record<string, unknown>,
                     layersJSON: e.layersJSON as Record<string, unknown>,
                     createdAt: e.createdAt,
@@ -311,6 +313,8 @@ export class DesignsService {
             .values({
                 designID: id,
                 label: dto.label,
+                width: dto.width,
+                height: dto.height,
                 canvasJSON: dto.canvasJSON,
                 layersJSON: dto.layersJSON,
             })
@@ -321,6 +325,8 @@ export class DesignsService {
             .set({
                 canvasJSON: dto.canvasJSON,
                 layersJSON: dto.layersJSON,
+                width: dto.width,
+                height: dto.height,
                 updatedAt: new Date(),
             })
             .where(eq(designs.id, id));
@@ -392,6 +398,8 @@ export class DesignsService {
             .set({
                 canvasJSON: entry.canvasJSON as Record<string, unknown>,
                 layersJSON: entry.layersJSON as Record<string, unknown>,
+                width: entry.width,
+                height: entry.height,
                 updatedAt: new Date(),
             })
             .where(eq(designs.id, id))

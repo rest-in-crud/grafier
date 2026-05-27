@@ -79,6 +79,10 @@ const api = {
     const data = await apiClient.patch(`/designs/${id}`, { name });
     return projectDetailSchema.parse(data);
   },
+  updateDimensions: async (id: string, width: number, height: number): Promise<ProjectDetail> => {
+    const data = await apiClient.patch(`/designs/${id}`, { width, height });
+    return projectDetailSchema.parse(data);
+  },
   remove: async (id: string): Promise<void> => {
     await apiClient.delete(`/designs/${id}`);
   },

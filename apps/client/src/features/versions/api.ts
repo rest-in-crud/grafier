@@ -10,6 +10,8 @@ type SaveCheckpointBody = {
   label: string | null;
   canvasJSON: unknown;
   layersJSON: unknown;
+  width: number;
+  height: number;
 };
 
 type UpdateCheckpointBody = {

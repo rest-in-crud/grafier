@@ -39,15 +39,16 @@ type Props = {
 export const CanvasArea = ({ engineRef, containerRef, initialProject, onHydrateError }: Props) => {
   const { canvasRef } = useCanvas(engineRef, initialProject.width, initialProject.height);
   const [baselineKey, setBaselineKey] = useState(0);
-  const [zoom, setZoom] = useState(1);
+  const storeZoom = useCanvasStore((s) => s.zoom);
   const [pan, setPan] = useState({ x: 0, y: 0 });
-  const zoomRef = useRef(1);
+  const zoomRef = useRef(storeZoom / 100);
   const panRef = useRef({ x: 0, y: 0 });
   const isReadOnly = useReadOnlyStore((s) => s.isReadOnly);
+  const activeTool = useCanvasStore((s) => s.activeTool);
 
   useEffect(() => {
-    zoomRef.current = zoom;
-  }, [zoom]);
+    zoomRef.current = storeZoom / 100;
+  }, [storeZoom]);
 
   useEffect(() => {
     panRef.current = pan;
@@ -62,13 +63,28 @@ export const CanvasArea = ({ engineRef, containerRef, initialProject, onHydrateE
     engine.setReadOnly(isReadOnly);
   }, [engineRef, isReadOnly]);
 
+  useEffect(() => {
+    useCanvasStore.setState({
+      artboardWidth: initialProject.width,
+      artboardHeight: initialProject.height,
+    });
+    useCanvasStore.getState().setResizeArtboard((w, h) => {
+      engineRef.current?.resize(w, h);
+      useCanvasStore.setState({ artboardWidth: w, artboardHeight: h });
+    });
+  }, [engineRef, initialProject.width, initialProject.height]);
+
   useLayoutEffect(() => {
     const workspace = containerRef.current;
     if (!workspace) return;
     const rect = workspace.getBoundingClientRect();
-    setZoom(
-      computeInitialZoom(rect.width, rect.height, initialProject.width, initialProject.height),
+    const factor = computeInitialZoom(
+      rect.width,
+      rect.height,
+      initialProject.width,
+      initialProject.height,
     );
+    useCanvasStore.getState().setZoom(Math.round(factor * 100));
   }, [containerRef, initialProject.width, initialProject.height]);
 
   useEffect(() => {
@@ -83,18 +99,32 @@ export const CanvasArea = ({ engineRef, containerRef, initialProject, onHydrateE
       e.preventDefault();
       if (e.ctrlKey || e.metaKey) {
         const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
-        const next = Math.min(4, Math.max(0.1, zoomRef.current * factor));
-        setZoom(next);
+        const nextFactor = Math.min(4, Math.max(0.1, zoomRef.current * factor));
+        const rect = workspace.getBoundingClientRect();
+        const cx = e.clientX - rect.left - rect.width / 2;
+        const cy = e.clientY - rect.top - rect.height / 2;
+        const ratio = nextFactor / zoomRef.current;
+        zoomRef.current = nextFactor;
+        useCanvasStore.getState().setZoom(Math.round(nextFactor * 100));
+        setPan({
+          x: cx * (1 - ratio) + panRef.current.x * ratio,
+          y: cy * (1 - ratio) + panRef.current.y * ratio,
+        });
       } else {
         setPan({ x: panRef.current.x - e.deltaX, y: panRef.current.y - e.deltaY });
       }
     };
 
     const handleMouseDown = (e: MouseEvent) => {
-      if (!isWorkspaceTarget(e.target)) return;
       if (e.button !== 0) return;
+      const isHand = useCanvasStore.getState().activeTool === 'hand';
+      if (!isWorkspaceTarget(e.target) && !isHand) return;
       dragStart = { x: e.clientX, y: e.clientY, panAtStart: panRef.current };
       workspace.style.cursor = 'grabbing';
+      if (isHand) {
+        const fc = engineRef.current?.fabricCanvas;
+        if (fc) fc.defaultCursor = 'grabbing';
+      }
     };
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -108,7 +138,12 @@ export const CanvasArea = ({ engineRef, containerRef, initialProject, onHydrateE
     const handleMouseUp = () => {
       if (!dragStart) return;
       dragStart = null;
-      workspace.style.cursor = '';
+      const isHand = useCanvasStore.getState().activeTool === 'hand';
+      workspace.style.cursor = isHand ? 'grab' : '';
+      if (isHand) {
+        const fc = engineRef.current?.fabricCanvas;
+        if (fc) fc.defaultCursor = 'grab';
+      }
     };
 
     workspace.addEventListener('wheel', handleWheel, { passive: false, capture: true });
@@ -122,7 +157,7 @@ export const CanvasArea = ({ engineRef, containerRef, initialProject, onHydrateE
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [containerRef]);
+  }, [containerRef, engineRef]);
 
   useEffect(() => {
     const engine = engineRef.current;
@@ -198,14 +233,14 @@ export const CanvasArea = ({ engineRef, containerRef, initialProject, onHydrateE
     <div
       ref={containerRef}
       className="relative h-full w-full overflow-hidden"
-      style={{ backgroundColor: '#070707' }}
+      style={{ cursor: activeTool === 'hand' ? 'grab' : undefined }}
     >
       <div
         style={{
           position: 'absolute',
           left: '50%',
           top: '50%',
-          transform: `translate(calc(-50% + ${pan.x}px), calc(-50% + ${pan.y}px)) scale(${zoom})`,
+          transform: `translate(calc(-50% + ${pan.x}px), calc(-50% + ${pan.y}px)) scale(${storeZoom / 100})`,
           transformOrigin: 'center center',
         }}
       >

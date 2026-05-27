@@ -4,6 +4,7 @@ import type { CanvasEngine } from '@/features/canvas/lib/CanvasEngine';
 import { insertImageFromBlob, noticeForInsertImageReason } from '@/features/canvas/lib/insertImage';
 import { useNoticeStore } from '@/features/notice/store/notice.store';
 import { useReadOnlyStore } from '@/features/projects/store/read-only.store';
+import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 
 const usePasteImage = (engineRef: RefObject<CanvasEngine | null>): void => {
   useEffect(() => {
@@ -19,7 +20,9 @@ const usePasteImage = (engineRef: RefObject<CanvasEngine | null>): void => {
         if (!file) continue;
         if (!file.type.startsWith('image/')) continue;
         const result = await insertImageFromBlob(canvas, file);
-        if (!result.ok) {
+        if (result.ok) {
+          useCanvasStore.getState().setActiveTool('move');
+        } else {
           useNoticeStore.getState().show(noticeForInsertImageReason(result.reason));
         }
         return;

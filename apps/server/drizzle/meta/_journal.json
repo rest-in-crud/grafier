@@ -57,6 +57,13 @@
       "when": 1779823148416,
       "tag": "0007_workable_rhodey",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1779891740303,
+      "tag": "0008_purple_the_renegades",
+      "breakpoints": true
     }
   ]
 }
