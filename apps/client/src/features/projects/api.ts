@@ -2,8 +2,10 @@ import { z } from 'zod';
 import {
   projectDetailSchema,
   projectsListResponseSchema,
+  sharedDesignSchema,
   type ProjectDetail,
   type ProjectSummary,
+  type SharedDesign,
   type CreateProjectRequest,
   type SaveCanvasRequest,
 } from '@/features/projects/schema';
@@ -13,6 +15,7 @@ import { userQueryKey } from '@/features/auth/query-keys';
 import { createApiClient } from '@/shared/lib/api-client';
 
 const refreshResponseSchema = z.object({ accessToken: z.string() });
+const shareTokenResponseSchema = z.object({ shareToken: z.string().uuid() });
 
 const apiClient = createApiClient({
   baseUrl: import.meta.env.VITE_URL_BACKEND ?? '/api',
@@ -57,8 +60,11 @@ const api = {
     const data = await apiClient.post(`/designs/${id}/canvas`, body);
     return projectDetailSchema.parse(data);
   },
-  forkAsProject: async (id: string): Promise<ProjectDetail> => {
-    const data = await apiClient.post(`/projects/${id}/fork`, undefined);
+  forkAsProject: async (id: string, token?: string): Promise<ProjectDetail> => {
+    const path = token
+      ? `/projects/${id}/fork?token=${encodeURIComponent(token)}`
+      : `/projects/${id}/fork`;
+    const data = await apiClient.post(path, undefined);
     return projectDetailSchema.parse(data);
   },
   forkAsTemplate: async (id: string): Promise<ProjectDetail> => {
@@ -68,6 +74,28 @@ const api = {
   setVisibility: async (id: string, isPublic: boolean): Promise<ProjectDetail> => {
     const data = await apiClient.patch(`/designs/${id}`, { isPublic });
     return projectDetailSchema.parse(data);
+  },
+  updateName: async (id: string, name: string): Promise<ProjectDetail> => {
+    const data = await apiClient.patch(`/designs/${id}`, { name });
+    return projectDetailSchema.parse(data);
+  },
+  updateDimensions: async (id: string, width: number, height: number): Promise<ProjectDetail> => {
+    const data = await apiClient.patch(`/designs/${id}`, { width, height });
+    return projectDetailSchema.parse(data);
+  },
+  remove: async (id: string): Promise<void> => {
+    await apiClient.delete(`/designs/${id}`);
+  },
+  createShareToken: async (id: string): Promise<{ shareToken: string }> => {
+    const data = await apiClient.post(`/designs/${id}/share`, undefined);
+    return shareTokenResponseSchema.parse(data);
+  },
+  revokeShareToken: async (id: string): Promise<void> => {
+    await apiClient.delete(`/designs/${id}/share`);
+  },
+  getSharedDesign: async (token: string): Promise<SharedDesign> => {
+    const data = await apiClient.get(`/shared/designs/${token}`);
+    return sharedDesignSchema.parse(data);
   },
 };
 

@@ -26,6 +26,9 @@ const reloadFromDesign = async (engine: CanvasEngine, designId: string): Promise
   try {
     const canvas = engine.fabricCanvas;
 
+    engine.resize(detail.width, detail.height);
+    useCanvasStore.setState({ artboardWidth: detail.width, artboardHeight: detail.height });
+
     if (detail.canvasJSON) {
       await canvas.loadFromJSON(detail.canvasJSON);
       await loadCanvasTextFonts(canvas);

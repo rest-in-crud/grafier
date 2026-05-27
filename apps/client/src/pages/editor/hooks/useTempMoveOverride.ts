@@ -5,8 +5,10 @@ import type { BaseTool } from '@/features/canvas/lib/tools/BaseTool';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import { isPrimaryModifier } from '@/shared/lib/platform';
 import { ToolRegistry } from '@/features/canvas/lib/tools/ToolRegistry';
+import type { ToolId } from '@/pages/editor/types';
 
 type Snapshot = {
+  toolId: ToolId;
   tool: BaseTool | null;
   isDrawingMode: boolean;
   selection: boolean;
@@ -31,6 +33,7 @@ export function useTempMoveOverride(engineRef: RefObject<CanvasEngine | null>) {
       const tool = ToolRegistry.get(toolId);
 
       snapshotRef.current = {
+        toolId,
         tool,
         isDrawingMode: canvas.isDrawingMode,
         selection: canvas.selection,
@@ -46,17 +49,16 @@ export function useTempMoveOverride(engineRef: RefObject<CanvasEngine | null>) {
     const exitOverride = () => {
       const canvas = engineRef.current?.fabricCanvas;
       const snap = snapshotRef.current;
-      if (!canvas || !snap) {
-        activeRef.current = false;
-        snapshotRef.current = null;
-        return;
-      }
+      activeRef.current = false;
+      snapshotRef.current = null;
+      if (!canvas || !snap) return;
+      // If the tool was permanently changed during the override (e.g. paste switched
+      // to move), skip the canvas restore — the engine already applied the new tool.
+      if (useCanvasStore.getState().activeTool !== snap.toolId) return;
       snap.tool?.resume?.(canvas);
       canvas.isDrawingMode = snap.isDrawingMode;
       canvas.selection = snap.selection;
       canvas.hoverCursor = snap.hoverCursor;
-      activeRef.current = false;
-      snapshotRef.current = null;
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {

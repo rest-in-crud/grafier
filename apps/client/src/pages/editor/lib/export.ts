@@ -1,8 +1,17 @@
 import type { Canvas } from 'fabric';
 
 import { blobToDataUrl } from '@/shared/lib/blob';
+import { PROJECT_FILE_VERSION } from '@/features/projects/schema';
+import type { Layer } from '@/features/projects/schema';
 
-type ExportFormat = 'png' | 'jpg' | 'svg' | 'pdf';
+type ExportFormat = 'png' | 'jpg' | 'svg' | 'pdf' | 'project';
+
+type ExportContext = {
+  projectName: string;
+  projectWidth: number;
+  projectHeight: number;
+  layersJSON: Layer[];
+};
 
 class ExportError extends Error {
   public readonly format: ExportFormat;
@@ -19,6 +28,14 @@ class ExportError extends Error {
 const INVALID_FILENAME_CHARS = /[/\\:*?"<>|]/g;
 const MAX_FILENAME_LENGTH = 100;
 
+const EXTENSION_FOR_FORMAT: Record<ExportFormat, string> = {
+  png: 'png',
+  jpg: 'jpg',
+  svg: 'svg',
+  pdf: 'pdf',
+  project: 'grafier',
+};
+
 const buildFilename = (projectName: string, format: ExportFormat): string => {
   const sanitized = projectName
     .replace(INVALID_FILENAME_CHARS, '_')
@@ -26,7 +43,7 @@ const buildFilename = (projectName: string, format: ExportFormat): string => {
     .trim()
     .slice(0, MAX_FILENAME_LENGTH);
   const base = sanitized.length > 0 ? sanitized : 'design';
-  return `${base}.${format}`;
+  return `${base}.${EXTENSION_FOR_FORMAT[format]}`;
 };
 
 const triggerDownload = (blob: Blob, filename: string): void => {
@@ -122,7 +139,23 @@ const toPdf = async (canvas: Canvas): Promise<Blob> => {
   });
 };
 
-const dispatch = async (canvas: Canvas, format: ExportFormat): Promise<Blob> => {
+const toProject = (canvas: Canvas, context: ExportContext): Blob => {
+  const data = {
+    version: PROJECT_FILE_VERSION,
+    name: context.projectName,
+    width: context.projectWidth,
+    height: context.projectHeight,
+    canvasJSON: canvas.toJSON(),
+    layersJSON: context.layersJSON,
+  };
+  return new Blob([JSON.stringify(data)], { type: 'application/json' });
+};
+
+const dispatch = async (
+  canvas: Canvas,
+  format: ExportFormat,
+  context: ExportContext,
+): Promise<Blob> => {
   switch (format) {
     case 'png':
       return await toPng(canvas);
@@ -132,17 +165,19 @@ const dispatch = async (canvas: Canvas, format: ExportFormat): Promise<Blob> => 
       return toSvg(canvas);
     case 'pdf':
       return await toPdf(canvas);
+    case 'project':
+      return toProject(canvas, context);
   }
 };
 
 const exportAs = async (
   canvas: Canvas,
   format: ExportFormat,
-  projectName: string,
+  context: ExportContext,
 ): Promise<void> => {
   try {
-    const blob = await dispatch(canvas, format);
-    triggerDownload(blob, buildFilename(projectName, format));
+    const blob = await dispatch(canvas, format, context);
+    triggerDownload(blob, buildFilename(context.projectName, format));
   } catch (cause) {
     if (cause instanceof ExportError) throw cause;
     throw new ExportError(format, cause);
@@ -150,4 +185,4 @@ const exportAs = async (
 };
 
 export { exportAs, ExportError };
-export type { ExportFormat };
+export type { ExportFormat, ExportContext };

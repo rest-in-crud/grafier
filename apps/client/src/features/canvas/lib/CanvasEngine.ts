@@ -1,11 +1,4 @@
-import {
-  ActiveSelection,
-  Canvas,
-  FabricObject,
-  IText,
-  InteractiveFabricObject,
-  Point,
-} from 'fabric';
+import { ActiveSelection, Canvas, FabricObject, IText, InteractiveFabricObject } from 'fabric';
 import { applySelectionControls } from './selectionControls';
 import type {
   SelectionPatch,
@@ -90,12 +83,11 @@ function projectSelection(obj: FabricObject): SelectionSnapshot {
 
 export class CanvasEngine {
   private readonly canvas: Canvas;
-  public readonly docWidth: number;
-  public readonly docHeight: number;
+  public docWidth: number;
+  public docHeight: number;
   private activeTool: BaseTool | null = null;
   private activeToolId: ToolId | null = null;
   private activeToolStyles: Record<string, unknown> | undefined = undefined;
-  private activeZoom: number = 100;
   private activeCanvasBgColor: string = '#ffffff';
   private readonly unsubscribe: () => void;
   private readonly layersUnsubscribe: () => void;
@@ -212,13 +204,6 @@ export class CanvasEngine {
       this.canvas.requestRenderAll();
     });
 
-    useCanvasStore.getState().setZoomToPoint((zoom, point) => {
-      this.applyZoom(zoom, point);
-      if (useCanvasStore.getState().zoom !== zoom) {
-        useCanvasStore.getState().setZoom(zoom);
-      }
-    });
-
     useCanvasStore.getState().setDuplicateSelection(() => {
       void this.duplicateActive();
     });
@@ -232,7 +217,6 @@ export class CanvasEngine {
 
     const initial = useCanvasStore.getState();
     this.setTool(initial.activeTool, styleSliceFor(initial.activeTool, initial.toolStyles));
-    this.applyZoom(initial.zoom);
     this.applyCanvasBgColor(initial.canvasBgColor);
 
     this.unsubscribe = useCanvasStore.subscribe((state) => {
@@ -243,9 +227,6 @@ export class CanvasEngine {
         this.activeTool?.deactivate(this.canvas);
         this.activeToolStyles = nextStyles;
         this.activeTool?.activate(this.canvas, nextStyles);
-      }
-      if (state.zoom !== this.activeZoom) {
-        this.applyZoom(state.zoom);
       }
       if (state.canvasBgColor !== this.activeCanvasBgColor) {
         this.applyCanvasBgColor(state.canvasBgColor);
@@ -333,12 +314,6 @@ export class CanvasEngine {
     this.canvas.fire('object:modified');
   }
 
-  private applyZoom(zoom: number, point?: Point) {
-    this.activeZoom = zoom;
-    const focus = point ?? new Point(this.canvas.getWidth() / 2, this.canvas.getHeight() / 2);
-    this.canvas.zoomToPoint(focus, zoom / 100);
-  }
-
   private applyPatchToSelection(patch: SelectionPatch) {
     const obj = this.canvas.getActiveObject();
     if (!obj) return;
@@ -385,7 +360,6 @@ export class CanvasEngine {
     useCanvasStore.getState().setApplyToSelection(() => {});
     useCanvasStore.getState().setSelectObjectById(() => {});
     useCanvasStore.getState().setSelectObjectsByIds(() => {});
-    useCanvasStore.getState().setZoomToPoint(() => {});
     useCanvasStore.getState().setDuplicateSelection(() => {});
     useCanvasStore.getState().setRemoveObjectById(() => {});
     useCanvasStore.getState().setSelection({ ids: [], primary: null });
@@ -394,6 +368,8 @@ export class CanvasEngine {
   }
 
   public resize(width: number, height: number) {
+    this.docWidth = width;
+    this.docHeight = height;
     this.canvas.setDimensions({ width, height });
     this.canvas.requestRenderAll();
   }

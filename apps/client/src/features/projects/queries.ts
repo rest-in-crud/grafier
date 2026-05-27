@@ -68,7 +68,8 @@ const useProject = (id: string) => useQuery(projectQueryOptions(id));
 const useCreateProject = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (name: string) => api.create({ name, type: 'project' }),
+    mutationFn: ({ name, width, height }: { name: string; width?: number; height?: number }) =>
+      api.create({ name, width, height, type: 'project' }),
     onSuccess: (created: ProjectDetail) => {
       queryClient.setQueryData(designsKeys.detail(created.id), created);
       queryClient.invalidateQueries({ queryKey: designsKeys.myProjects() });
@@ -95,7 +96,7 @@ const useSaveCanvas = (projectId: string) => {
 const useForkAsProject = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (sourceId: string) => api.forkAsProject(sourceId),
+    mutationFn: ({ id, token }: { id: string; token?: string }) => api.forkAsProject(id, token),
     onSuccess: (created: ProjectDetail) => {
       queryClient.setQueryData(designsKeys.detail(created.id), created);
       queryClient.invalidateQueries({ queryKey: designsKeys.myProjects() });
@@ -128,6 +129,74 @@ const useSetVisibility = (designId: string) => {
   });
 };
 
+const useRenameProject = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, name }: { id: string; name: string }) => api.updateName(id, name),
+    onSuccess: (updated: ProjectDetail) => {
+      queryClient.setQueryData(designsKeys.detail(updated.id), updated);
+      queryClient.invalidateQueries({ queryKey: designsKeys.all });
+    },
+  });
+};
+
+const useDeleteProject = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.remove(id),
+    onSuccess: (_void, id) => {
+      queryClient.removeQueries({ queryKey: designsKeys.detail(id) });
+      queryClient.invalidateQueries({ queryKey: designsKeys.all });
+    },
+  });
+};
+
+const useCreateShareToken = (designId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => api.createShareToken(designId),
+    onSuccess: ({ shareToken }) => {
+      queryClient.setQueryData<ProjectDetail | undefined>(designsKeys.detail(designId), (prev) =>
+        prev ? { ...prev, shareToken } : prev,
+      );
+    },
+  });
+};
+
+const useRevokeShareToken = (designId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => api.revokeShareToken(designId),
+    onSuccess: () => {
+      queryClient.setQueryData<ProjectDetail | undefined>(designsKeys.detail(designId), (prev) =>
+        prev ? { ...prev, shareToken: null } : prev,
+      );
+    },
+  });
+};
+
+const useUpdateArtboardSize = (projectId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ width, height }: { width: number; height: number }) =>
+      api.updateDimensions(projectId, width, height),
+    onSuccess: (updated: ProjectDetail) => {
+      queryClient.setQueryData(designsKeys.detail(projectId), updated);
+    },
+  });
+};
+
+const useSharedDesign = (token: string) =>
+  useQuery({
+    queryKey: designsKeys.shared(token),
+    queryFn: () => api.getSharedDesign(token),
+    staleTime: 30_000,
+    retry: (failureCount, error) => {
+      if (error instanceof HttpError && error.status === 404) return false;
+      return failureCount < 2;
+    },
+  });
+
 export {
   useMyProjects,
   useMyTemplates,
@@ -140,4 +209,10 @@ export {
   useForkAsProject,
   useForkAsTemplate,
   useSetVisibility,
+  useRenameProject,
+  useDeleteProject,
+  useCreateShareToken,
+  useRevokeShareToken,
+  useSharedDesign,
+  useUpdateArtboardSize,
 };

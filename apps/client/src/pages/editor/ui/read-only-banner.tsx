@@ -41,12 +41,12 @@ const ReadOnlyActions = ({ designId }: Props) => {
   const source = readOnly.source;
 
   const onMakeCopy = async () => {
-    const created = await forkAsProject.mutateAsync(designId);
+    const created = await forkAsProject.mutateAsync({ id: designId });
     navigate(`/editor/${created.id}`);
   };
 
   const onUse = async () => {
-    const created = await forkAsProject.mutateAsync(designId);
+    const created = await forkAsProject.mutateAsync({ id: designId });
     navigate(`/editor/${created.id}`);
   };
 

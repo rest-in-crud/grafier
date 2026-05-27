@@ -7,6 +7,7 @@ import { useVersionUiStore } from '@/features/versions/store/version-ui.store';
 import { useLayersStore } from '@/features/layers/store/layers.store';
 import { useSaveVersion } from '@/features/versions/queries';
 import { buildAutoLabel } from '@/features/versions/lib/version-labels';
+import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import { saveCanvasRequestSchema } from '@/features/projects/schema';
 
 const AUTO_VERSION_INTERVAL_MS = 5 * 60 * 1000;
@@ -33,10 +34,13 @@ const useAutoVersionTimer = (designId: string, engineRef: RefObject<CanvasEngine
           engine.fabricCanvas.toJSON(),
         );
         const layersJSON = useLayersStore.getState().layers;
+        const { artboardWidth, artboardHeight } = useCanvasStore.getState();
         await saveVersionRef.current.mutateAsync({
           label: buildAutoLabel(new Date()),
           canvasJSON,
           layersJSON,
+          width: artboardWidth,
+          height: artboardHeight,
         });
         useVersionUiStore.getState().markAutoVersionSaved();
       } catch {

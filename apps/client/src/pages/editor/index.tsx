@@ -7,7 +7,6 @@ import { loadRailWidth, saveRailWidth } from './lib/preferences';
 import { useTempMoveOverride } from './hooks/useTempMoveOverride';
 import { useEditorShortcuts } from './hooks/useEditorShortcuts';
 import { useUser } from '@/features/auth/queries';
-import { performLogout } from '@/features/auth/session';
 import { useProject } from '@/features/projects/queries';
 import { useSaveStatusStore } from '@/features/projects/store/save-status.store';
 import { useReadOnlyStore } from '@/features/projects/store/read-only.store';
@@ -101,6 +100,14 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
     return () => window.removeEventListener('beforeunload', handler);
   }, []);
 
+  useEffect(() => {
+    const blockBrowserZoom = (e: WheelEvent) => {
+      if (e.ctrlKey || e.metaKey) e.preventDefault();
+    };
+    window.addEventListener('wheel', blockBrowserZoom, { passive: false, capture: true });
+    return () => window.removeEventListener('wheel', blockBrowserZoom, { capture: true });
+  }, []);
+
   useAutosave(id, engineRef);
 
   const tool = useCanvasStore((s) => s.activeTool);
@@ -141,8 +148,6 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
   useEffect(() => {
     saveRailWidth(railWidth);
   }, [railWidth]);
-
-  const avatarInitial = user?.name?.charAt(0)?.toUpperCase() ?? 'U';
 
   function onCanvasContextMenu(e: MouseEvent) {
     e.preventDefault();
@@ -242,8 +247,6 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
         <div className="relative z-10 flex h-full flex-col">
           <div className="h-9.5 shrink-0">
             <Topbar
-              avatarInitial={avatarInitial}
-              onLogout={performLogout}
               projectName={project.name}
               width={project.width}
               height={project.height}
@@ -291,7 +294,7 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
               className={isReadOnly ? 'pointer-events-none opacity-40' : ''}
               {...(isReadOnly ? { inert: true } : {})}
             >
-              <RightRail width={railWidth} onResize={setRailWidth} />
+              <RightRail width={railWidth} onResize={setRailWidth} designId={id} />
             </div>
           </div>
           <div className="h-6.5 shrink-0">

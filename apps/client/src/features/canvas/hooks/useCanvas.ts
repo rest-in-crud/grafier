@@ -4,34 +4,26 @@ import { CanvasEngine } from '@/features/canvas/lib/CanvasEngine';
 
 export const useCanvas = (
   engineRef: RefObject<CanvasEngine | null>,
-  containerRef: RefObject<HTMLDivElement | null>,
+  artboardWidth: number,
+  artboardHeight: number,
 ) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const canvasEl = canvasRef.current;
-    const containerEl = containerRef.current;
-    if (!canvasEl || !containerEl) return;
+    if (!canvasEl) return;
 
-    let disposed = false;
-    const { width, height } = containerEl.getBoundingClientRect();
-    const engine = new CanvasEngine(canvasEl, { width, height });
+    const engine = new CanvasEngine(canvasEl, {
+      width: artboardWidth,
+      height: artboardHeight,
+    });
     engineRef.current = engine;
 
-    const observer = new ResizeObserver(([entry]) => {
-      if (disposed) return;
-      const { width, height } = entry.contentRect;
-      engine.resize(width, height);
-    });
-    observer.observe(containerEl);
-
     return () => {
-      disposed = true;
-      observer.disconnect();
       engineRef.current = null;
       void engine.destroy();
     };
-  }, [engineRef, containerRef]);
+  }, [engineRef, artboardWidth, artboardHeight]);
 
   return { canvasRef };
 };

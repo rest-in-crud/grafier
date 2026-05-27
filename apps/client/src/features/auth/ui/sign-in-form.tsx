@@ -7,6 +7,7 @@ import { ArrowRightIcon } from '@phosphor-icons/react';
 import { signInSchema, type SignInValues } from '@/features/auth/schema';
 import { performSignIn, startGoogleOAuth } from '@/features/auth/session';
 import { HttpError } from '@/shared/lib/api-client';
+import { safeRedirect } from '@/shared/lib/safe-redirect';
 import { ResendVerification } from '@/features/auth/ui/resend-verification';
 import { Button } from '@/shared/ui/button';
 import { Field } from '@/shared/ui/field';
@@ -47,7 +48,8 @@ const SignInForm = () => {
     setNeedsVerify(false);
     try {
       await performSignIn(values);
-      navigate('/');
+      const target = safeRedirect(searchParams.get('redirect'));
+      navigate(target ?? '/');
     } catch (error) {
       if (error instanceof HttpError && error.status === 401) {
         const parsed = errorMessageSchema.safeParse(error.body);

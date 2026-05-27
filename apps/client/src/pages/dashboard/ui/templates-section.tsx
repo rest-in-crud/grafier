@@ -1,9 +1,9 @@
 import { Link } from 'react-router';
-import { useAllTemplates } from '@/features/projects/queries';
+import { useMyTemplates } from '@/features/projects/queries';
 import { ProjectCard } from '@/pages/dashboard/ui/project-card';
 
 const TemplatesSection = () => {
-  const { data: templates, isPending } = useAllTemplates();
+  const { data: templates, isPending } = useMyTemplates();
   if (isPending) return null;
   const total = templates?.length ?? 0;
   const top = (templates ?? []).slice(0, 4);
@@ -12,7 +12,7 @@ const TemplatesSection = () => {
     <section className="mb-14">
       <div className="mb-5 flex items-baseline justify-between">
         <h2 className="m-0 font-sans text-lg font-medium tracking-[-0.005em] text-foreground">
-          Templates
+          Your templates
           {total > 0 ? (
             <span className="ml-2.5 font-mono text-[10px] font-normal uppercase tracking-[0.18em] text-fg-dim">
               {`· ${top.length} of ${total}`}
@@ -26,7 +26,14 @@ const TemplatesSection = () => {
           >
             See all →
           </Link>
-        ) : null}
+        ) : (
+          <Link
+            to="/templates"
+            className="font-mono text-[10px] uppercase tracking-[0.18em] text-fg-dim transition-colors hover:text-foreground"
+          >
+            Browse community →
+          </Link>
+        )}
       </div>
       {total === 0 ? (
         <div className="flex items-center justify-center border border-hairline bg-black/10 py-12 font-mono text-[11px] uppercase tracking-[0.18em] text-fg-dim">
