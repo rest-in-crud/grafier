@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import type { SVGProps } from 'react';
-import { XLogoIcon, LinkedinLogoIcon, FacebookLogoIcon } from '@phosphor-icons/react';
+import {
+  XLogoIcon,
+  LinkedinLogoIcon,
+  FacebookLogoIcon,
+  RedditLogoIcon,
+  TelegramLogoIcon,
+} from '@phosphor-icons/react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover';
 import { Button } from '@/shared/ui/button';
 import { useProject, useCreateShareToken, useRevokeShareToken } from '@/features/projects/queries';
@@ -36,6 +42,8 @@ const buildSocialShares = (url: string, title: string) => {
     x: `https://twitter.com/intent/tweet?url=${u}&text=${t}`,
     linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${u}`,
     facebook: `https://www.facebook.com/sharer/sharer.php?u=${u}`,
+    reddit: `https://www.reddit.com/submit?url=${u}&title=${t}`,
+    telegram: `https://t.me/share/url?url=${u}&text=${t}`,
   };
 };
 
@@ -153,6 +161,26 @@ const ShareLinkPopover = ({ designId }: ShareLinkPopoverProps) => {
                   className={socialBtn}
                 >
                   <FacebookLogoIcon size={14} />
+                </a>
+                <a
+                  href={socials.reddit}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  aria-label="Share on Reddit"
+                  title="Share on Reddit"
+                  className={socialBtn}
+                >
+                  <RedditLogoIcon size={14} />
+                </a>
+                <a
+                  href={socials.telegram}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  aria-label="Share on Telegram"
+                  title="Share on Telegram"
+                  className={socialBtn}
+                >
+                  <TelegramLogoIcon size={14} />
                 </a>
               </div>
             </div>
