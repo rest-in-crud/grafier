@@ -78,6 +78,10 @@ interface CanvasState {
   setDuplicateSelection: (fn: () => void) => void;
   removeObjectById: (id: string) => void;
   setRemoveObjectById: (fn: (id: string) => void) => void;
+  artboardWidth: number;
+  artboardHeight: number;
+  resizeArtboard: (width: number, height: number) => void;
+  setResizeArtboard: (fn: (width: number, height: number) => void) => void;
   zoom: number;
   setZoom: (zoom: number) => void;
   zoomToPoint: (zoom: number, point: Point) => void;
@@ -150,6 +154,10 @@ export const useCanvasStore = create<CanvasState>((set) => ({
   setDuplicateSelection: (fn) => set({ duplicateSelection: fn }),
   removeObjectById: () => {},
   setRemoveObjectById: (fn) => set({ removeObjectById: fn }),
+  artboardWidth: 1920,
+  artboardHeight: 1080,
+  resizeArtboard: () => {},
+  setResizeArtboard: (fn) => set({ resizeArtboard: fn }),
   zoom: 100,
   setZoom: (zoom) => set({ zoom }),
   zoomToPoint: () => {},

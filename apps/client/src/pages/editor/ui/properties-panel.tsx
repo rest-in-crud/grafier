@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useCanvasStore } from '@/features/canvas/store/canvas.store';
 import type { SelectionPatch, SelectionSnapshot } from '@/features/canvas/store/canvas.store';
+import { useUpdateArtboardSize } from '@/features/projects/queries';
 import {
   ColorField,
   CollapsibleSection,
@@ -118,19 +119,41 @@ function PropertiesBody({ selection }: { selection: SelectionSnapshot }) {
   );
 }
 
-function CanvasProperties() {
+function CanvasProperties({ designId }: { designId: string }) {
   const color = useCanvasStore((s) => s.canvasBgColor);
   const setCanvasBgColor = useCanvasStore((s) => s.setCanvasBgColor);
+  const resizeArtboard = useCanvasStore((s) => s.resizeArtboard);
+  const artboardWidth = useCanvasStore((s) => s.artboardWidth);
+  const artboardHeight = useCanvasStore((s) => s.artboardHeight);
+  const { mutate: updateSize } = useUpdateArtboardSize(designId);
+
+  const handleResize = (w: number, h: number) => {
+    resizeArtboard(w, h);
+    updateSize({ width: w, height: h });
+  };
+
   return (
     <div className="grid gap-3.5 p-3">
       <CollapsibleSection id="canvas" title="CANVAS">
+        <div className="grid grid-cols-2 gap-1.5">
+          <NumberField
+            symbol="W"
+            value={artboardWidth}
+            onCommit={(w) => handleResize(Math.max(1, Math.round(w)), artboardHeight)}
+          />
+          <NumberField
+            symbol="H"
+            value={artboardHeight}
+            onCommit={(h) => handleResize(artboardWidth, Math.max(1, Math.round(h)))}
+          />
+        </div>
         <ColorField value={color} onCommit={setCanvasBgColor} />
       </CollapsibleSection>
     </div>
   );
 }
 
-export function PropertiesPanel({ className }: { className?: string } = {}) {
+export function PropertiesPanel({ className, designId }: { className?: string; designId?: string } = {}) {
   const selection = useCanvasStore((s) => s.selection);
   const ids = selection.ids;
   const meta =
@@ -139,9 +162,9 @@ export function PropertiesPanel({ className }: { className?: string } = {}) {
       : null;
 
   const body =
-    ids.length === 0 ? (
-      <CanvasProperties />
-    ) : ids.length === 1 && selection.primary ? (
+    ids.length === 0 && designId ? (
+      <CanvasProperties designId={designId} />
+    ) : ids.length === 0 ? null : ids.length === 1 && selection.primary ? (
       <PropertiesBody selection={selection.primary} />
     ) : (
       <MultiSelectionPlaceholder count={ids.length} />

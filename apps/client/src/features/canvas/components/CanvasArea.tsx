@@ -62,6 +62,17 @@ export const CanvasArea = ({ engineRef, containerRef, initialProject, onHydrateE
     engine.setReadOnly(isReadOnly);
   }, [engineRef, isReadOnly]);
 
+  useEffect(() => {
+    useCanvasStore.setState({
+      artboardWidth: initialProject.width,
+      artboardHeight: initialProject.height,
+    });
+    useCanvasStore.getState().setResizeArtboard((w, h) => {
+      engineRef.current?.resize(w, h);
+      useCanvasStore.setState({ artboardWidth: w, artboardHeight: h });
+    });
+  }, [engineRef, initialProject.width, initialProject.height]);
+
   useLayoutEffect(() => {
     const workspace = containerRef.current;
     if (!workspace) return;

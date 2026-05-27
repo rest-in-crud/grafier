@@ -90,8 +90,8 @@ function projectSelection(obj: FabricObject): SelectionSnapshot {
 
 export class CanvasEngine {
   private readonly canvas: Canvas;
-  public readonly docWidth: number;
-  public readonly docHeight: number;
+  public docWidth: number;
+  public docHeight: number;
   private activeTool: BaseTool | null = null;
   private activeToolId: ToolId | null = null;
   private activeToolStyles: Record<string, unknown> | undefined = undefined;
@@ -394,6 +394,8 @@ export class CanvasEngine {
   }
 
   public resize(width: number, height: number) {
+    this.docWidth = width;
+    this.docHeight = height;
     this.canvas.setDimensions({ width, height });
     this.canvas.requestRenderAll();
   }

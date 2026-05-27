@@ -5,9 +5,10 @@ import { RailResizeHandle, Separator } from './primitives';
 type Props = {
   width: number;
   onResize: (next: number) => void;
+  designId: string;
 };
 
-export function RightRail({ width, onResize }: Props) {
+export function RightRail({ width, onResize, designId }: Props) {
   return (
     <div
       className="relative flex h-full flex-col overflow-hidden border-l border-hairline bg-chrome"
@@ -18,7 +19,7 @@ export function RightRail({ width, onResize }: Props) {
         <LayersPanel />
       </div>
       <Separator orientation="horizontal" />
-      <PropertiesPanel className="flex-1 min-h-[220px]" />
+      <PropertiesPanel className="flex-1 min-h-[220px]" designId={designId} />
     </div>
   );
 }

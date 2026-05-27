@@ -299,7 +299,7 @@ const EditorPageForProject = ({ id }: EditorPageForProjectProps) => {
               className={isReadOnly ? 'pointer-events-none opacity-40' : ''}
               {...(isReadOnly ? { inert: true } : {})}
             >
-              <RightRail width={railWidth} onResize={setRailWidth} />
+              <RightRail width={railWidth} onResize={setRailWidth} designId={id} />
             </div>
           </div>
           <div className="h-6.5 shrink-0">
