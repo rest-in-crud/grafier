@@ -1,4 +1,16 @@
 import type { ReactNode } from 'react';
+import {
+  ArrowsOutCardinalIcon,
+  PaintBrushIcon,
+  PencilSimpleIcon,
+  EraserIcon,
+  PaintBucketIcon,
+  ShapesIcon,
+  TextTIcon,
+  ImageIcon,
+  EyedropperIcon,
+  HandIcon,
+} from '@phosphor-icons/react';
 import type { IconProps } from './types';
 
 const makeIcon = (path: ReactNode, viewBox = '0 0 16 16', fill = false) => {
@@ -19,69 +31,16 @@ const makeIcon = (path: ReactNode, viewBox = '0 0 16 16', fill = false) => {
   );
 };
 
-const IMove = makeIcon(
-  <>
-    <path d="M8 1v14M1 8h14M5 4l3-3 3 3M4 5l-3 3 3 3M11 12l-3 3-3-3M12 11l3-3-3-3" />
-  </>,
-);
-
-const IFill = makeIcon(
-  <>
-    <path d="M5 4 L6 13 L10 13 L11 4 Z" />
-    <path d="M5 4 Q5 2 8 2 Q11 2 11 4" />
-  </>,
-);
-
-const IBrush = makeIcon(
-  <>
-    <path d="M2 14c1-1 2-2 4-2M6 12l5-5M11 7l3-3-2-2-3 3M11 7l2 2" />
-  </>,
-);
-
-const IPencil = makeIcon(
-  <>
-    <path d="m3 13 7-7 3 3-7 7H3v-3zM10 6l3 3" />
-  </>,
-);
-
-const IEraser = makeIcon(
-  <>
-    <path d="m3 13 8-8 2 2-8 8H3v-2zM3 13h7" />
-  </>,
-);
-
-const IShape = makeIcon(
-  <>
-    <rect x="2" y="6" width="8" height="8" />
-    <circle cx="11" cy="5" r="3" />
-  </>,
-);
-
-const IText = makeIcon(
-  <>
-    <path d="M3 3h10M8 3v10M5 13h6" />
-  </>,
-);
-
-const IImage = makeIcon(
-  <>
-    <rect x="2" y="3" width="12" height="10" />
-    <circle cx="5.5" cy="6.5" r="1" />
-    <path d="M2 11.5 L5.5 8.5 L8 10.5 L14 5.5" />
-  </>,
-);
-
-const IDropper = makeIcon(
-  <>
-    <path d="m11 5 1-1 1 1-1 1M11 5 4 12v2h2l7-7M9 7l1 1" />
-  </>,
-);
-
-const IHand = makeIcon(
-  <>
-    <path d="M5 7V3a1 1 0 1 1 2 0v4M7 7V2a1 1 0 1 1 2 0v5M9 7V3a1 1 0 1 1 2 0v4M11 7V4a1 1 0 1 1 2 0v6c0 3-2 5-5 5s-5-2-5-5V7a1 1 0 1 1 2 0" />
-  </>,
-);
+const IMove = ({ size = 16 }: IconProps) => <ArrowsOutCardinalIcon size={size} />;
+const IFill = ({ size = 16 }: IconProps) => <PaintBucketIcon size={size} />;
+const IBrush = ({ size = 16 }: IconProps) => <PaintBrushIcon size={size} />;
+const IPencil = ({ size = 16 }: IconProps) => <PencilSimpleIcon size={size} />;
+const IEraser = ({ size = 16 }: IconProps) => <EraserIcon size={size} />;
+const IShape = ({ size = 16 }: IconProps) => <ShapesIcon size={size} />;
+const IText = ({ size = 16 }: IconProps) => <TextTIcon size={size} />;
+const IImage = ({ size = 16 }: IconProps) => <ImageIcon size={size} />;
+const IDropper = ({ size = 16 }: IconProps) => <EyedropperIcon size={size} />;
+const IHand = ({ size = 16 }: IconProps) => <HandIcon size={size} />;
 
 const IUpload = makeIcon(
   <>
