@@ -68,7 +68,7 @@ export const LayersPanel = () => {
           type="button"
           onClick={() => addLayer()}
           title="Add layer"
-          className="flex h-5.5 w-5.5 items-center justify-center text-fg-dim hover:text-foreground"
+          className="flex h-5.5 w-5.5 cursor-pointer items-center justify-center text-fg-dim hover:text-foreground"
         >
           <Plus size={12} />
         </button>
@@ -121,7 +121,7 @@ export const LayersPanel = () => {
                   }}
                   disabled={!hasObjects}
                   title={layer.collapsed ? 'Expand' : 'Collapse'}
-                  className="flex h-4.5 w-3 shrink-0 items-center justify-center text-fg-dim hover:text-foreground disabled:text-fg-dimmer disabled:hover:text-fg-dimmer"
+                  className="flex h-4.5 w-3 shrink-0 cursor-pointer items-center justify-center text-fg-dim hover:text-foreground disabled:cursor-not-allowed disabled:text-fg-dimmer disabled:hover:text-fg-dimmer"
                 >
                   {expanded ? (
                     <CaretDown size={9} weight="bold" />
@@ -138,7 +138,7 @@ export const LayersPanel = () => {
                   }}
                   title={layer.visible ? 'Hide' : 'Show'}
                   className={cn(
-                    'flex h-4.5 w-4.5 shrink-0 items-center justify-center',
+                    'flex h-4.5 w-4.5 shrink-0 cursor-pointer items-center justify-center',
                     layer.visible ? 'text-fg-dim hover:text-foreground' : 'text-fg-dimmer',
                   )}
                 >
@@ -153,7 +153,7 @@ export const LayersPanel = () => {
                   }}
                   title={layer.locked ? 'Unlock' : 'Lock'}
                   className={cn(
-                    'flex h-4.5 w-4.5 shrink-0 items-center justify-center',
+                    'flex h-4.5 w-4.5 shrink-0 cursor-pointer items-center justify-center',
                     layer.locked ? 'text-foreground' : 'text-fg-dim hover:text-foreground',
                   )}
                 >
@@ -198,7 +198,7 @@ export const LayersPanel = () => {
                     }}
                     disabled={isTop}
                     title="Move up"
-                    className="flex h-2 w-3.5 items-center justify-center text-fg-dim hover:text-foreground disabled:text-fg-dimmer disabled:hover:text-fg-dimmer"
+                    className="flex h-2 w-3.5 cursor-pointer items-center justify-center text-fg-dim hover:text-foreground disabled:cursor-not-allowed disabled:text-fg-dimmer disabled:hover:text-fg-dimmer"
                   >
                     <CaretUp size={9} weight="bold" />
                   </button>
@@ -210,7 +210,7 @@ export const LayersPanel = () => {
                     }}
                     disabled={isBottom}
                     title="Move down"
-                    className="flex h-2 w-3.5 items-center justify-center text-fg-dim hover:text-foreground disabled:text-fg-dimmer disabled:hover:text-fg-dimmer"
+                    className="flex h-2 w-3.5 cursor-pointer items-center justify-center text-fg-dim hover:text-foreground disabled:cursor-not-allowed disabled:text-fg-dimmer disabled:hover:text-fg-dimmer"
                   >
                     <CaretDown size={9} weight="bold" />
                   </button>
@@ -224,7 +224,7 @@ export const LayersPanel = () => {
                   }}
                   disabled={onlyLayer}
                   title="Delete layer"
-                  className="flex h-4.5 w-4.5 shrink-0 items-center justify-center text-fg-dim hover:text-destructive disabled:text-fg-dimmer disabled:hover:text-fg-dimmer"
+                  className="flex h-4.5 w-4.5 shrink-0 cursor-pointer items-center justify-center text-fg-dim hover:text-destructive disabled:cursor-not-allowed disabled:text-fg-dimmer disabled:hover:text-fg-dimmer"
                 >
                   <Trash size={11} />
                 </button>
@@ -288,7 +288,7 @@ export const LayersPanel = () => {
                         }}
                         title={obj.visible ? 'Hide object' : 'Show object'}
                         className={cn(
-                          'flex h-4.5 w-4.5 shrink-0 items-center justify-center',
+                          'flex h-4.5 w-4.5 shrink-0 cursor-pointer items-center justify-center',
                           obj.visible ? 'text-fg-dim hover:text-foreground' : 'text-fg-dimmer',
                         )}
                       >
@@ -302,7 +302,7 @@ export const LayersPanel = () => {
                         }}
                         title={obj.locked ? 'Unlock object' : 'Lock object'}
                         className={cn(
-                          'flex h-4.5 w-4.5 shrink-0 items-center justify-center',
+                          'flex h-4.5 w-4.5 shrink-0 cursor-pointer items-center justify-center',
                           obj.locked ? 'text-foreground' : 'text-fg-dim hover:text-foreground',
                         )}
                       >
@@ -341,7 +341,7 @@ export const LayersPanel = () => {
                           removeObjectById(obj.id);
                         }}
                         title="Delete object"
-                        className="flex h-4.5 w-4.5 shrink-0 items-center justify-center text-fg-dim hover:text-destructive"
+                        className="flex h-4.5 w-4.5 shrink-0 cursor-pointer items-center justify-center text-fg-dim hover:text-destructive"
                       >
                         <Trash size={11} />
                       </button>

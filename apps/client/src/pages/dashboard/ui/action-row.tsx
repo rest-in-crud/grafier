@@ -68,7 +68,7 @@ const ActionRow = () => {
         <button
           type="button"
           onClick={() => setNewOpen(true)}
-          className="inline-flex items-center gap-3.5 border border-foreground bg-foreground px-6 py-4 font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-background transition-colors hover:bg-white active:translate-y-px"
+          className="inline-flex cursor-pointer items-center gap-3.5 border border-foreground bg-foreground px-6 py-4 font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-background transition-colors hover:bg-white active:translate-y-px"
         >
           New Project
         </button>
@@ -76,7 +76,7 @@ const ActionRow = () => {
           type="button"
           onClick={onImportClick}
           disabled={importing}
-          className="inline-flex items-center gap-3.5 border border-hairline-strong bg-transparent px-6 py-4 font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-foreground transition-colors hover:border-foreground hover:bg-white/[0.03] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex cursor-pointer items-center gap-3.5 border border-hairline-strong bg-transparent px-6 py-4 font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-foreground transition-colors hover:border-foreground hover:bg-white/[0.03] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60"
         >
           {importing ? 'Importing…' : 'Import File'}
         </button>
