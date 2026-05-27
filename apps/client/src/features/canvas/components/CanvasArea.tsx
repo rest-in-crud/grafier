@@ -80,7 +80,6 @@ export const CanvasArea = ({ engineRef, containerRef, initialProject, onHydrateE
     const isWorkspaceTarget = (target: EventTarget | null): boolean => target === workspace;
 
     const handleWheel = (e: WheelEvent) => {
-      if (!isWorkspaceTarget(e.target)) return;
       e.preventDefault();
       if (e.ctrlKey || e.metaKey) {
         const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
